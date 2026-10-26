@@ -1,0 +1,25 @@
+.layout-margin,
+.layout-apple-1260,
+.layout-apple-1100,
+.layout-apple-980 {
+  --col: calc( ( 100vw - 2 * var( --grid-margin ) - ( var( --grid-cols ) - 1 ) * var( --grid-gutter ) ) / var( --grid-cols ) + var( --grid-gutter ) );
+}
+
+.layout-apple-1260,
+.layout-apple-1100,
+.layout-apple-980 {
+  --grid-margin: 6.25vw;
+}
+
+@media ( min-width: 735px ) {
+  .layout-apple-1100,
+  .layout-apple-980 {
+    --grid-margin: max( 6.25vw, calc( ( 100vw - 692px ) / 2 ) );
+  }
+}
+
+@media ( min-width: 1069px ) {
+  .layout-apple-1260 { --grid-margin: max( 6.25vw, calc( ( 100vw - 1260px ) / 2 ) ); }
+  .layout-apple-1100 { --grid-margin: max( 6.25vw, calc( ( 100vw - 1100px ) / 2 ) ); }
+  .layout-apple-980 { --grid-margin: max( 6.25vw, calc( ( 100vw - 980px ) / 2 ) ); }
+}

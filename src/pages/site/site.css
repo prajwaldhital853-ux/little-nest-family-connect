@@ -1,0 +1,20 @@
+html:has( .site-template ) {
+  font-size: var( --base-font-size );
+}
+
+@media ( min-width: 1440px ) {
+  html:has( .site-template ) { --text-small: calc( ( var( --small-text-size-value ) - 1 ) * 0.012 * 1440px + 1rem ); }
+}
+
+.site-template-site {
+  --band-lilac: #d9ccf0;
+  --band-marigold: #f6c453;
+  --band-mint: #c3e6d1;
+  --shape: #e0603f;
+  --pill-pale: #a9d3ce;
+  --band-blush: #fbe6d4;
+}
+
+@media ( min-width: 1024px ) {
+  .site-template-site { --grid-margin: max( 1.875rem, calc( ( 100vw - 1440px ) / 2 ) ); }
+}

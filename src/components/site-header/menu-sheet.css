@@ -1,0 +1,78 @@
+.menu-sheet[data-enter="wipe"] {
+  --menu-slant: 25vw;
+  --menu-ease-in: cubic-bezier( 0.22, 1, 0.36, 1 );
+  --menu-ease-out: cubic-bezier( 0.64, 0, 0.78, 0 );
+}
+
+.menu-sheet[data-enter="wipe"][data-state="open"] {
+  animation: menu-wipe-in 550ms var( --menu-ease-in ) both;
+}
+
+.menu-sheet[data-enter="wipe"][data-state="closed"] {
+  animation: menu-wipe-out 300ms var( --menu-ease-out ) both;
+}
+
+.menu-sheet[data-enter="wipe"][data-state="open"] .menu-sheet-link {
+  animation: menu-rise 500ms var( --menu-ease-in ) both;
+  animation-delay: calc( 220ms + var( --menu-i, 0 ) * 60ms );
+}
+
+.menu-sheet[data-enter="wipe"][data-state="open"] .menu-sheet-foot {
+  animation: menu-fade 400ms ease-out both;
+  animation-delay: 700ms;
+}
+
+.menu-sheet[data-enter="wipe"][data-state="closed"] .menu-sheet-link,
+.menu-sheet[data-enter="wipe"][data-state="closed"] .menu-sheet-foot {
+  animation: menu-fade 150ms ease-in reverse both;
+}
+
+@keyframes menu-wipe-in {
+  from {
+    clip-path: polygon( calc( 100% + var( --menu-slant ) ) 0, calc( 100% + var( --menu-slant ) ) 0, calc( 100% + var( --menu-slant ) ) 100%, 100% 100% );
+  }
+  to {
+    clip-path: polygon( 0 0, calc( 100% + var( --menu-slant ) ) 0, calc( 100% + var( --menu-slant ) ) 100%, calc( 0px - var( --menu-slant ) ) 100% );
+  }
+}
+
+@keyframes menu-wipe-out {
+  from {
+    clip-path: polygon( 0 0, calc( 100% + var( --menu-slant ) ) 0, calc( 100% + var( --menu-slant ) ) 100%, calc( 0px - var( --menu-slant ) ) 100% );
+  }
+  to {
+    clip-path: polygon( calc( 100% + var( --menu-slant ) ) 0, calc( 100% + var( --menu-slant ) ) 0, calc( 100% + var( --menu-slant ) ) 100%, 100% 100% );
+  }
+}
+
+@keyframes menu-rise {
+  from {
+    opacity: 0;
+    transform: translateY( 0.6em );
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes menu-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+  .menu-sheet[data-enter="wipe"][data-state="open"],
+  .menu-sheet[data-enter="wipe"][data-state="open"] .menu-sheet-link,
+  .menu-sheet[data-enter="wipe"][data-state="open"] .menu-sheet-foot {
+    animation: menu-fade 200ms ease-out both;
+  }
+
+  .menu-sheet[data-enter="wipe"][data-state="closed"] {
+    animation: menu-fade 150ms ease-in reverse both;
+  }
+}

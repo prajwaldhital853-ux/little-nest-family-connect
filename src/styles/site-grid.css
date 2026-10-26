@@ -1,0 +1,15 @@
+:root {
+  --grid-margin: 1.25rem;
+  --grid-gutter: 1.25rem;
+  --grid-cols: 6;
+  --col: calc( ( 100vw - 2 * var( --grid-margin ) - ( var( --grid-cols ) - 1 ) * var( --grid-gutter ) ) / var( --grid-cols ) + var( --grid-gutter ) );
+  --site-header-height: 3.5rem;
+  --site-ease: cubic-bezier( 0.165, 0.84, 0.44, 1 );
+}
+
+@media ( min-width: 1024px ) {
+  :root {
+    --grid-margin: 1.875rem;
+    --grid-cols: 12;
+  }
+}

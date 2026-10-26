@@ -1,0 +1,121 @@
+
+:root {
+  --font-heading: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading-weight: var(--heading-font-weight, 500);
+  --font-body-weight: 400;
+
+  --radius: 0px;
+
+  --color-background: oklch(0.955 0.005 100);
+  --color-foreground: oklch(0.225 0.01 90);
+  --color-card: oklch(0.97 0.003 100);
+  --color-card-foreground: oklch(0.225 0.01 90);
+  --color-popover: oklch(0.97 0.003 100);
+  --color-popover-foreground: oklch(0.225 0.01 90);
+  --color-primary: oklch(0.225 0.01 90);
+  --color-primary-foreground: oklch(0.97 0.003 100);
+  --color-secondary: oklch(0.93 0.003 100);
+  --color-secondary-foreground: oklch(0.225 0.01 90);
+  --color-muted: oklch(0.93 0.003 100);
+  --color-muted-foreground: oklch(0.556 0 0);
+  --color-accent: oklch(0.93 0.003 100);
+  --color-accent-foreground: oklch(0.225 0.01 90);
+  --color-destructive: oklch(0.5 0.22 25);
+  --color-destructive-foreground: oklch(0.97 0 0);
+  --color-border: oklch(0.225 0.01 90 / 20%);
+  --color-input: oklch(0.225 0.01 90 / 20%);
+  --color-ring: oklch(0.225 0.01 90);
+  --color-sidebar: oklch(0.94 0.005 100);
+  --color-sidebar-foreground: oklch(0.225 0.01 90);
+  --color-sidebar-primary: oklch(0.225 0.01 90);
+  --color-sidebar-primary-foreground: oklch(0.97 0.003 100);
+  --color-sidebar-accent: oklch(0.93 0.003 100);
+  --color-sidebar-accent-foreground: oklch(0.225 0.01 90);
+  --color-sidebar-border: oklch(0.225 0.01 90 / 20%);
+  --color-sidebar-ring: oklch(0.225 0.01 90);
+}
+
+.theme-site {
+  --color-background: rgb(255 142 141);
+  --color-foreground: rgb(33 5 5);
+  --color-primary: rgb(33 5 5);
+  --color-primary-foreground: rgb(255 255 255);
+  --color-secondary: rgb(255 255 255);
+  --color-secondary-foreground: rgb(33 5 5);
+  --color-muted: rgb(255 176 175);
+  --color-muted-foreground: rgb(33 5 5 / 62%);
+  --color-accent: rgb(255 198 198);
+  --color-accent-foreground: rgb(33 5 5);
+  --color-card: rgb(255 255 255);
+  --color-card-foreground: rgb(33 5 5);
+  --color-popover: rgb(255 255 255);
+  --color-popover-foreground: rgb(33 5 5);
+  --color-border: rgb(33 5 5 / 18%);
+  --color-input: rgb(33 5 5 / 18%);
+  --color-ring: rgb(33 5 5);
+}
+
+.theme-site :is(input, textarea, select),
+.theme-site [data-slot="select-trigger"],
+.theme-site [role="combobox"] {
+  background-color: rgb(255 255 255);
+  color: rgb(33 5 5);
+}
+
+.theme-peach {
+  --color-background: rgb(251 230 191);
+  --color-foreground: rgb(29 18 9);
+  --color-primary: rgb(29 18 9);
+  --color-primary-foreground: rgb(251 230 191);
+  --color-border: rgb(29 18 9 / 18%);
+  --color-muted-foreground: rgb(29 18 9 / 60%);
+  --color-ring: rgb(29 18 9);
+}
+
+.theme-coral {
+  --color-background: rgb(255 142 141);
+  --color-foreground: rgb(33 5 5);
+  --color-primary: rgb(33 5 5);
+  --color-primary-foreground: rgb(255 142 141);
+  --color-border: rgb(33 5 5 / 22%);
+  --color-muted-foreground: rgb(33 5 5 / 62%);
+  --color-ring: rgb(33 5 5);
+}
+
+.theme-ink {
+  --color-background: rgb(29 18 9);
+  --color-foreground: rgb(240 231 218);
+  --color-primary: rgb(248 116 38);
+  --color-primary-foreground: rgb(29 18 9);
+  --color-border: rgb(240 231 218 / 18%);
+  --color-muted-foreground: rgb(240 231 218 / 62%);
+  --color-ring: rgb(248 116 38);
+}
+
+.theme-accent {
+  --color-background: rgb(255 198 198);
+}
+.theme-coral-deep {
+  --color-background: rgb(255 122 120);
+}
+
+body {
+  font-feature-settings: "cv11";
+  text-rendering: optimizeLegibility;
+  text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  font-weight: var(--font-body-weight);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-heading-weight);
+  font-optical-sizing: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
