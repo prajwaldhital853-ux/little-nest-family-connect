@@ -7,12 +7,13 @@ html:has( .site-template ) {
 }
 
 .site-template-site {
-  --band-lilac: #d9ccf0;
-  --band-marigold: #f6c453;
-  --band-mint: #c3e6d1;
-  --shape: #e0603f;
-  --pill-pale: #a9d3ce;
-  --band-blush: #fbe6d4;
+  --band-yellow: #f2b705;
+  --band-black: #17130b;
+  --band-red: #d62828;
+  --band-cream: #f3ead4;
+  --shape: #d62828;
+  --pill-pale: #f7dc8a;
+  --band-blush: #f8e9c9;
 }
 
 @media ( min-width: 1024px ) {

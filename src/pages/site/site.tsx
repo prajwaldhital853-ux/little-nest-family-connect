@@ -3,7 +3,6 @@ import { ContactDetails } from "@/components/contact-details/contact-details";
 import { ContactDetailsForm } from "@/components/contact-details/contact-details-form";
 import { FactsBlock } from "@/components/facts-block/facts-block";
 import { FaqGroups } from "@/components/faq-groups/faq-groups";
-import { GrowthSteps } from "@/components/growth-steps/growth-steps";
 import { ListSection } from "@/components/list-section/list-section";
 import { PhotoPause } from "@/components/photo-pause/photo-pause";
 import { PageIntro } from "@/components/page-intro/page-intro";
@@ -13,204 +12,172 @@ import { QuoteRow } from "@/components/quote-row/quote-row";
 import { RoomTabs } from "@/components/room-tabs/room-tabs";
 import { SplitHero } from "@/components/split-hero/split-hero";
 import { StepStory } from "@/components/step-story/step-story";
-import { Decorated } from "@/components/sticker/sticker-layer";
 import { StoryHighlight } from "@/components/story-highlight/story-highlight";
 import { ValueColumns } from "@/components/value-columns/value-columns";
 import { hazelHouse } from "@/style-packs/hazel-house";
 
-import { ApplySection } from "./apply-section";
 import { home } from "./media";
 import { Img } from "./parts";
-import { RoomPage } from "./room-page";
 import type { SiteContent } from "./types";
-
-const nestDay = [
-  { id: "arrival", start: "07:30", end: "09:00", name: "Arrival", text: "Cuddles, a bottle and quiet play on the mat." },
-  { id: "tummy", start: "09:00", end: "10:00", name: "Tummy time", text: "Songs, mirrors and soft toys to reach for." },
-  { id: "naps", start: "10:00", end: "12:00", name: "Naps and feeds", text: "Each baby sleeps when they need to." },
-  { id: "garden", start: "12:00", end: "14:00", name: "Garden time", text: "A blanket under the trees, or the porch when it rains." },
-  { id: "rest", start: "14:00", end: "16:00", name: "Rest and play", text: "Rocking, books and slow play." },
-  { id: "home", start: "16:00", end: "18:00", name: "Home time", text: "A last bottle and a hand-over with the day's notes." }
-];
-
-const burrowDay = [
-  { id: "arrival", start: "07:30", end: "09:00", name: "Arrival and free play", text: "A warm welcome, blocks and friends." },
-  { id: "snack", start: "09:00", end: "09:30", name: "Morning snack", text: "Practising cups, spoons and passing the bowl." },
-  { id: "circle", start: "09:30", end: "10:15", name: "Circle time", text: "Songs, stories and new words." },
-  { id: "play", start: "10:15", end: "11:15", name: "Play and make", text: "Paint, sand, blocks and pretend." },
-  { id: "lunch", start: "11:15", end: "11:45", name: "Lunch", text: "Eating together at little tables." },
-  { id: "nap", start: "11:45", end: "14:30", name: "Nap", text: "Quiet time to rest and recharge." },
-  { id: "garden", start: "14:30", end: "16:30", name: "Garden and music", text: "The mud kitchen, the sandpit and songs with Sam." },
-  { id: "home", start: "16:30", end: "18:00", name: "Free play and home time", text: "Winding down and a word with your teacher." }
-];
-
-const groveDay = [
-  { id: "arrival", start: "07:30", end: "09:00", name: "Arrival and free play", text: "Friends, puzzles and the drawing table." },
-  { id: "circle", start: "09:00", end: "09:30", name: "Morning circle", text: "The day's plan, a song and a question." },
-  { id: "project", start: "09:30", end: "11:30", name: "Project time", text: "Building, painting and early letters and numbers." },
-  { id: "lunch", start: "11:30", end: "12:15", name: "Lunch", text: "Setting the table and serving ourselves." },
-  { id: "rest", start: "12:15", end: "13:30", name: "Rest", text: "Quiet books, or a nap for those who need one." },
-  { id: "garden", start: "13:30", end: "15:30", name: "Garden and music", text: "Planting, digging and songs with Sam." },
-  { id: "home", start: "15:30", end: "18:00", name: "Free play and home time", text: "Stories, games and a word with your teacher." }
-];
 
 export const site: SiteContent = {
   name: "site",
-  title: "Hazel House",
+  title: "Dr. Aashish Karki",
   pack: hazelHouse,
   layout: "margin",
   header: {
-    name: "Hazel House",
+    name: "Dr. Aashish Karki",
     home: "/",
     start: [
-      { label: "Infant", href: "/infant" },
-      { label: "Toddler", href: "/toddler" },
-      { label: "Preschool", href: "/preschool" },
-      { label: "About", href: "/about" }
+      { label: "About", href: "/about" },
+      { label: "Services", href: "/services" }
     ],
     end: [
-      { label: "Enroll", href: "/enroll" },
-      { label: "Contact", href: "/contact" }
+      { label: "Contact", href: "/contact" },
+      { label: "Book a visit", href: "/contact#appointment" }
     ]
   },
   footer: {
     contact: {
-      label: "Come and visit",
-      text: "Tours every weekday at 9:30",
-      action: <TextLink href="/contact#tour">Book a tour</TextLink>
+      label: "Book a visit",
+      text: "Same-week appointments, Sunday to Friday",
+      action: <TextLink href="/contact#appointment">Request an appointment</TextLink>
     },
     address: {
-      label: "Hazel House / Portland",
-      lines: [ "Hazel House Preschool", "2140 SE Division Street", "Portland, OR 97202", "Monday to Friday, 7:30 am to 6:00 pm" ],
-      action: <TextLink href="tel:+15035550142">(503) 555-0142</TextLink>
+      label: "Karki Clinic / Baneshwor",
+      lines: [ "Karki Clinic", "Baneshwor Marg, opposite BICC gate", "Kathmandu, Nepal", "Sunday to Friday, 9:00 am to 5:00 pm" ],
+      action: <TextLink href="tel:+97714570000">+977-1-4570000</TextLink>
     },
     photos: [
-      <Img key="rainbow" photo={ home.footRainbow } />,
-      <Img key="rainbows" photo={ home.footRainbows } />,
-      <Img key="crayons" photo={ home.footCrayons } />
+      <Img key="clinic" photo={ home.clinic } />,
+      <Img key="checkup" photo={ home.checkup } />,
+      <Img key="family" photo={ home.family } />
     ],
     social: <>
-      <TextLink href="https://twitter.com/Lovable">X</TextLink>
-      <TextLink href="https://discord.com/invite/lovable-dev">Discord</TextLink>
-      <TextLink href="https://reddit.com/r/lovable">Reddit</TextLink>
-      <TextLink href="https://www.youtube.com/@lovable">YouTube</TextLink>
-      <TextLink href="https://www.linkedin.com/company/lovable-dev/">LinkedIn</TextLink>
+      <TextLink href="https://facebook.com">Facebook</TextLink>
+      <TextLink href="https://instagram.com">Instagram</TextLink>
+      <TextLink href="https://linkedin.com">LinkedIn</TextLink>
+      <TextLink href="https://youtube.com">YouTube</TextLink>
     </>,
-    copyright: "© Hazel House Preschool, 2026"
+    copyright: "© Dr. Aashish Karki, 2026"
   },
-  footerStickers: [
-    { id: "foot-sun", shape: "sun", color: "var(--band-marigold)", size: 72, bottom: 120, left: "46%", phone: false },
-    { id: "foot-arch", shape: "arch", color: "var(--band-mint)", size: 120, bottom: 140, left: "30%", rotate: -10, phone: false },
-    { id: "foot-dot", shape: "dot", color: "var(--shape)", size: 26, top: 40, right: "30%" }
-  ],
   hero: (
     <PosterHero
       place="top"
-      media={ <img src={ home.heroClassroom.src } alt={ home.heroClassroom.alt } /> }
-      eyebrow="Preschool in Portland"
-      title={ <>A second home, from six weeks</> }
-      lede="Small, warm rooms for babies, toddlers and preschoolers, open all year in Southeast Portland."
-      action={ <div className="flex flex-wrap gap-3"><PillLink tone="solid" href="/contact#tour">Book a tour</PillLink></div> }
+      media={ <img src={ home.heroPortrait.src } alt={ home.heroPortrait.alt } /> }
+      eyebrow="Internal Medicine · Baneshwor, Kathmandu"
+      title={ <>Get real answers about your health — without the queues or the guesswork</> }
+      lede="Unhurried 30-minute consultations, on-site lab tests and a plan you actually understand. Trusted by over 20,000 patients across the valley."
+      action={ <div className="flex flex-wrap gap-3"><PillLink tone="solid" href="/contact#appointment">Book an appointment</PillLink><PillLink href="/services">See services</PillLink></div> }
     />
   ),
   after: (
     <>
-      <Decorated stickers={ [
-        { id: "gs-arch", shape: "arch", color: "var(--band-mint)", size: 130, top: 48, right: "6%", phone: { size: 70, top: 20, right: -12 } },
-        { id: "gs-dot", shape: "dot", color: "var(--shape)", size: 28, top: 120, left: "9%", phone: false }
-      ] }>
-        <GrowthSteps
-          title="One house, from babies to five"
-          lede="Children move up through three rooms, keeping the same garden and the same faces."
-          ground="var(--band-blush)"
-          cloud="var(--color-background)"
-          steps={ [
-            { id: "nest", name: "The Nest", dotLabel: "Show the Nest", detail: "6 weeks to 17 months", note: "Sleep room right next door", href: "/infant", media: <Img photo={ home.nestCloud } />, sticker: { shape: "sun", color: "var(--band-marigold)", rotate: -85 } },
-            { id: "burrow", name: "The Burrow", dotLabel: "Show the Burrow", detail: "18 to 35 months", note: "A mud kitchen in the garden", href: "/toddler", media: <Img photo={ home.burrowCloud } />, sticker: { shape: "flower", color: "var(--band-lilac)", rotate: -95 } },
-            { id: "grove", name: "The Grove", dotLabel: "Show the Grove", detail: "3 to 5 years", note: "Ready for kindergarten", href: "/preschool", media: <Img photo={ home.groveCloud } />, sticker: { shape: "leaf", color: "var(--band-mint)", rotate: -140 } }
+      <ValueColumns
+        title="Trusted across the valley"
+        values={ [
+          { id: "years", title: "15+ years", text: "Practising internal medicine in Kathmandu since 2010.", ground: "var(--band-yellow)" },
+          { id: "patients", title: "20,000+ patients", text: "From students to grandparents, many families for over a decade.", ground: "var(--band-cream)" },
+          { id: "access", title: "Same-week visits", text: "Book today, be seen this week — no month-long waits.", ground: "var(--band-blush)" }
+        ] }
+      />
+      <QuoteRow
+        label="What patients say"
+        size="display"
+        quotes={ [
+          { id: "sita", text: "For the first time, a doctor explained my reports in words I understood.", who: "Sita R., patient since 2018" },
+          { id: "deepak", text: "He found what three other clinics had missed. My father is himself again.", who: "Deepak M., Bhaktapur" },
+          { id: "anita", text: "No rushing, no unnecessary tests. Just honest, careful medicine.", who: "Anita S., Lalitpur" }
+        ] }
+      />
+      <PhotoPause media={ <Img photo={ home.healthCamp } /> } by="Free health camp, Gorkha" shade="strong">
+        Most of us see a doctor only when it is already serious
+      </PhotoPause>
+      <ValueColumns
+        title="The real cost of waiting"
+        values={ [
+          { id: "late", title: "Late diagnosis", text: "Diabetes, blood pressure and thyroid problems grow silently for years before symptoms appear.", ground: "var(--band-cream)" },
+          { id: "bills", title: "Emergency bills", text: "A condition that costs Rs 1,500 to manage early can become a Rs 150,000 hospital stay.", ground: "var(--band-yellow)" },
+          { id: "chronic", title: "Chronic worry", text: "Living with an unexplained symptom drains your sleep, your work and your family.", ground: "var(--band-blush)" }
+        ] }
+      />
+      <RoomTabs
+        label="Care, end to end"
+        title="Care, end to end"
+        tabs={ [
+          { id: "consult", name: "Consult", ground: "var(--band-yellow)", media: <Img photo={ home.consultation } />, links: [
+            { label: "General consultation", href: "/services#consultation" },
+            { label: "Chronic care", href: "/services#chronic" },
+            { label: "Fees", href: "/services#fees" }
+          ] },
+          { id: "diagnose", name: "Diagnose", ground: "var(--band-cream)", media: <Img photo={ home.lab } />, links: [
+            { label: "On-site lab tests", href: "/services#lab" },
+            { label: "Annual health check-up", href: "/services#checkup" },
+            { label: "Fees", href: "/services#fees" }
+          ] },
+          { id: "follow", name: "Follow up", ground: "var(--band-blush)", media: <Img photo={ home.teleconsult } />, links: [
+            { label: "Video consultations", href: "/services#video" },
+            { label: "Report reviews", href: "/services#video" },
+            { label: "Fees", href: "/services#fees" }
           ] }
-        />
-      </Decorated>
-      <Decorated stickers={ [
-        { id: "vc-sun", shape: "sun", color: "var(--band-marigold)", size: 96, top: -48, left: "52%", phone: { size: 56, top: -28, right: 8 } }
-      ] }>
-        <ValueColumns
-          title="Why families choose us"
-          values={ [
-            { id: "small", title: "Small rooms", text: "Never more than three babies or four toddlers to each teacher.", ground: "var(--band-lilac)" },
-            { id: "open", title: "Open all year", text: "We close only for nine public holidays and one training week.", ground: "var(--band-marigold)" },
-            { id: "outside", title: "Outside every day", text: "Our garden has a mud kitchen, a sandpit and a covered porch for rain.", ground: "var(--band-mint)" }
+        ] }
+      />
+      <ValueColumns
+        title="What you get with every visit"
+        values={ [
+          { id: "time", title: "A full 30 minutes", text: "Your concerns are heard to the end — no five-minute rush.", ground: "var(--band-yellow)" },
+          { id: "lab", title: "On-site lab", text: "Blood tests and reports the same day, in the same building.", ground: "var(--band-cream)" },
+          { id: "plain", title: "Plain-language plans", text: "Every diagnosis and prescription explained in Nepali or English.", ground: "var(--band-blush)" },
+          { id: "fees", title: "Transparent fees", text: "Published prices, no surprise charges, no unnecessary tests.", ground: "var(--band-cream)" },
+          { id: "video", title: "Video follow-ups", text: "Review your reports from home, wherever in Nepal you live.", ground: "var(--band-yellow)" },
+          { id: "records", title: "Family records", text: "Your history kept in one place, so nothing is ever re-asked.", ground: "var(--band-blush)" }
+        ] }
+      />
+      <StepStory
+        nav="arrow"
+        mediaSide="end"
+        title="How it works"
+        steps={ [
+          { id: "book", title: "Book", media: <Img photo={ home.clinic } />, children: <p>Call, message or use the form. You get a confirmed slot within one working day — usually the same week.</p> },
+          { id: "consult", title: "Consult", media: <Img photo={ home.consultation } />, children: <p>A full 30 minutes: your history, your symptoms, a proper examination, and time for every question.</p> },
+          { id: "plan", title: "Test and plan", media: <Img photo={ home.lab } />, children: <p>Any tests run on-site the same day. You leave with a written plan — what to do, what to watch, when to return.</p> },
+          { id: "follow", title: "Follow up", media: <Img photo={ home.teleconsult } />, children: <p>A review visit or video call checks your progress and adjusts the plan. You are never left guessing.</p> }
+        ] }
+      />
+      <FaqGroups
+        groups={ [
+          { id: "visits", title: "Visits and fees", items: [
+            { id: "walkin", question: "Do you take walk-in patients?", answer: <p>Yes, though booked patients are seen first. Calling ahead usually means little or no waiting.</p> },
+            { id: "cost", question: "What does a consultation cost?", answer: <p>A first consultation is Rs 1,500 and follow-ups are Rs 1,000. Lab tests are priced separately and always quoted before they are done.</p> },
+            { id: "reports", question: "Can I bring reports from other hospitals?", answer: <p>Please do. Old reports, scans and prescriptions help avoid repeating tests you have already paid for.</p> }
+          ] },
+          { id: "practical", title: "Practical questions", items: [
+            { id: "video", question: "Can I consult from outside Kathmandu?", answer: <p>Yes. Video consultations run every afternoon, and prescriptions are sent to your phone afterwards.</p> },
+            { id: "language", question: "Which languages can I speak?", answer: <p>Nepali and English, whichever you are more comfortable with.</p> },
+            { id: "emergency", question: "What if I need urgent care?", answer: <p>For emergencies, go to the nearest hospital first. Once you are stable, we coordinate your follow-up care.</p> }
           ] }
-        />
-      </Decorated>
-      <Decorated stickers={ [
-        { id: "rt-flower", shape: "flower", color: "var(--shape)", size: 110, bottom: -44, left: 330, phone: { size: 60, bottom: -24, left: -12 } }
-      ] }>
-        <RoomTabs
-          label="Inside each room"
-          title="Inside each room"
-          tabs={ [
-            { id: "nest", name: "Nest", ground: "var(--band-lilac)", media: <Img photo={ home.nestTab } />, links: [
-              { label: "A day in the Nest", href: "/infant#day" },
-              { label: "How we care for babies", href: "/infant#care" },
-              { label: "Spaces and tuition", href: "/enroll#tuition" }
-            ] },
-            { id: "burrow", name: "Burrow", ground: "var(--band-marigold)", media: <Img photo={ home.burrowTab } />, links: [
-              { label: "A day in the Burrow", href: "/toddler#day" },
-              { label: "How we care for toddlers", href: "/toddler#care" },
-              { label: "Spaces and tuition", href: "/enroll#tuition" }
-            ] },
-            { id: "grove", name: "Grove", ground: "var(--band-mint)", media: <Img photo={ home.groveTab } />, links: [
-              { label: "A day in the Grove", href: "/preschool#day" },
-              { label: "How we care for preschoolers", href: "/preschool#care" },
-              { label: "Spaces and tuition", href: "/enroll#tuition" }
-            ] }
-          ] }
-        />
-      </Decorated>
-      <Decorated stickers={ [
-        { id: "sh-leaf", shape: "leaf", color: "var(--band-mint)", size: 140, top: "12%", left: "44%", rotate: 20, phone: false },
-        { id: "sh-dot", shape: "dot", color: "var(--band-lilac)", size: 24, bottom: "18%", left: "8%", phone: { size: 18 } }
-      ] }>
-        <StoryHighlight
-          align="center"
-          ground="var(--band-marigold)"
-          title="Come and see a morning"
-          lede="Tours start at 9:30, when the rooms are busiest and you can see a real day."
-          action={ <PillLink tone="solid" href="/contact#tour">Book a tour</PillLink> }
-          media={ <Img photo={ home.storyTeacherCloud } /> }
-        />
-      </Decorated>
-      <Decorated stickers={ [
-        { id: "qr-arch", shape: "arch", color: "var(--band-marigold)", size: 150, bottom: -28, right: "4%", phone: false },
-        { id: "qr-dot", shape: "dot", color: "var(--shape)", size: 30, top: 56, left: "34%", phone: false }
-      ] }>
-        <QuoteRow
-          label="What parents say"
-          size="display"
-          quotes={ [
-            { id: "grove", text: "She runs in every morning and tells us about the garden every night.", who: "Parent, the Grove" },
-            { id: "nest", text: "Starting back at work was easier knowing who held him all day.", who: "Parent, the Nest" },
-            { id: "burrow", text: "The daily photos and notes mean we never miss a first.", who: "Parent, the Burrow" }
-          ] }
-        />
-      </Decorated>
-      <Decorated stickers={ [
-        { id: "fb-cloud", shape: "cloud", color: "var(--band-lilac)", size: 170, top: 90, right: "7%", phone: { size: 84, top: 40, right: -16 } }
-      ] }>
-        <FactsBlock
-          className="bg-[var(--band-mint)]"
-          title="Visit us"
-          media={ <Img photo={ home.visitRoom } /> }
-          name="Hazel House Preschool"
-          action={ <TextLink href="https://maps.google.com/?q=2140+SE+Division+Street+Portland+OR+97202">Get directions</TextLink> }
-          facts={ [
-            { label: "Address", value: "2140 SE Division Street, Portland, OR 97202" },
-            { label: "Hours", value: "Monday to Friday, 7:30 am to 6:00 pm" },
-            { label: "Phone", value: "(503) 555-0142" }
-          ] }
-        />
-      </Decorated>
+        ] }
+      />
+      <StoryHighlight
+        align="center"
+        ground="var(--band-yellow)"
+        title="Your health can't wait for a quieter week"
+        lede="One visit. A clear answer. A plan you can follow. Book today and be seen this week."
+        action={ <PillLink tone="solid" href="/contact#appointment">Book an appointment</PillLink> }
+        media={ <Img photo={ home.family } /> }
+      />
+      <FactsBlock
+        className="bg-[var(--band-cream)]"
+        title="Visit the clinic"
+        media={ <Img photo={ home.clinic } /> }
+        name="Karki Clinic"
+        action={ <TextLink href="https://maps.google.com/?q=Baneshwor+Kathmandu+Nepal">Get directions</TextLink> }
+        facts={ [
+          { label: "Address", value: "Baneshwor Marg, opposite BICC gate, Kathmandu" },
+          { label: "Hours", value: "Sunday to Friday, 9:00 am to 5:00 pm" },
+          { label: "Phone", value: "+977-1-4570000" }
+        ] }
+      />
     </>
   ),
   pages: {
@@ -218,274 +185,132 @@ export const site: SiteContent = {
       title: "About",
       content: (
         <>
-          <Decorated stickers={ [
-            { id: "about-flower", shape: "flower", color: "var(--shape)", size: 150, bottom: "8%", left: "44%", phone: { size: 80, top: 96, right: -10 } }
-          ] }>
-            <SplitHero
-              titleSize="h1"
-              stack="text-first"
-              className="bg-[var(--band-blush)]"
-              media={ <Img photo={ home.aboutHeroCloud } /> }
-              eyebrow="About"
-              title="About Hazel House"
-              lede="We opened in an old Division Street house in 2014, with one room and nine children."
-              action={ <PillLink tone="solid" href="/contact#tour">Book a tour</PillLink> }
-            />
-          </Decorated>
-          <Decorated stickers={ [
-            { id: "about-dot", shape: "dot", color: "var(--band-marigold)", size: 30, top: -15, right: "14%" }
-          ] }>
-            <ValueColumns
-              title="How we care"
-              values={ [
-                { id: "lead", title: "Children lead", text: "We follow what they are curious about, and plan the week around it.", ground: "var(--band-lilac)" },
-                { id: "whole", title: "The whole child", text: "Feelings, friendships and bodies matter as much as letters and numbers.", ground: "var(--band-marigold)" },
-                { id: "calm", title: "Calm, steady days", text: "The same faces and the same rhythm, so children feel safe to try.", ground: "var(--band-mint)" },
-                { id: "partners", title: "Parents as partners", text: "A note and photos every day, and a sit-down talk each season.", ground: "var(--band-lilac)" }
-              ] }
-            />
-          </Decorated>
-          <ListSection
-            title="Our teachers"
-            items={ [
-              { name: "Maren Ostrander", detail: "Director and founder", note: "With us since 2014" },
-              { name: "Teo Alvarez", detail: "Lead teacher, the Nest", note: "With us since 2017" },
-              { name: "Priya Natarajan", detail: "Lead teacher, the Burrow", note: "With us since 2019" },
-              { name: "Joelle Baptiste", detail: "Lead teacher, the Grove", note: "With us since 2016" },
-              { name: "Sam Whitlock", detail: "Garden and music", note: "With us since 2021" }
+          <SplitHero
+            titleSize="h1"
+            stack="text-first"
+            className="bg-[var(--band-cream)]"
+            media={ <Img photo={ home.heroPortrait } /> }
+            eyebrow="About"
+            title="About Dr. Aashish Karki"
+            lede="Physician, teacher and health-camp regular — practising internal medicine in Kathmandu for over fifteen years."
+            action={ <PillLink tone="solid" href="/contact#appointment">Book an appointment</PillLink> }
+          />
+          <ValueColumns
+            title="How I practise"
+            values={ [
+              { id: "listen", title: "Listen first", text: "The diagnosis usually hides in the story. I make sure I hear all of it.", ground: "var(--band-yellow)" },
+              { id: "evidence", title: "Evidence, not habit", text: "Tests and medicines only when they change what we do next.", ground: "var(--band-cream)" },
+              { id: "prevent", title: "Prevention first", text: "The best consultation is the one you never need. We screen early.", ground: "var(--band-blush)" },
+              { id: "plain", title: "Plain language", text: "You leave knowing what you have, why, and exactly what to do.", ground: "var(--band-cream)" }
             ] }
           />
-          <Decorated stickers={ [
-            { id: "about-arch", shape: "arch", color: "var(--band-lilac)", size: 140, top: 40, right: "4%", phone: false }
-          ] }>
-            <FaqGroups
-              groups={ [
-                { id: "days", title: "Days and care", items: [
-                  { id: "bring", question: "What should my child bring?", answer: <p>A change of clothes, a water bottle and anything they need to sleep. We provide meals and snacks.</p> },
-                  { id: "meals", question: "Do you serve meals?", answer: <p>Yes, a hot lunch and two snacks, cooked here each day, with no nuts.</p> },
-                  { id: "naps", question: "How do you handle naps?", answer: <p>Babies sleep on their own schedule. Older children rest after lunch, and sleep if they need to.</p> }
-                ] },
-                { id: "joining", title: "Joining", items: [
-                  { id: "start", question: "When can my child start?", answer: <p>Any month there is a space. Most families start after a tour and a short settling-in week.</p> },
-                  { id: "part", question: "Do you take part-time children?", answer: <p>Yes, three or five days a week in every room.</p> },
-                  { id: "waitlist", question: "Is there a waitlist?", answer: <p>Sometimes for the Nest. Join it from the enrollment page and we will call you when a space opens.</p> }
-                ] }
+          <ListSection
+            title="Training and credentials"
+            items={ [
+              { name: "MBBS", detail: "Institute of Medicine, Tribhuvan University", note: "2005" },
+              { name: "MD, Internal Medicine", detail: "National Academy of Medical Sciences (NAMS)", note: "2010" },
+              { name: "Nepal Medical Council", detail: "Registered practitioner", note: "Reg. no. 8421" },
+              { name: "Nepal Medical Association", detail: "Life member", note: "Since 2011" },
+              { name: "Community health camps", detail: "Free camps in Gorkha, Sindhupalchok and Dolakha", note: "12 a year" }
+            ] }
+          />
+          <PhotoPause media={ <Img photo={ home.checkup } /> } by="Karki Clinic, Baneshwor" shade="strong">
+            Medicine is a conversation, not a transaction
+          </PhotoPause>
+          <StoryHighlight
+            align="center"
+            ground="var(--band-yellow)"
+            title="Come in once, and judge for yourself"
+            lede="Same-week appointments, Sunday to Friday."
+            action={ <PillLink tone="solid" href="/contact#appointment">Book an appointment</PillLink> }
+            media={ <Img photo={ home.consultation } /> }
+          />
+        </>
+      )
+    },
+    services: {
+      title: "Services",
+      content: (
+        <>
+          <PageIntro title="Services" className="bg-[var(--band-cream)]">
+            Complete internal medicine care under one roof — from a first consultation to long-term follow-up.
+          </PageIntro>
+          <ListSection
+            title="What I treat and offer"
+            items={ [
+              { name: "General consultation", detail: "Fever, infections, pain, fatigue and new symptoms", note: "30 minutes" },
+              { name: "Chronic care", detail: "Diabetes, blood pressure, thyroid, cholesterol and asthma", note: "Monthly reviews" },
+              { name: "Annual health check-up", detail: "Full screening with labs, ECG and a written report", note: "Half a morning" },
+              { name: "On-site lab and diagnostics", detail: "Blood tests, urine tests, ECG and same-day reports", note: "Results same day" },
+              { name: "Video consultation", detail: "Follow-ups and report reviews from anywhere in Nepal", note: "Every afternoon" },
+              { name: "Community health camps", detail: "Free screening camps outside the valley", note: "12 a year" }
+            ] }
+          />
+          <div id="fees">
+            <ListSection
+              layout="prices"
+              title="Fees"
+              notes={ [ "All fees are fixed and published. Lab tests are always quoted before they are done." ] }
+              items={ [
+                { name: "First consultation", detail: "Rs 1,500" },
+                { name: "Follow-up visit", detail: "Rs 1,000" },
+                { name: "Video consultation", detail: "Rs 1,200" },
+                { name: "Annual health check-up", detail: "Rs 6,500" }
               ] }
             />
-          </Decorated>
-          <PhotoPause media={ <Img photo={ home.aboutPause } /> } by="Parent, the Burrow" shade="strong">
-            Like a second family to us
-          </PhotoPause>
+          </div>
+          <FaqGroups
+            groups={ [
+              { id: "services", title: "About the services", items: [
+                { id: "checkup", question: "What does the annual check-up include?", answer: <p>A full physical examination, blood panel, urine test, ECG, blood pressure and sugar screening, and a written report reviewed with you in person.</p> },
+                { id: "chronic", question: "How does chronic care work?", answer: <p>We set a baseline with tests, agree a treatment plan, then review monthly — in person or by video — adjusting medicines only when the numbers say so.</p> },
+                { id: "referral", question: "What if I need a specialist?", answer: <p>I refer you to a specialist I trust, share your records with them, and stay involved so nothing falls between two doctors.</p> }
+              ] }
+            ] }
+          />
+          <StoryHighlight
+            align="center"
+            ground="var(--band-yellow)"
+            title="Not sure which service fits? Just ask."
+            lede="Describe your concern in the form and we will point you to the right visit."
+            action={ <PillLink tone="solid" href="/contact#appointment">Ask a question</PillLink> }
+            media={ <Img photo={ home.lab } /> }
+          />
         </>
       )
     },
     contact: {
       title: "Contact",
       content: (
-        <Decorated stickers={ [
-          { id: "contact-cloud", shape: "cloud", color: "var(--band-lilac)", size: 150, top: 120, right: "6%", phone: { size: 70, top: 72, right: -14 } },
-          { id: "contact-dot", shape: "dot", color: "var(--band-marigold)", size: 26, top: "13.125rem", left: "calc(var(--grid-margin) + 34.125rem)", phone: false }
-        ] }>
-          <ContactDetails
-            title="Contact Hazel House"
-            media={ <Img photo={ home.contactRainbow } /> }
-            rows={ [
-              { id: "tour", label: "Book a tour", content: <>
-                <p id="tour" className="scroll-mt-[calc(var(--site-header-height)_+_5.5rem)]">Tours run every weekday at 9:30 and take about forty minutes.</p>
-                <ContactDetailsForm
-                  subject="Tour"
-                  submitLabel="Book my tour"
-                  fields={ [
-                    { id: "name", kind: "text", label: "Your name", required: true },
-                    { id: "email", kind: "email", label: "Your email", required: true },
-                    { id: "phone", kind: "tel", label: "Your phone" },
-                    { id: "day", kind: "choice", label: "Best day", options: [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" ] },
-                    { id: "notes", kind: "textarea", label: "Anything we should know" }
-                  ] }
-                />
-              </> },
-              { id: "visit", label: "Visit", content: <>
-                <p>2140 SE Division Street, Portland, OR 97202</p>
-                <TextLink href="https://maps.google.com/?q=2140+SE+Division+Street+Portland+OR+97202">Get directions</TextLink>
-                <p>Street parking on 22nd, and a bike rack by the gate.</p>
-              </> },
-              { id: "hours", label: "Hours", content: <p>Monday to Friday, 7:30 am to 6:00 pm. Closed on nine public holidays.</p> },
-              { id: "call", label: "Call or write", content: <>
-                <TextLink href="tel:+15035550142">(503) 555-0142</TextLink>
-                <TextLink href="mailto:hello@hazelhouse.school">hello@hazelhouse.school</TextLink>
-              </> }
-            ] }
-          />
-        </Decorated>
-      )
-    },
-    enroll: {
-      title: "Enroll",
-      content: (
-        <>
-          <Decorated stickers={ [
-            { id: "enroll-sun", shape: "sun", color: "var(--band-marigold)", size: 120, top: "30%", left: "6%", phone: { size: 60, top: 80, right: -10 } },
-            { id: "enroll-leaf", shape: "leaf", color: "var(--band-mint)", size: 90, bottom: "14%", right: "10%", phone: false }
-          ] }>
-            <PageIntro title="Enrolling at Hazel House" className="bg-[var(--band-blush)]">
-              Four steps from a first visit to a first day, and we help with each one.
-            </PageIntro>
-          </Decorated>
-          <ListSection
-            title="Open spaces"
-            items={ [
-              { name: "The Nest", detail: "6 weeks to 17 months", note: "2 spaces from March" },
-              { name: "The Burrow", detail: "18 to 35 months", note: "1 space from April" },
-              { name: "The Grove", detail: "3 to 5 years", note: "3 spaces from September" }
-            ] }
-          />
-          <div id="tuition">
-            <Decorated stickers={ [
-              { id: "tuition-dot", shape: "dot", color: "var(--shape)", size: 28, top: 40, right: "30%" }
-            ] }>
-              <ListSection
-                layout="prices"
-                title="Tuition"
-                notes={ [ "A month, for five days a week. Three days is 65%." ] }
-                items={ [
-                  { name: "The Nest", detail: "$2,450" },
-                  { name: "The Burrow", detail: "$2,150" },
-                  { name: "The Grove", detail: "$1,690" },
-                  { name: "Deposit, paid once", detail: "$300" }
+        <ContactDetails
+          title="Contact Dr. Karki"
+          media={ <Img photo={ home.clinic } /> }
+          rows={ [
+            { id: "appointment", label: "Book an appointment", content: <>
+              <p id="appointment" className="scroll-mt-[calc(var(--site-header-height)_+_5.5rem)]">Request a slot below and we confirm within one working day — usually the same week.</p>
+              <ContactDetailsForm
+                subject="Appointment"
+                submitLabel="Request my appointment"
+                fields={ [
+                  { id: "name", kind: "text", label: "Your name", required: true },
+                  { id: "email", kind: "email", label: "Your email", required: true },
+                  { id: "phone", kind: "tel", label: "Your phone" },
+                  { id: "day", kind: "choice", label: "Preferred day", options: [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" ] },
+                  { id: "notes", kind: "textarea", label: "Your concern, in a few words" }
                 ] }
               />
-            </Decorated>
-          </div>
-          <StepStory
-            nav="arrow"
-            mediaSide="end"
-            title="Four steps to a first day"
-            steps={ [
-              { id: "visit", title: "Visit", media: <Img photo={ home.stepVisit } />, children: <p>Come for a 9:30 tour, meet the teachers and see the rooms in full swing.</p> },
-              { id: "apply", title: "Apply", media: <Img photo={ home.stepApply } />, children: <p>Fill in the short form below. We answer within two working days.</p> },
-              { id: "papers", title: "Paperwork", media: <Img photo={ home.stepPapers } />, children: <p>Send your child's vaccine record, a health form and two emergency contacts.</p> },
-              { id: "settle", title: "Settle in", media: <Img photo={ home.stepSettle } />, children: <p>A short first week, with you nearby, then full days.</p> }
-            ] }
-          />
-          <ApplySection
-            id="apply"
-            title="Start your application"
-            line="We answer within two working days."
-            subject="Enrollment"
-            submitLabel="Send application"
-            fields={ [
-              { id: "name", kind: "text", label: "Your name", required: true },
-              { id: "email", kind: "email", label: "Your email", required: true },
-              { id: "phone", kind: "tel", label: "Your phone" },
-              { id: "child_age", kind: "text", label: "Your child's age", required: true },
-              { id: "start", kind: "date", label: "Preferred start" },
-              { id: "notes", kind: "textarea", label: "Anything else" }
-            ] }
-            aside={ <>Rather talk? Call <TextLink href="tel:+15035550142">(503) 555-0142</TextLink>, Monday to Friday, 7:30 am to 6:00 pm.</> }
-            photo={ home.applyTeacher }
-          />
-        </>
-      )
-    },
-    infant: {
-      title: "Infant",
-      content: (
-        <RoomPage
-          band="var(--band-lilac)"
-          shapes={ [ { shape: "sun", color: "var(--band-marigold)" }, { shape: "dot", color: "var(--shape)" } ] }
-          hero={ {
-            photo: home.nestHeroCloud,
-            eyebrow: "The Nest · 6 weeks to 17 months",
-            title: "Infant care",
-            lede: "One teacher for every three babies, in a quiet room with a sleep room next door."
-          } }
-          day={ {
-            title: "A day in the Nest",
-            intro: <>
-              <p>Every baby keeps their own rhythm for feeds and naps. The times below are the shape of the day, not a rule.</p>
-              <p>You get a note after every feed, nap and change, with photos, in the parent app.</p>
-            </>,
-            slots: nestDay
-          } }
-          values={ {
-            title: "How we care for babies",
-            items: [
-              { id: "faces", title: "Same faces", text: "Each baby has one main teacher who knows their cues." },
-              { id: "routine", title: "Your routine", text: "We follow your feeds and naps from home." },
-              { id: "sleep", title: "Safe sleep", text: "Cribs in a separate room, checked every ten minutes." },
-              { id: "talk", title: "Talk all day", text: "We name, sing and chat, to build early words." }
-            ]
-          } }
-          quote={ { title: "“Back at work, and never worried”", lede: "A parent in the Nest.", photo: home.nestQuoteCloud } }
-          statement="Two Nest spaces open this spring"
-        />
-      )
-    },
-    toddler: {
-      title: "Toddler",
-      content: (
-        <RoomPage
-          band="var(--band-marigold)"
-          shapes={ [ { shape: "flower", color: "var(--band-lilac)" }, { shape: "leaf", color: "var(--shape)" } ] }
-          hero={ {
-            photo: home.burrowHeroCloud,
-            eyebrow: "The Burrow · 18 to 35 months",
-            title: "Toddler program",
-            lede: "One teacher for every four toddlers, with lots of room to climb, build and make friends."
-          } }
-          day={ {
-            title: "A day in the Burrow",
-            intro: <>
-              <p>Toddlers want to do it themselves, so the day is built around trying. Short circles, long play and plenty of outside time.</p>
-              <p>Lunch and snacks are eaten at small tables, with real cups and plates.</p>
-            </>,
-            slots: burrowDay
-          } }
-          values={ {
-            title: "How we care for toddlers",
-            items: [
-              { id: "try", title: "Let them try", text: "We wait a beat before helping, so they can." },
-              { id: "feelings", title: "Words for feelings", text: "Big feelings get names, not shushing." },
-              { id: "move", title: "Move every day", text: "Climbing, running and dancing, inside and out." },
-              { id: "potty", title: "Potty, gently", text: "We start when your child is ready, with you." }
-            ]
-          } }
-          quote={ { title: "“He runs in every single morning”", lede: "A parent in the Burrow.", photo: home.burrowQuoteCloud } }
-          statement="One Burrow space open this spring"
-        />
-      )
-    },
-    preschool: {
-      title: "Preschool",
-      content: (
-        <RoomPage
-          band="var(--band-mint)"
-          shapes={ [ { shape: "leaf", color: "var(--band-marigold)" }, { shape: "arch", color: "var(--band-lilac)" } ] }
-          hero={ {
-            photo: home.groveHeroCloud,
-            eyebrow: "The Grove · 3 to 5 years",
-            title: "Preschool program",
-            lede: "Play-based learning that gets children ready for kindergarten, with one teacher for every eight."
-          } }
-          day={ {
-            title: "A day in the Grove",
-            intro: <>
-              <p>Mornings are for projects the children choose: a bridge, a shop, a book about worms. Letters and numbers come along the way.</p>
-              <p>Afternoons are for the garden, music and quiet reading.</p>
-            </>,
-            slots: groveDay
-          } }
-          values={ {
-            title: "How we care for preschoolers",
-            items: [
-              { id: "questions", title: "Their questions", text: "Projects grow from what the children ask." },
-              { id: "ready", title: "Ready for school", text: "Letters, numbers and taking turns, through play." },
-              { id: "kind", title: "Kind together", text: "We practise sharing, saying sorry and asking for help." },
-              { id: "world", title: "Out in the world", text: "Walks to the park, the library and the market." }
-            ]
-          } }
-          quote={ { title: "“She can’t wait to come back”", lede: "A parent in the Grove.", photo: home.groveQuoteCloud } }
-          statement="Three Grove spaces open this fall"
+            </> },
+            { id: "visit", label: "Visit", content: <>
+              <p>Karki Clinic, Baneshwor Marg, opposite the BICC gate, Kathmandu.</p>
+              <TextLink href="https://maps.google.com/?q=Baneshwor+Kathmandu+Nepal">Get directions</TextLink>
+              <p>Two minutes from the Baneshwor bus stop; parking behind the building.</p>
+            </> },
+            { id: "hours", label: "Hours", content: <p>Sunday to Friday, 9:00 am to 5:00 pm. Video consultations every afternoon, 2:00 to 4:00 pm.</p> },
+            { id: "call", label: "Call or write", content: <>
+              <TextLink href="tel:+97714570000">+977-1-4570000</TextLink>
+              <TextLink href="mailto:hello@karkiclinic.com.np">hello@karkiclinic.com.np</TextLink>
+            </> }
+          ] }
         />
       )
     }
