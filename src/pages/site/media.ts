@@ -1,11 +1,12 @@
-import heroPortrait from "@/assets/doctor/hero-portrait.jpg";
-import consultation from "@/assets/doctor/consultation.jpg";
+import portraitAsset from "@/assets/doctor/ramesh-kandel-portrait.png.asset.json";
+import cvAsset from "@/assets/doctor/ramesh-kandel-cv.pdf.asset.json";
 import clinic from "@/assets/doctor/clinic.jpg";
 import checkup from "@/assets/doctor/checkup.jpg";
-import teleconsult from "@/assets/doctor/teleconsult.jpg";
 import lab from "@/assets/doctor/lab.jpg";
-import healthCamp from "@/assets/doctor/health-camp.jpg";
-import family from "@/assets/doctor/family.jpg";
+import ageingCouple from "@/assets/doctor/ageing-couple.jpg";
+import teaching from "@/assets/doctor/teaching.jpg";
+import caregiver from "@/assets/doctor/caregiver.jpg";
+import research from "@/assets/doctor/research.jpg";
 
 export interface SitePhoto {
   src: string;
@@ -19,13 +20,15 @@ export interface SiteVideo {
   page?: string;
 }
 
+export const cvUrl = cvAsset.url;
+
 export const home = {
-  heroPortrait: { src: heroPortrait, alt: "Dr. Aashish Karki in his white coat, arms crossed, in his clinic" },
-  consultation: { src: consultation, alt: "Dr. Karki listening to a patient across his desk" },
-  clinic: { src: clinic, alt: "The warm, bright waiting room of Karki Clinic in Baneshwor" },
-  checkup: { src: checkup, alt: "A blood pressure check for an elderly patient" },
-  teleconsult: { src: teleconsult, alt: "A video consultation in progress on a laptop" },
-  lab: { src: lab, alt: "The on-site laboratory with a microscope and sample tubes" },
-  healthCamp: { src: healthCamp, alt: "Dr. Karki checking a villager at a free mountain health camp" },
-  family: { src: family, alt: "A young family smiling during a consultation" },
+  portrait: { src: portraitAsset.url, alt: "Professor Ramesh Kandel, geriatrician, smiling in a blue shirt" },
+  clinic: { src: clinic, alt: "A bright, calm hospital waiting area" },
+  checkup: { src: checkup, alt: "An older Nepali man in a dhaka topi having his blood pressure checked" },
+  lab: { src: lab, alt: "A hospital laboratory with a microscope and sample tubes" },
+  ageingCouple: { src: ageingCouple, alt: "An elderly Nepali couple walking hand in hand on a hillside path at sunset" },
+  teaching: { src: teaching, alt: "Medical students in white coats attending a lecture on caring for older adults" },
+  caregiver: { src: caregiver, alt: "A young woman helping her grandmother stand up from a chair at home" },
+  research: { src: research, alt: "Research papers with charts, reading glasses, a stethoscope and a notebook on a desk" },
 } satisfies Record<string, SitePhoto>;

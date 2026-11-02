@@ -1,57 +1,57 @@
 import type { SitePack } from "./types";
 
-const FONT_URL = "https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Libre+Franklin:wght@400;500;700&display=swap";
+const FONT_URL = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap";
 
 export const hazelHouse: SitePack = {
-  "label": "Karki Clinic",
+  "label": "Prof. Ramesh Kandel",
   "previewColor": "#f2b705",
   "colors": [
     "#f2b705",
     "#17130b",
-    "#d62828",
-    "#faf6ec"
+    "#c8102e",
+    "#fbf8f1"
   ],
   "colorTokens": {
     "primary": "#f2b705",
     "primaryForeground": "#17130b",
-    "background": "#faf6ec",
+    "background": "#fbf8f1",
     "foreground": "#17130b",
     "secondary": "#17130b",
-    "secondaryForeground": "#faf6ec",
-    "accent": "#d62828",
-    "accentForeground": "#faf6ec",
+    "secondaryForeground": "#fbf8f1",
+    "accent": "#c8102e",
+    "accentForeground": "#fbf8f1",
     "muted": "#f3ead4",
     "mutedForeground": "#5c5340",
-    "card": "#faf6ec",
+    "card": "#ffffff",
     "cardForeground": "#17130b",
-    "popover": "#faf6ec",
+    "popover": "#fbf8f1",
     "popoverForeground": "#17130b",
-    "destructive": "#d62828",
-    "destructiveForeground": "#faf6ec",
-    "border": "color-mix(in srgb, #17130b 22%, transparent)",
-    "input": "color-mix(in srgb, #17130b 32%, transparent)",
-    "ring": "#d62828"
+    "destructive": "#c8102e",
+    "destructiveForeground": "#fbf8f1",
+    "border": "color-mix(in srgb, #17130b 18%, transparent)",
+    "input": "color-mix(in srgb, #17130b 30%, transparent)",
+    "ring": "#c8102e"
   },
   "font": {
-    "heading": { "family": "Archivo", "url": FONT_URL },
-    "body": { "family": "Libre Franklin", "url": FONT_URL }
+    "heading": { "family": "Cormorant Garamond", "url": FONT_URL },
+    "body": { "family": "Nunito Sans", "url": FONT_URL }
   },
   "typeset": {
-    "name": "archivo-libre-franklin",
-    "category": "sans-serif",
+    "name": "cormorant-nunito",
+    "category": "mixed",
     "basePx": 16,
     "maxPageWidth": "1440px",
     "roles": {
-      "heading": { "family": "Archivo", "url": FONT_URL, "weight": 800, "lineHeight": "1.05em", "letterSpacing": "-0.02em", "textTransform": "none" },
-      "body": { "family": "Libre Franklin", "url": FONT_URL, "weight": 400, "lineHeight": "1.6em", "letterSpacing": "0em", "textTransform": "none" },
-      "meta": { "family": "Libre Franklin", "url": FONT_URL, "weight": 700, "lineHeight": "1.3em", "letterSpacing": "0.14em", "textTransform": "uppercase" }
+      "heading": { "family": "Cormorant Garamond", "url": FONT_URL, "weight": 600, "lineHeight": "1.08em", "letterSpacing": "-0.01em", "textTransform": "none" },
+      "body": { "family": "Nunito Sans", "url": FONT_URL, "weight": 400, "lineHeight": "1.65em", "letterSpacing": "0em", "textTransform": "none" },
+      "meta": { "family": "Nunito Sans", "url": FONT_URL, "weight": 700, "lineHeight": "1.3em", "letterSpacing": "0.2em", "textTransform": "uppercase" }
     },
     "scale": {
-      "heading1": 4.24,
-      "heading2": 2.85,
-      "heading3": 1.93,
-      "heading4": 1.35,
-      "largeText": 1.23,
+      "heading1": 4.4,
+      "heading2": 3.1,
+      "heading3": 2.05,
+      "heading4": 1.4,
+      "largeText": 1.25,
       "smallText": 0.88
     }
   },
