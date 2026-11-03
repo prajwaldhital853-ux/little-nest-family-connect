@@ -153,3 +153,7 @@ html {
   border-top: var(--frame-width, 0px) solid var(--frame-color, transparent);
 }
 
+
+/* hide the native scrollbar rail; wheel, keyboard and touch scrolling still work */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { width: 0; height: 0; }

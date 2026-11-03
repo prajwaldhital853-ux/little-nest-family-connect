@@ -5,9 +5,9 @@ import caregiver from "@/assets/doctor/caregiver.jpg";
 import research from "@/assets/doctor/research.jpg";
 import checkup from "@/assets/doctor/checkup.jpg";
 import clinic from "@/assets/doctor/clinic.jpg";
+import press from "@/assets/doctor/swasthya-dementia.png";
 import hiwCyclist from "@/assets/hiw/cyclist.jpg";
 import hiwLaptop from "@/assets/hiw/laptop.jpg";
-import hiwChart from "@/assets/hiw/chart.jpg";
 
 export interface SitePhoto {
   src: string;
@@ -25,11 +25,11 @@ export const home = {
   research: { src: research, alt: "Research papers, charts, reading glasses, a stethoscope and a notebook on a desk" },
   checkup: { src: checkup, alt: "A doctor examining an elderly patient at a community health camp in Nepal" },
   clinic: { src: clinic, alt: "A doctor consulting with a patient in a clinic" },
+  press: { src: press, alt: "Quote card from Professor Ramesh Kandel's Swasthya Khabarpatrika article on dementia prevention, with his portrait" },
 } satisfies Record<string, SitePhoto>;
 
 export const hiw = {
   cyclist: { src: hiwCyclist, alt: "Overhead view of a cyclist riding a bicycle across a pale blue field" },
   laptop: { src: hiwLaptop, alt: "Overhead view of two hands typing on a laptop laid on a pale pink field" },
-  chart: { src: hiwChart, alt: "A chart card tracking a blood sugar trend falling from 136 to 88 over six months" },
 } satisfies Record<string, SitePhoto>;
 

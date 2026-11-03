@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 
 import type { SitePhoto } from "./media";
 import { home } from "./media";
+import type { PublicationGroup } from "./publications";
+import { orcidUrl, scholarProfileUrl } from "./publications";
 
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
@@ -303,23 +305,43 @@ function youtubeId( url: string ) {
   return match?.[1];
 }
 
+/* YouTube answers missing thumbs with a 200/404 grey placeholder image, so both load outcomes must advance the chain */
+function nextThumb( id: string, img: HTMLImageElement, poster?: string ) {
+  const step = Number( img.dataset.fallback ?? 0 );
+  if ( step === 0 ) {
+    img.dataset.fallback = "1";
+    img.src = `https://i.ytimg.com/vi/${ id }/sddefault.jpg`;
+  } else if ( step === 1 ) {
+    img.dataset.fallback = "2";
+    img.src = `https://i.ytimg.com/vi/${ id }/hqdefault.jpg`;
+  } else if ( step === 2 && poster ) {
+    img.dataset.fallback = "3";
+    img.src = poster;
+  }
+}
+
 function MediaCard( { item, index, onPlay }: { item: DrMediaItem; index: number; onPlay: ( item: DrMediaItem ) => void } ) {
   const id = youtubeId( item.url );
   const thumb = id ? `https://i.ytimg.com/vi/${ id }/maxresdefault.jpg` : item.poster?.src;
+  const thumbRef = useRef<HTMLImageElement>( null );
+  useEffect( () => {
+    const img = thumbRef.current;
+    if ( id && img && img.complete && img.naturalWidth <= 120 ) nextThumb( id, img, item.poster?.src );
+  }, [ id, item.poster ] );
   return (
     <article className="dr-media-card" style={ { "--i": index } as CSSProperties }>
       <div className="dr-media-frame">
         { thumb && (
           <img
+            ref={ thumbRef }
             className="dr-media-thumb"
             src={ thumb }
             alt={ item.title }
-            loading="lazy"
             onError={ event => {
-              if ( id && !event.currentTarget.dataset.fallback ) {
-                event.currentTarget.dataset.fallback = "1";
-                event.currentTarget.src = `https://i.ytimg.com/vi/${ id }/sddefault.jpg`;
-              }
+              if ( id ) nextThumb( id, event.currentTarget, item.poster?.src );
+            } }
+            onLoad={ event => {
+              if ( id && event.currentTarget.naturalWidth <= 120 ) nextThumb( id, event.currentTarget, item.poster?.src );
             } }
           />
         ) }
@@ -328,11 +350,10 @@ function MediaCard( { item, index, onPlay }: { item: DrMediaItem; index: number;
         </span>
       </div>
       <div className="dr-media-body">
-        <span className="dr-media-tag text-meta">{ item.kind }</span>
         <h3 className="dr-media-title text-large">{ item.title }</h3>
-        { item.date && <p className="dr-media-date text-small">{ item.date }</p> }
+        <p className="dr-media-date text-small">{ item.kind }{ item.date ? `, ${ item.date }` : "" }</p>
       </div>
-      { id && (
+      { item.url && (
         <button
           type="button"
           className="dr-media-open"
@@ -344,7 +365,7 @@ function MediaCard( { item, index, onPlay }: { item: DrMediaItem; index: number;
   );
 }
 
-export function MediaGallery( { kicker, title, items }: { kicker: string; title: string; items: DrMediaItem[] } ) {
+export function MediaGallery( { kicker, title, items, allHref }: { kicker: string; title: string; items: DrMediaItem[]; allHref?: string } ) {
   const { ref, inView } = useInView<HTMLElement>( 0.12 );
   const [ playing, setPlaying ] = useState<DrMediaItem | null>( null );
   const playingId = playing ? youtubeId( playing.url ) : undefined;
@@ -357,19 +378,31 @@ export function MediaGallery( { kicker, title, items }: { kicker: string; title:
           <MediaCard key={ `${ item.title }-${ index }` } item={ item } index={ index } onPlay={ setPlaying } />
         ) ) }
       </div>
+      { allHref && (
+        <div className="dr-media-more">
+          <SmartLink href={ allHref } className="dr-home-blog-all text-small">
+            All videos
+            <ArrowUpRight aria-hidden className="size-4" />
+          </SmartLink>
+        </div>
+      ) }
       <Dialog open={ playing !== null } onOpenChange={ open => { if ( !open ) setPlaying( null ); } }>
-        <DialogContent className="border-0 bg-white p-0 gap-0 sm:max-w-4xl" aria-describedby={ undefined }>
-          { playing && playingId && (
+        <DialogContent className="border-0 bg-white p-0 gap-0 sm:max-w-3xl" aria-describedby={ undefined }>
+          { playing && (
             <>
               <DialogTitle className="dr-media-dialog-title text-large">{ playing.title }</DialogTitle>
               <div className="dr-media-player">
-                <iframe
-                  src={ `https://www.youtube-nocookie.com/embed/${ playingId }?autoplay=1&rel=0` }
-                  title={ playing.title }
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                />
+                { playingId ? (
+                  <iframe
+                    src={ `https://www.youtube-nocookie.com/embed/${ playingId }?autoplay=1&rel=0` }
+                    title={ playing.title }
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video className="dr-media-video" src={ playing.url } controls autoPlay playsInline />
+                ) }
               </div>
             </>
           ) }
@@ -380,6 +413,54 @@ export function MediaGallery( { kicker, title, items }: { kicker: string; title:
 }
 
 /* ------------------------------------------------------------------ */
+/* Press articles shown as blog-style cards                            */
+/* ------------------------------------------------------------------ */
+
+export interface PressItem {
+  href: string;
+  photo: SitePhoto;
+  topic: string;
+  title: string;
+  source: string;
+  blurb: string;
+}
+
+export function PressSection( { kicker, title, lede, items }: { kicker: string; title: string; lede: string; items: PressItem[] } ) {
+  const { ref, inView } = useInView<HTMLElement>( 0.1 );
+  return (
+    <section ref={ ref } data-header="solid" className={ cn( "dr-press", inView && "is-in" ) }>
+      <div className="dr-press-intro">
+        <p className="dr-kicker text-small">{ kicker }</p>
+        <h2 className="dr-press-heading text-h2">{ title }</h2>
+        <p className="dr-press-lede text-small">{ lede }</p>
+      </div>
+      <div className="dr-press-grid">
+        { items.map( ( item, index ) => (
+          <article key={ item.href } className="dr-blog-card" style={ { "--i": index } as CSSProperties }>
+            <a className="dr-blog-card-img-wrap" href={ item.href } target="_blank" rel="noreferrer">
+              <img src={ item.photo.src } alt={ item.photo.alt } className="dr-blog-card-img" />
+            </a>
+            <div className="dr-blog-card-body">
+              <div className="dr-blog-card-top">
+                <span className="dr-blog-card-topic text-meta">{ item.topic }</span>
+                <span className="dr-blog-card-date text-small">{ item.source }</span>
+              </div>
+              <h3 className="dr-blog-card-title text-large m-0"><a href={ item.href } target="_blank" rel="noreferrer">{ item.title }</a></h3>
+              <p className="dr-blog-card-excerpt text-small m-0">{ item.blurb }</p>
+              <div className="dr-blog-card-foot">
+                <a href={ item.href } target="_blank" rel="noreferrer" className="dr-blog-card-link text-small">
+                  Read article
+                  <ArrowUpRight aria-hidden className="size-4" />
+                </a>
+              </div>
+            </div>
+          </article>
+        ) ) }
+      </div>
+    </section>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Cinematic work section — full-bleed photo bg + slide-in cards       */
 /* ------------------------------------------------------------------ */
@@ -711,6 +792,7 @@ export interface DrPost {
   date?: string;
   topic: string;
   excerpt: string;
+  minutes?: number;
   photo: SitePhoto;
   body: ReactNode;
 }
@@ -724,9 +806,19 @@ function BlogCard( { post, index }: { post: DrPost; index: number } ) {
         <img src={ post.photo.src } alt={ post.photo.alt } className="dr-blog-card-img" loading="lazy" />
       </SmartLink>
       <div className="dr-blog-card-body">
-        <h3 className="dr-blog-card-title text-h4 m-0"><SmartLink href={ href }>{ post.title }</SmartLink></h3>
-        <p className="dr-blog-card-excerpt text-large m-0">{ post.excerpt }</p>
-        <SmartLink href={ href } className="dr-blog-card-link text-meta">Continue reading</SmartLink>
+        <div className="dr-blog-card-top">
+          <span className="dr-blog-card-topic text-meta">{ post.topic }</span>
+          { post.date && <span className="dr-blog-card-date text-small">{ post.date }</span> }
+        </div>
+        <h3 className="dr-blog-card-title text-large m-0"><SmartLink href={ href }>{ post.title }</SmartLink></h3>
+        <p className="dr-blog-card-excerpt text-small m-0">{ post.excerpt }</p>
+        <div className="dr-blog-card-foot">
+          { post.minutes && <span className="dr-blog-card-read text-small">{ post.minutes } min read</span> }
+          <SmartLink href={ href } className="dr-blog-card-link text-small">
+            Read article
+            <ArrowRight aria-hidden className="size-4" />
+          </SmartLink>
+        </div>
       </div>
     </article>
   );
@@ -1052,11 +1144,86 @@ export function HiwBenefits( { items }: {
   );
 }
 
-export function HiwTrack( { kicker, title, children, photo }: {
+export interface HiwChartBand { label: string; range: string; color: string; from: number; to: number }
+export interface HiwChartPoint { month: string; year: string; value: number; color: string }
+
+/* Bands and points share one linear scale, so the stacked column and the plotted trend line up */
+export function HiwChart( { name, metric, unit, bands, points, domain }: {
+  name: string;
+  metric: string;
+  unit: string;
+  bands: HiwChartBand[];
+  points: HiwChartPoint[];
+  domain: [ number, number ];
+} ) {
+  const [ high, low ] = domain;
+  const yOf = ( value: number ) => ( ( high - value ) / ( high - low ) ) * 100;
+  const xOf = ( index: number ) => 12 + index * ( 76 / ( points.length - 1 ) );
+  const coords = points.map( ( point, index ) => ( { x: xOf( index ), y: yOf( point.value ) } ) );
+  return (
+    <figure className="dr-hiw-chart">
+      <figcaption className="dr-hiw-chart-head">
+        <span className="dr-hiw-chart-name text-h4">{ name }</span>
+        <span className="dr-hiw-chart-metric text-large">{ metric }</span>
+      </figcaption>
+      <div className="dr-hiw-chart-scale text-meta">
+        <span>Risk ranges</span>
+        <span>{ unit }</span>
+      </div>
+      <div className="dr-hiw-chart-body">
+        <ul className="dr-hiw-chart-bands text-small">
+          { bands.map( band => (
+            <li key={ band.label } style={ { height: `${ ( ( band.from - band.to ) / ( high - low ) ) * 100 }%`, "--c": band.color } as CSSProperties }>
+              <span>{ band.label }</span>
+              <span>{ band.range }</span>
+            </li>
+          ) ) }
+        </ul>
+        <div className="dr-hiw-chart-plot">
+          { bands.map( band => <span key={ band.label } aria-hidden className="dr-hiw-chart-grid" style={ { top: `${ yOf( band.from ) }%` } as CSSProperties } /> ) }
+          <svg className="dr-hiw-chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+            { coords.slice( 0, -1 ).map( ( from, index ) => (
+              <line
+                key={ points[index].month }
+                x1={ from.x }
+                y1={ from.y }
+                x2={ coords[index + 1].x }
+                y2={ coords[index + 1].y }
+                stroke={ points[index].color }
+                strokeWidth={ 3 }
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            ) ) }
+          </svg>
+          { points.map( ( point, index ) => (
+            <span
+              key={ point.month }
+              className="dr-hiw-chart-point text-small"
+              style={ { left: `${ coords[index].x }%`, top: `${ coords[index].y }%`, "--c": point.color } as CSSProperties }
+            >
+              { point.value }
+            </span>
+          ) ) }
+        </div>
+        <div className="dr-hiw-chart-axis text-meta">
+          { points.map( ( point, index ) => (
+            <span key={ point.month } style={ { left: `${ xOf( index ) }%` } as CSSProperties }>
+              <span>{ point.month }</span>
+              <span>{ point.year }</span>
+            </span>
+          ) ) }
+        </div>
+      </div>
+    </figure>
+  );
+}
+
+export function HiwTrack( { kicker, title, children, media }: {
   kicker: string;
   title: ReactNode;
   children: ReactNode;
-  photo: SitePhoto;
+  media: ReactNode;
 } ) {
   const { ref, inView } = useInView<HTMLElement>( 0.15 );
   return (
@@ -1068,7 +1235,7 @@ export function HiwTrack( { kicker, title, children, photo }: {
           <div className="dr-hiw-split-text text-large">{ children }</div>
         </div>
         <div className="dr-hiw-track-media">
-          <img src={ photo.src } alt={ photo.alt } loading="lazy" />
+          { media }
         </div>
       </div>
     </section>
@@ -1116,6 +1283,42 @@ export function HiwCta( { kicker, title, accent, children, action, note }: {
       <div className="dr-hiw-cta-body text-h4">{ children }</div>
       { action && <div className="dr-hiw-cta-actions">{ action }</div> }
       { note && <p className="dr-hiw-cta-note text-small">{ note }</p> }
+    </section>
+  );
+}
+
+export function PublicationList( { groups }: { groups: PublicationGroup[] } ) {
+  const { ref, inView } = useInView<HTMLElement>( 0.05 );
+  return (
+    <section ref={ ref } data-header="solid" className={ cn( "dr-pubs", inView && "is-in" ) }>
+      <header className="dr-pubs-head">
+        <p className="dr-pubs-kicker text-meta">Full publication list</p>
+        <h2 className="dr-pubs-title text-h3">Every paper, chapter and report, with links.</h2>
+        <p className="dr-pubs-lede text-large">
+          Compiled from <a href={ scholarProfileUrl } target="_blank" rel="noreferrer">Google Scholar</a>,{" "}
+          <a href={ orcidUrl } target="_blank" rel="noreferrer">ORCID</a> and the curriculum vitae annexure.
+        </p>
+      </header>
+      { groups.map( ( group ) => (
+        <div key={ group.label } className="dr-pubs-group">
+          <h3 className="dr-pubs-group-label text-small">{ group.label }</h3>
+          <ol className="dr-pubs-items">
+            { group.items.map( ( item ) => (
+              <li key={ item.href + item.title } className="dr-pub">
+                <span className="dr-pub-year text-meta">{ item.year }</span>
+                <div className="dr-pub-body">
+                  <a className="dr-pub-title text-large" href={ item.href } target="_blank" rel="noreferrer">
+                    { item.title }
+                    <ArrowUpRight className="dr-pub-arrow" aria-hidden />
+                  </a>
+                  <p className="dr-pub-meta text-small">{ item.authors }</p>
+                  <p className="dr-pub-meta text-small"><em>{ item.venue }</em></p>
+                </div>
+              </li>
+            ) ) }
+          </ol>
+        </div>
+      ) ) }
     </section>
   );
 }

@@ -3,6 +3,7 @@ import {
   AlarmClock,
   BookOpen,
   Brain,
+  Building2,
   ClipboardList,
   Eye,
   Footprints,
@@ -15,6 +16,7 @@ import {
   Microscope,
   MousePointerClick,
   Pill,
+  Presentation,
   Shield,
   Stethoscope,
   TrendingUp,
@@ -34,11 +36,11 @@ import {
   CredentialColumns,
   DoctorFooter,
   DoctorHero,
-  DrButton,
   DrFaq,
   FullBleedHero,
   HiwAssess,
   HiwBenefits,
+  HiwChart,
   HiwConsult,
   HiwCta,
   HiwFaq,
@@ -52,16 +54,17 @@ import {
   LeadQuestions,
   MediaGallery,
   NamasteIntro,
-  PageHero,
   PostList,
+  PressSection,
   ProseSection,
+  PublicationList,
   StatementBand,
   StoryProse,
-  TopicGrid,
   WhyItMatters,
 } from "./doctor-sections";
 import type { DrMediaItem, DrPost } from "./doctor-sections";
 import { cvUrl, hiw, home } from "./media";
+import { publicationGroups } from "./publications";
 import { Img } from "./parts";
 import type { SiteContent } from "./types";
 
@@ -74,6 +77,7 @@ const nav = [
   { label: "Research", href: "/research" },
   { label: "How it works", href: "/how-it-works" },
   { label: "Teaching", href: "/teaching" },
+  { label: "Media", href: "/media" },
   { label: "Blog", href: "/blog" },
 ];
 
@@ -82,31 +86,70 @@ const allLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
-/* Paste each YouTube link into url. The thumbnail is read from the link automatically. */
-const mediaItems: DrMediaItem[] = [
+const allVideos: DrMediaItem[] = [
   {
-    url: "",
+    url: "https://www.youtube.com/watch?v=l1H2YtG1vMw",
     kind: "Interview",
-    title: "Why ageing needs its own kind of care",
-    poster: home.checkup,
+    title: "The truth about Alzheimer’s: myths and facts",
+    date: "Kritika Dangi, Episode 02",
   },
   {
-    url: "",
+    url: "https://www.youtube.com/watch?v=IZrt-D8j3dk",
+    kind: "Interview",
+    title: "Geriatric problems in Nepal",
+    date: "Health Television Nepal",
+  },
+  {
+    url: "https://www.youtube.com/watch?v=rSY9I1-c5Ig",
+    kind: "TV interview",
+    title: "Health Station with Binisha Thapa",
+    date: "Himalaya TV",
+  },
+  {
+    url: "https://www.youtube.com/watch?v=BJ6bUJ0LhA8",
     kind: "Talk",
-    title: "Managing several medicines at once",
-    poster: home.teaching,
+    title: "Climate change and older people in Nepal",
+    date: "बाढीमा बगेको बुढ्यौली, recorded talk",
   },
   {
-    url: "",
-    kind: "Podcast",
-    title: "Building geriatric medicine in Nepal",
-    poster: home.caregiver,
+    url: "https://www.youtube.com/watch?v=gbIswWAYIAI",
+    kind: "Interview",
+    title: "के हो अल्जाइमर (बिर्सने) रोग? लक्षण र रोकथामका उपाय",
+    date: "UkeraaTV, Medianp.com",
+  },
+  {
+    url: "https://www.youtube.com/watch?v=Rf4jKLg2JKg",
+    kind: "TV interview",
+    title: "हाम्रो प्रश्न विज्ञको सुझाव: होम आइसोलेसन",
+    date: "NTV Plus, 2078-03-15",
+  },
+  {
+    url: "https://www.youtube.com/watch?v=cRIkwxFmhyQ",
+    kind: "Interview",
+    title: "जेष्ठ नागरिक रोग विशेषज्ञ: नसर्ने रोगबारे के भन्नुहुन्छ?",
+    date: "Butwal Today Online TV",
+  },
+  {
+    url: "https://www.youtube.com/watch?v=g_CN7jE4u8g",
+    kind: "TV interview",
+    title: "Swasthya Sarokar with Sobita Gautam",
+    date: "Nepal Television, 2076-11-08",
+  },
+  {
+    url: "https://www.youtube.com/watch?v=mLYJS-t37Sg",
+    kind: "TV interview",
+    title: "Swastha Sandesh with Tejendra K.C",
+    date: "Buddha TV Butwal",
   },
 ];
+
+const mediaItems: DrMediaItem[] = allVideos.slice( 0, 3 );
 
 const posts: DrPost[] = [
   {
     slug: "what-healthy-ageing-means",
+    date: "October 28, 2026",
+    minutes: 6,
     title: "What healthy ageing actually means",
     topic: "Ageing and everyday care",
     excerpt: "Healthy ageing is not the absence of disease. It is keeping people able to do the things they value for as long as possible.",
@@ -122,6 +165,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "screening-is-only-the-beginning",
+    date: "October 12, 2026",
+    minutes: 7,
     title: "Screening is only the beginning",
     topic: "Research into practice",
     excerpt: "Finding a problem is the easy half. What happens in the weeks after the result decides whether screening helped anyone.",
@@ -137,6 +182,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "caregivers-are-partners",
+    date: "September 26, 2026",
+    minutes: 6,
     title: "Caregivers are partners, not extras",
     topic: "Families and caregiving",
     excerpt: "Most care for older people in Nepal is given by families at home. They need skills and support, not only instructions.",
@@ -152,6 +199,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "what-geriatrics-teaches-every-clinician",
+    date: "September 8, 2026",
+    minutes: 8,
     title: "What geriatric medicine teaches every clinician",
     topic: "Education and leadership",
     excerpt: "Understanding multiple conditions together, reviewing medicines thoughtfully and deciding with patients are skills every specialty needs.",
@@ -167,6 +216,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "a-fall-is-rarely-just-an-accident",
+    date: "August 21, 2026",
+    minutes: 5,
     title: "A fall is rarely just an accident",
     topic: "Ageing and everyday care",
     excerpt: "Older people who fall are usually told they were unlucky. Most of the time there is a reason, and finding it changes what happens next.",
@@ -182,6 +233,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "six-medicines-one-person",
+    date: "August 3, 2026",
+    minutes: 6,
     title: "Six medicines, one person",
     topic: "Ageing and everyday care",
     excerpt: "Each tablet may be reasonable on its own. The combination is a different prescription, and somebody has to look at it as a whole.",
@@ -197,6 +250,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "memory-change-deserves-an-assessment",
+    date: "July 17, 2026",
+    minutes: 5,
     title: "Memory change deserves an assessment, not a label",
     topic: "Ageing and everyday care",
     excerpt: "Forgetfulness is not automatically dementia, and dementia is not a normal part of ageing. Both ideas cost families time they cannot get back.",
@@ -212,6 +267,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "eating-less-is-a-symptom",
+    date: "June 29, 2026",
+    minutes: 5,
     title: "Eating less in older age is a symptom",
     topic: "Ageing and everyday care",
     excerpt: "Weight loss and a poor appetite get filed under ageing. They are worth investigating, and sometimes they are the loudest clue in the room.",
@@ -227,6 +284,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "discharge-is-not-the-end",
+    date: "June 12, 2026",
+    minutes: 6,
     title: "Discharge is not the end of the illness",
     topic: "Families and caregiving",
     excerpt: "The week after a hospital stay is when older patients are most vulnerable, and it is the part of care least likely to be planned properly.",
@@ -242,6 +301,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "caregiver-exhaustion-is-a-clinical-sign",
+    date: "May 22, 2026",
+    minutes: 7,
     title: "Caregiver exhaustion is a clinical sign",
     topic: "Families and caregiving",
     excerpt: "When the person doing the caring has stopped sleeping, eating well or seeing anyone, that belongs in the record and not only in family conversation.",
@@ -257,6 +318,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "frailty-is-a-description-not-a-verdict",
+    date: "May 6, 2026",
+    minutes: 6,
     title: "Frailty is a description, not a verdict",
     topic: "Research into practice",
     excerpt: "Frailty sounds final. In practice it is a measurable state on a spectrum, and one of the most useful things we can identify early.",
@@ -272,6 +335,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "what-happens-after-the-health-camp",
+    date: "April 15, 2026",
+    minutes: 7,
     title: "What happens after the health camp",
     topic: "Research into practice",
     excerpt: "Screening days reach many people in a week. Whether any of them get better depends on what was built for the day after.",
@@ -287,6 +352,8 @@ const posts: DrPost[] = [
   },
   {
     slug: "what-a-geriatric-assessment-involves",
+    date: "March 28, 2026",
+    minutes: 8,
     title: "What a geriatric assessment actually involves",
     topic: "Education and leadership",
     excerpt: "It is mostly conversation. That surprises families, and it is also why the visit can change care when scans have not.",
@@ -430,6 +497,7 @@ export const site: SiteContent = {
         kicker="In the media"
         title="Talks and interviews"
         items={ mediaItems }
+        allHref="/media"
       />
       <HomeBlogSection
         kicker="From the blog"
@@ -600,13 +668,13 @@ export const site: SiteContent = {
                 {
                   title: "Selected publications",
                   entries: [
-                    { id: "amr-uro", label: "Frailty and antimicrobial resistance in uropathogens", meta: "Journal of Indian Academy of Geriatrics, 2025" },
-                    { id: "amr-rahs", label: "Antimicrobial resistance among older patients at RAHS", meta: "Journal of Rapti Academy of Health Sciences, 2025" },
-                    { id: "syndromes", label: "Geriatric syndromes in a tertiary Geri OPD, western Nepal", meta: "Journal of Rapti Academy of Health Sciences, 2025" },
-                    { id: "strategy", label: "Nepal’s Geriatric Health Strategy 2021–2030: a narrative review", meta: "Journal of Indian Academy of Geriatrics, 2024" },
-                    { id: "caregiver", label: "Caregiver burden in Alzheimer’s dementia in Nepal", meta: "Journal of Indian Academy of Geriatrics, 2021" },
-                    { id: "cancer", label: "Care protocol for older adults with cancer in resource-limited settings", meta: "Journal of Geriatric Oncology, 2021" },
-                    { id: "walking", label: "Nordic walking and nutrition in pre-frail older Indians", meta: "BMC Geriatrics, 2018" },
+                    { id: "amr-uro", label: <a href="https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:LkGwnXOMwfcC" target="_blank" rel="noreferrer">Frailty and antimicrobial resistance in uropathogens</a>, meta: "Journal of Indian Academy of Geriatrics, 2025" },
+                    { id: "amr-rahs", label: <a href="https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:YsMSGLbcyi4C" target="_blank" rel="noreferrer">Antimicrobial resistance among older patients at RAHS</a>, meta: "Journal of Rapti Academy of Health Sciences, 2025" },
+                    { id: "syndromes", label: <a href="https://doi.org/10.70027/jrahs29" target="_blank" rel="noreferrer">Geriatric syndromes in a tertiary Geri OPD, western Nepal</a>, meta: "Journal of Rapti Academy of Health Sciences, 2025" },
+                    { id: "strategy", label: <a href="https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:u-x6o8ySG0sC" target="_blank" rel="noreferrer">Nepal’s Geriatric Health Strategy 2021–2030: a narrative review</a>, meta: "Journal of Indian Academy of Geriatrics, 2024" },
+                    { id: "caregiver", label: <a href="https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:hqOjcs7Dif8C" target="_blank" rel="noreferrer">Caregiver burden in Alzheimer’s dementia in Nepal</a>, meta: "Journal of Indian Academy of Geriatrics, 2021" },
+                    { id: "cancer", label: <a href="https://doi.org/10.1016/j.jgo.2020.04.013" target="_blank" rel="noreferrer">Care protocol for older adults with cancer in resource-limited settings</a>, meta: "Journal of Geriatric Oncology, 2021" },
+                    { id: "walking", label: <a href="https://doi.org/10.1186/s12877-018-0890-4" target="_blank" rel="noreferrer">Nordic walking and nutrition in pre-frail older Indians</a>, meta: "BMC Geriatrics, 2018" },
                   ],
                 },
               ],
@@ -627,6 +695,7 @@ export const site: SiteContent = {
                     { id: "jiag", label: "Journal of Indian Academy of Geriatrics", meta: "Peer reviewed" },
                     { id: "jrahs", label: "Journal of Rapti Academy of Health Sciences", meta: "Peer reviewed" },
                     { id: "jgo", label: "Journal of Geriatric Oncology", meta: "Peer reviewed" },
+                    { id: "swasthya", label: <a href="https://swasthyakhabar.com/story/63850" target="_blank" rel="noreferrer">Swasthya Khabarpatrika</a>, meta: "Health feature article in Nepali" },
                     { id: "scholar", label: <a href="https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en" target="_blank" rel="noreferrer">Google Scholar profile</a>, meta: "Full citation list" },
                     { id: "cv", label: <a href={ cvUrl }>Curriculum vitae (PDF)</a>, meta: "Including case reports" },
                   ],
@@ -634,13 +703,14 @@ export const site: SiteContent = {
               ],
             ] }
           />
+          <PublicationList groups={ publicationGroups } />
           <ClosingCta
             kicker="Collaboration"
             title="I welcome research partners."
             lede="Clinical ageing research, implementation studies, health services research and multidisciplinary projects that aim to improve care for older people."
             primary={ { label: "Discuss a collaboration", href: "/contact" } }
             secondary={ { label: "Google Scholar", href: "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en" } }
-            note="Full list of publications, including case reports, is in the CV and on Google Scholar."
+            note="The list above is compiled from Google Scholar, ORCID and the CV annexure."
           />
         </>
       )
@@ -764,7 +834,24 @@ export const site: SiteContent = {
           <HiwTrack
             kicker="Track your progress"
             title="Track your health progress over time."
-            photo={ hiw.chart }
+            media={
+              <HiwChart
+                name="Mobility"
+                metric="Timed Up and Go"
+                unit="seconds"
+                domain={ [ 30, 8 ] }
+                bands={ [
+                  { label: "High risk", range: ">20", color: "#f01444", from: 30, to: 20 },
+                  { label: "Moderate", range: "13–20", color: "#f3bb0c", from: 20, to: 13 },
+                  { label: "Optimal", range: "<13", color: "#91dad1", from: 13, to: 8 },
+                ] }
+                points={ [
+                  { month: "May", year: "2026", value: 24, color: "#f01444" },
+                  { month: "Jul", year: "2026", value: 17, color: "#f3bb0c" },
+                  { month: "Nov", year: "2026", value: 12, color: "#91dad1" },
+                ] }
+              />
+            }
           >
             <p>From a <strong>structured review of function, mood, medicines and falls</strong> we will determine if the plan is working, if your exercise is adequate, and if every medicine is still worth its burden. In addition, monitoring these trends year after year helps us to determine if your health is declining, maintaining, or improving.</p>
           </HiwTrack>
@@ -797,39 +884,141 @@ export const site: SiteContent = {
       title: "Teaching",
       content: (
         <>
-          <PageHero
-            kicker="Teaching and leadership"
-            title="Preparing professionals for an ageing population"
-            lede={ <p>Teaching is a central part of my work. I aim to help learners combine clinical knowledge with careful observation, clear communication and respect for the person receiving care.</p> }
+          <HiwHero
+            title="Teaching is how good care outlives one clinician."
+            lede={ <p>Lectures, bedside teaching, skills workshops and curriculum work that prepare health professionals for an ageing population.</p> }
+            action={ <HiwPill href="/contact">Enquire about teaching</HiwPill> }
+            note="*Send an enquiry and I will reply with availability, formats and a suggested outline."
             photo={ home.teaching }
-            actions={ <DrButton href="/contact">Enquire about teaching or speaking</DrButton> }
           />
-          <ProseSection kicker="Why teach geriatrics" title="Lessons that travel across healthcare" ground="paper">
-            <p>Geriatric medicine offers valuable lessons across healthcare: understanding multiple conditions together, reviewing medicines thoughtfully, assessing function and making decisions with patients and families.</p>
-          </ProseSection>
-          <TopicGrid
-            kicker="Teaching interests"
-            title="What I teach"
-            items={ [
-              { id: "cga", title: "Comprehensive geriatric assessment", text: "A structured way to see the whole person, not a single organ." },
-              { id: "frailty", title: "Frailty and multimorbidity", text: "When several conditions travel together, plans have to change." },
-              { id: "syndromes", title: "Falls, cognition and other syndromes", text: "The presentations that do not fit neatly on a referral form." },
-              { id: "decisions", title: "Person-centred clinical decisions", text: "Goals, burdens and what the person actually wants from treatment." },
-              { id: "self", title: "Chronic disease self-management", text: "Skills people use on the days they are not in clinic." },
-              { id: "methods", title: "Research methods and appraisal", text: "Clear questions, honest methods and evidence that can be used." },
+          <HiwSplit
+            kicker="Why teach geriatrics"
+            title="Lessons that travel across healthcare."
+            photo={ hiw.cyclist }
+            action={ <HiwPill href="/media" tone="outline">See recorded talks</HiwPill> }
+          >
+            <p>Geriatric medicine offers lessons every specialty needs: understanding several conditions at once, reviewing medicines thoughtfully, assessing function, and making decisions together with patients and families.</p>
+            <p>I teach the way I practise. A session starts with the person in front of us and ends with something the learner can repeat on their own ward.</p>
+            <p>Colleges, hospitals, professional bodies and community programmes are all welcome to ask for a session built around their own cases.</p>
+          </HiwSplit>
+          <HiwProcess
+            kicker="How I teach"
+            title="Ways of working with learners"
+            steps={ [
+              { id: "lecture", label: "Guest lecture", icon: Presentation, color: "#1e60ce" },
+              { id: "ward", label: "Bedside and ward round teaching", icon: Stethoscope, color: "#91dad1" },
+              { id: "workshop", label: "Skills workshop", icon: Users, color: "#f01444" },
+              { id: "curriculum", label: "Curriculum and assessment design", icon: BookOpen, color: "#f3bb0c" },
+              { id: "faculty", label: "Faculty development", icon: GraduationCap, color: "#f87879" },
             ] }
           />
-          <ProseSection kicker="Academic leadership" title="Institutions that teach well" ground="ivory">
+          <HiwAssess
+            kicker="What I teach"
+            title="Topics I bring to a classroom or a clinic"
+            rows={ [
+              {
+                id: "assessment",
+                icon: Stethoscope,
+                color: "#91dad1",
+                left: { title: "Comprehensive geriatric assessment", text: "A structured way to see the whole person, not a single organ." },
+                right: { title: "Frailty and multimorbidity", text: "When several conditions travel together, plans have to change." },
+              },
+              {
+                id: "syndromes",
+                icon: Footprints,
+                color: "#f3bb0c",
+                left: { title: "Falls, cognition and other syndromes", text: "The presentations that do not fit neatly on a referral form." },
+                right: { title: "Person-centred clinical decisions", text: "Goals, burdens and what the person actually wants from treatment." },
+              },
+              {
+                id: "practice",
+                icon: HeartHandshake,
+                color: "#f01444",
+                left: { title: "Chronic disease self-management", text: "Skills people use on the days they are not in clinic." },
+                right: { title: "Research methods and appraisal", text: "Clear questions, honest methods and evidence that can be used." },
+              },
+            ] }
+          />
+          <HiwConsult
+            kicker="Academic leadership"
+            title="Institutions that teach well."
+            icon={ Building2 }
+            photo={ home.portrait }
+            cardTitle="Mentoring"
+            cardText="I support students and early-career health professionals as they build clinical, teaching and research skills, with honest feedback and room to ask a second question."
+            cardName="Ramesh Kandel"
+            cardMeta="Professor of Geriatric Medicine"
+          >
             <p>My experience includes academic and hospital leadership at Rapti Academy of Health Sciences, alongside work in curriculum development and educational quality improvement.</p>
             <p>I am interested in programmes that connect classroom learning with clinical and community needs, prepare graduates for local practice and support continuous improvement.</p>
-          </ProseSection>
-          <ProseSection kicker="Mentoring" title="The next generation" ground="cream">
-            <p>I value opportunities to support students and early-career health professionals as they develop clinical, teaching and research skills. My approach encourages clear questions, realistic plans, ethical practice and the confidence to learn from feedback.</p>
-          </ProseSection>
+          </HiwConsult>
+          <HiwBenefits
+            items={ [
+              { id: "students", icon: GraduationCap, title: "For students", paragraphs: [ "Medical and nursing students, interns and residents get a framework for the older patient that a single-organ syllabus rarely provides.", "Every session starts with a real case and ends with an assessment anyone can repeat." ] },
+              { id: "professionals", icon: Users, title: "For professionals", paragraphs: [ "General practitioners, medical officers and specialists refresh the prescribing and referral habits that matter most in later life.", "Workshops are built around the cases your team actually saw last month." ] },
+              { id: "institutions", icon: Building2, title: "For institutions", paragraphs: [ "Curriculum design, assessment tools and faculty development, worked through with the teachers who will have to run them.", "Quality improvement projects that connect teaching to the community the college serves." ] },
+            ] }
+          />
+          <HiwFaq
+            title="Questions from organisers"
+            items={ [
+              { q: "What formats do you teach?", a: <p>Guest lectures, half and full-day workshops, bedside and ward-round teaching, faculty sessions, and curriculum or assessment design work.</p> },
+              { q: "Who benefits most?", a: <p>Medical and nursing students, interns, general practitioners, specialists, allied health teams and the families who care for older people at home.</p> },
+              { q: "In which language?", a: <p>English for academic and professional sessions, Nepali for community and caregiver programmes, and a mix of both in the classroom when it helps the discussion.</p> },
+              { q: "Can you design a whole module?", a: <p>Yes. I prefer to build modules with the faculty who will teach them, so the content, the assessment and the staff development arrive together.</p> },
+              { q: "Do you still see patients?", a: <p>Clinical sessions at Rapti Academy of Health Sciences continue alongside teaching, so the examples come from current practice rather than old notes.</p> },
+              { q: "How much notice do you need?", a: <p>Four to six weeks is comfortable for a workshop or a series of lectures. A single class can often be arranged sooner.</p> },
+            ] }
+          />
+          <HiwCta
+            kicker="INVITATIONS"
+            title="Teaching, training and"
+            accent="professional discussion"
+            action={ <>
+              <HiwPill href="/contact">Enquire about teaching</HiwPill>
+              <HiwPill href={ cvUrl } tone="outline">Download my CV</HiwPill>
+            </> }
+            note="*Send an enquiry and I will reply with availability, formats and a suggested outline."
+          >
+            <p>Invitations on geriatric medicine, healthy ageing, integrated care and medical education are welcome from colleges, hospitals, professional bodies and community programmes.</p>
+          </HiwCta>
+        </>
+      )
+    },
+    media: {
+      title: "Media",
+      content: (
+        <>
+          <FullBleedHero
+            kicker="Media"
+            title="Interviews, speeches and talks."
+            lede={ <p>Television interviews, recorded talks and community conversations about ageing, Alzheimer’s disease, geriatric care and healthy ageing in Nepal.</p> }
+            photo={ home.teaching }
+          />
+          <MediaGallery
+            kicker="Watch"
+            title="All videos"
+            items={ allVideos }
+          />
+          <PressSection
+            kicker="In the press"
+            title="Written for a wider audience."
+            lede="Longer pieces for Nepali readers, turning clinical evidence into advice families can act on."
+            items={ [
+              {
+                href: "https://swasthyakhabar.com/story/63850",
+                photo: home.press,
+                topic: "Feature article",
+                title: "डिमेन्सिया रोक्न सकिन्छ? स्मरणशक्ति कमजोर हुनुअघि नै मस्तिष्कलाई जोगाऔँ",
+                source: "Swasthya Khabarpatrika",
+                blurb: "A Nepali-language article on what lowers dementia risk: lifelong behaviour, everyday health decisions and social policy that protect brain health before memory weakens.",
+              },
+            ] }
+          />
           <ClosingCta
-            kicker="Speaking and training"
-            title="Lectures, workshops and professional discussion."
-            lede="Invitations on geriatric medicine, healthy ageing, integrated care and medical education."
+            kicker="Invitations"
+            title="Speaking and media requests."
+            lede="Available for interviews, lectures, workshops and community talks on geriatric medicine, healthy ageing and integrated care."
             primary={ { label: "Enquire about speaking", href: "/contact" } }
             secondary={ { label: "Download my CV", href: cvUrl } }
           />
@@ -865,6 +1054,8 @@ export const site: SiteContent = {
                   { id: "organisation", kind: "text", label: "Organisation" },
                   { id: "topic", kind: "choice", label: "Nature of enquiry", required: true, options: [ "Research collaboration", "Teaching and speaking", "Programme and policy work", "Other" ] },
                   { id: "timeline", kind: "text", label: "Timeline, if any" },
+                  { id: "concerns", kind: "textarea", label: "Please briefly list your top 3 most important health concerns or goals", required: true },
+                  { id: "aim", kind: "textarea", label: "What are you hoping to achieve from a consultation with me?", required: true },
                   { id: "message", kind: "textarea", label: "Your message", required: true },
                 ] }
               />

@@ -49,7 +49,13 @@ function errorFor( field: EnquiryField, value: string ): string | undefined {
     return 'Please enter a message.';
   }
   if ( field.required && empty ) {
-    return field.kind === 'choice' ? `Please choose ${ field.label.toLowerCase() }.` : `Please enter ${ field.label.toLowerCase() }.`;
+    if ( field.kind === 'choice' ) {
+      return `Please choose ${ field.label.toLowerCase() }.`;
+    }
+    if ( field.kind === 'textarea' ) {
+      return 'Please answer this question.';
+    }
+    return `Please enter ${ field.label.toLowerCase() }.`;
   }
   return undefined;
 }
