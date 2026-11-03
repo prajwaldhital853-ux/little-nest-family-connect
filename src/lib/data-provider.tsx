@@ -121,7 +121,7 @@ export function SupabaseDataProvider({ children }: { children: ReactNode }) {
           queryClient.invalidateQueries({ queryKey: ["messages"] });
         },
         onError: () => {
-          toast.error("Couldn't send your message — please try again.");
+          toast.error("Couldn't send your message. Please try again.");
         },
       });
       return { mutate: mutation.mutate, isPending: mutation.isPending };
@@ -190,7 +190,7 @@ export function SupabaseDataProvider({ children }: { children: ReactNode }) {
           for (const [key, list] of context?.snapshots ?? []) {
             queryClient.setQueryData(key, list);
           }
-          toast.error("Couldn't update the message — try again.");
+          toast.error("Couldn't update the message. Try again.");
         },
         onSettled: () => {
           queryClient.invalidateQueries({ queryKey: ["messages", userId] });

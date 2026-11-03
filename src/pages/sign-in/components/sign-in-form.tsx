@@ -57,7 +57,7 @@ export function SignInForm({ onForgotPassword }: SignInFormProps) {
       if (error.message.toLowerCase().includes("email not confirmed")) {
         setAuthError("Please confirm your email before signing in.");
       } else {
-        setAuthError("Incorrect email or password — try again.");
+        setAuthError("Incorrect email or password. Try again.");
       }
       setSubmitting(false);
       return;

@@ -28,7 +28,7 @@ export function OAuthButtons() {
     });
     if (result.error) {
       setError(
-        `Couldn't sign in with ${provider === "google" ? "Google" : "Apple"} — try again.`,
+        `Couldn't sign in with ${provider === "google" ? "Google" : "Apple"}. Try again.`,
       );
       setPending(null);
       return;

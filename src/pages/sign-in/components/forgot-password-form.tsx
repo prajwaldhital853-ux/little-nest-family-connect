@@ -45,7 +45,7 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
     });
     setSubmitting(false);
     if (error) {
-      toast.error("Couldn't send the reset link — try again.");
+      toast.error("Couldn't send the reset link. Please try again.");
       return;
     }
     toast.success("Check your email for a reset link.");

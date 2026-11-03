@@ -119,13 +119,13 @@ export function ContactDetailsForm( { subject = 'General', inquiryType = 'Genera
       return;
     }
     const message = custom ?
-      list.filter( field => field.id !== 'name' && field.id !== 'email' ).map( field => `${ field.label }: ${ ( values[field.id] ?? '' ).trim() || '—' }` ).join( '\n' ) :
+      list.filter( field => field.id !== 'name' && field.id !== 'email' ).map( field => `${ field.label }: ${ ( values[field.id] ?? '' ).trim() || 'not provided' }` ).join( '\n' ) :
       ( values.message ?? '' ).trim();
     send( { name: ( values.name ?? '' ).trim(), email: ( values.email ?? '' ).trim(), subject, inquiry_type: inquiryType, message }, { onSuccess: onSent } );
   }, [ custom, inquiryType, list, onSent, send, subject, values ] );
 
   if ( sent ) {
-    return <p className={ cn( 'm-0', className ) } role="status">Thanks — your message is on its way.</p>;
+    return <p className={ cn( 'm-0', className ) } role="status">Thanks. Your message is on its way.</p>;
   }
 
   return (

@@ -16,11 +16,15 @@ export function SitePage() {
     window.scrollTo( 0, target ? target.getBoundingClientRect().top + window.scrollY - ( parseFloat( getComputedStyle( target ).scrollMarginTop ) || 0 ) : 0 );
   }, [ hash, page, item ] );
 
+  useLayoutEffect( () => {
+    document.title = subpage?.title ? `${ subpage.title } · Professor Ramesh Kandel` : site.title;
+  }, [ subpage ] );
+
   if ( page !== undefined && !subpage ) {
     return <NotFound />;
   }
   return (
-    <SiteTemplate name={ site.name } pack={ site.pack } layout={ site.layout } header={ site.header } footer={ site.footer } footerStickers={ site.footerStickers }>
+    <SiteTemplate name={ site.name } pack={ site.pack } layout={ site.layout } header={ site.header } footer={ site.footer }>
       { subpage ? subpage.content : <>{ site.hero }{ site.after }</> }
     </SiteTemplate>
   );
