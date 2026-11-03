@@ -18,14 +18,14 @@ export interface SitePhoto {
 export const cvUrl = "/Ramesh_Kandel_CV.pdf";
 
 export const home = {
-  portrait: { src: portrait, alt: "Professor Ramesh Kandel, geriatrician, smiling in a blue shirt" },
+  portrait: { src: portrait, alt: "Dr. Ramesh Kandel, geriatrician, smiling in a blue shirt" },
   ageingCouple: { src: ageingCouple, alt: "An elderly couple walking hand in hand on a hillside path at sunset" },
   teaching: { src: teaching, alt: "Medical students in white coats attending a lecture" },
   caregiver: { src: caregiver, alt: "A young woman helping her grandmother stand up from a chair at home" },
   research: { src: research, alt: "Research papers, charts, reading glasses, a stethoscope and a notebook on a desk" },
   checkup: { src: checkup, alt: "A doctor examining an elderly patient at a community health camp in Nepal" },
   clinic: { src: clinic, alt: "A doctor consulting with a patient in a clinic" },
-  press: { src: press, alt: "Quote card from Professor Ramesh Kandel's Swasthya Khabarpatrika article on dementia prevention, with his portrait" },
+  press: { src: press, alt: "Quote card from Dr. Ramesh Kandel's Swasthya Khabarpatrika article on dementia prevention, with his portrait" },
 } satisfies Record<string, SitePhoto>;
 
 export const hiw = {

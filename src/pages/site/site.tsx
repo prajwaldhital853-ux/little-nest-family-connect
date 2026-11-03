@@ -86,6 +86,12 @@ const allLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
+const socials = [
+  { label: "Facebook", href: "https://www.facebook.com/drameshkandel" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/ramesh-kandel-133673154/" },
+  { label: "YouTube", href: "https://www.youtube.com/@rameshkandel650" },
+];
+
 const allVideos: DrMediaItem[] = [
   {
     url: "https://www.youtube.com/watch?v=l1H2YtG1vMw",
@@ -371,19 +377,20 @@ const posts: DrPost[] = [
 
 const footer = (
   <DoctorFooter
-    name="Professor Ramesh Kandel"
+    name="Dr. Ramesh Kandel"
     note="The views on this website are my own unless otherwise stated. Educational content is for general information and does not replace an individual clinical assessment."
     links={ allLinks }
     email={ EMAIL }
     phone={ PHONE }
     cvHref={ cvUrl }
-    copyright="© 2026 Professor Ramesh Kandel. All rights reserved."
+    social={ socials }
+    copyright="© 2026 Dr. Ramesh Kandel. All rights reserved."
   />
 );
 
 export const site: SiteContent = {
   name: "site",
-  title: "Professor Ramesh Kandel, Geriatric Medicine in Nepal",
+  title: "Dr. Ramesh Kandel, Geriatric Medicine in Nepal",
   pack: hazelHouse,
   layout: "margin",
   header: {
@@ -417,14 +424,14 @@ export const site: SiteContent = {
   after: (
     <>
       <NamasteIntro
-        eyebrow="Namaste, I'm Professor Kandel"
+        eyebrow="Namaste, I'm Dr. Kandel"
         title="Care that listens first."
         body={
           <p>
             After more than a decade in geriatric medicine in Nepal, I have sat with farmers, grandparents, teachers and their families as several small problems stacked into a life that suddenly felt unsafe. A fall, a new tablet, poor sleep, a change in memory. Each of them deserves the same thing: time, an honest explanation, and a plan written in words they understand.
           </p>
         }
-        name="Professor Ramesh Kandel"
+        name="Dr. Ramesh Kandel"
         credentials="MD (Geriatric Medicine, AIIMS New Delhi) · MBBS (BPKIHS) · Professor, Rapti Academy of Health Sciences"
         marks={ [ "RAHS", "WHO-SEARO", "HAMS", "Patan Academy", "NIAH" ] }
       />
@@ -487,7 +494,7 @@ export const site: SiteContent = {
           { label: "Health systems" },
         ] }
         quote="Growing up in Nepal and watching older family members taught me that dignity, support and the right care are not extras. They are the work."
-        quoteName="Professor Ramesh Kandel"
+        quoteName="Dr. Ramesh Kandel"
         quotePlace="Rapti Academy of Health Sciences"
         quoteRole="Professor of Geriatric Medicine"
         quoteLink={ { label: "Read my journey", href: "/about" } }
@@ -544,7 +551,7 @@ export const site: SiteContent = {
         <>
           <FullBleedHero
             kicker="About"
-            title="Professor Ramesh Kandel."
+            title="Dr. Ramesh Kandel."
             lede={ <p>A physician specialising in geriatric medicine, working across clinical practice, research, medical education and institutional leadership in Nepal.</p> }
             photo={ home.portrait }
           />
@@ -1030,7 +1037,7 @@ export const site: SiteContent = {
       content: (
         <PostList
           posts={ posts }
-          author="Professor Ramesh Kandel"
+          author="Dr. Ramesh Kandel"
           avatar={ home.portrait }
         />
       )
@@ -1071,6 +1078,9 @@ export const site: SiteContent = {
               <p>Professor of Geriatric Medicine, Rapti Academy of Health Sciences, Nepal.</p>
               <TextLink href="https://orcid.org/0000-0002-7827-1471">ORCID</TextLink>
               <TextLink href="https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en">Google Scholar</TextLink>
+              { socials.map( item => (
+                <TextLink key={ item.href } href={ item.href } target="_blank" rel="noreferrer">{ item.label }</TextLink>
+              ) ) }
             </> },
             { id: "clinic", label: "Clinical appointments", content: <>
               <p>For clinical appointments, please contact the relevant hospital or clinic directly. Please do not submit confidential medical information through this website.</p>

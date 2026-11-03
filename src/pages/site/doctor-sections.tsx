@@ -904,13 +904,14 @@ export function HomeBlogSection( { kicker, title, lede, posts, allHref }: {
   );
 }
 
-export function DoctorFooter( { name, note, links, email, phone, cvHref, copyright }: {
+export function DoctorFooter( { name, note, links, email, phone, cvHref, social, copyright }: {
   name: string;
   note: string;
   links: DrHeaderLink[];
   email: string;
   phone: string;
   cvHref: string;
+  social: { label: string; href: string }[];
   copyright: string;
 } ) {
   return (
@@ -930,6 +931,9 @@ export function DoctorFooter( { name, note, links, email, phone, cvHref, copyrig
         <div className="dr-footer-contact">
           <a href={ `mailto:${ email }` }>{ email }</a>
           <a href={ `tel:${ phone.replace( /[^\d+]/g, "" ) }` }>{ phone }</a>
+          <div className="dr-footer-social">
+            { social.map( item => <a key={ item.href } href={ item.href } target="_blank" rel="noreferrer">{ item.label }</a> ) }
+          </div>
         </div>
       </div>
       <p className="dr-footer-copy text-small">{ copyright }</p>

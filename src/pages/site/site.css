@@ -1159,6 +1159,7 @@ html:has( .site-template ) {
 .dr-footer-contact { display: flex; flex-direction: column; gap: 0.5rem; }
 .dr-footer-contact a { color: var( --band-ivory ); }
 .dr-footer-contact a:hover { color: var( --band-yellow ); }
+.dr-footer-social { display: flex; flex-wrap: wrap; gap: 0.5rem 1.6rem; margin-top: 0.45rem; }
 .dr-footer-copy { margin: 3rem 0 0; padding-top: 1.5rem; border-top: 1px solid color-mix( in srgb, var( --band-ivory ) 18%, transparent ); color: color-mix( in srgb, var( --band-ivory ) 62%, transparent ); }
 @media ( min-width: 1024px ) {
   .dr-footer-top { grid-template-columns: 1.4fr 0.8fr 0.8fr; align-items: start; }

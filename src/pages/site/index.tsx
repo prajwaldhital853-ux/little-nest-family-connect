@@ -17,7 +17,7 @@ export function SitePage() {
   }, [ hash, page, item ] );
 
   useLayoutEffect( () => {
-    document.title = subpage?.title ? `${ subpage.title } · Professor Ramesh Kandel` : site.title;
+    document.title = subpage?.title ? `${ subpage.title } · Dr. Ramesh Kandel` : site.title;
   }, [ subpage ] );
 
   if ( page !== undefined && !subpage ) {
