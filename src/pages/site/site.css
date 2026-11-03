@@ -636,15 +636,6 @@ html:has( .site-template ) {
   max-width: 60rem;
   width: 100%;
 }
-.dr-cinematic-kicker {
-  margin: 0;
-  font-family: var( --font-meta );
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  color: var( --band-yellow );
-}
 .dr-cinematic-title {
   margin: 0;
   font-family: var( --font-heading );

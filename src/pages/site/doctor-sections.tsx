@@ -398,7 +398,6 @@ export function CinematicWork( { kicker, title, caption, photo, areas }: {
       >
         {/* headline centred inside the frame */}
         <div ref={ headRef } className={ cn( "dr-cinematic-head", headIn && "is-in" ) }>
-          <p className="dr-cinematic-kicker">{ kicker }</p>
           <h2 className="dr-cinematic-title">{ title }</h2>
           { caption && <p className="dr-cinematic-caption">{ caption }</p> }
         </div>
