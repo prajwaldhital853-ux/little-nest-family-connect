@@ -100,6 +100,11 @@ html:has( .site-template ) {
 
 /* Brand */
 .dr-brand { display: flex; align-items: center; gap: 0.6rem; }
+.dr-brand-photo {
+  width: 2.6rem; height: 2.6rem; border-radius: 50%; overflow: hidden;
+  background: var( --band-red ); display: block; flex-shrink: 0;
+}
+.dr-brand-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .dr-brand-icon {
   width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
   background: var( --band-red ); border-radius: 50%; color: #fff; flex-shrink: 0;

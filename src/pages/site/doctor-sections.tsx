@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 import type { SitePhoto } from "./media";
+import { home } from "./media";
 
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
@@ -95,6 +96,9 @@ export function DoctorHeader( { name, role, strip, place, links, phone, cta }: {
       <header className={ cn( "dr-header", scrolled && "is-scrolled" ) }>
         <div className="dr-bar">
           <Link to="/" className="dr-brand">
+            <span className="dr-brand-photo" aria-hidden>
+              <img src={ home.portrait.src } alt="" />
+            </span>
             <span className="dr-brand-text">
               <span className="dr-brand-name">{ name }</span>
               <span className="dr-brand-role text-small">{ role }</span>
@@ -437,7 +441,7 @@ function CinematicCard( { area, index }: { area: { id: string; title: string; te
 export interface FaqItem { q: string; a: ReactNode; }
 
 export function DrFaq( { eyebrow, title, lede, link, items }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: ReactNode;
   lede: ReactNode;
   link: DrHeaderLink;
@@ -450,7 +454,7 @@ export function DrFaq( { eyebrow, title, lede, link, items }: {
     <section ref={ ref } data-header="solid" className="dr-faq">
       <div className="dr-faq-layout">
         <div>
-          <p className="dr-faq-eyebrow"><span className="dr-dot" aria-hidden />{ eyebrow }</p>
+          { eyebrow && <p className="dr-faq-eyebrow"><span className="dr-dot" aria-hidden />{ eyebrow }</p> }
           <h2 className="dr-faq-title">{ title }</h2>
           <p className="dr-faq-lede">{ lede }</p>
           <SmartLink href={ link.href } className="dr-faq-link text-small">

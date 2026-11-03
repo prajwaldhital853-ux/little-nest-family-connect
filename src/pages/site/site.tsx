@@ -438,8 +438,16 @@ export const site: SiteContent = {
         posts={ posts }
         allHref="/blog"
       />
+      <HiwCta
+        kicker="GET STARTED TODAY"
+        title="Start to improve your"
+        accent="Independence"
+        action={ <HiwPill href="/contact" tone="blue">Book a consultation</HiwPill> }
+        note="*Send an enquiry and I will reply with availability, directions and what to bring."
+      >
+        <p>It is important to find and treat the root cause of decline, not just the symptoms. Let us work together to reverse your risk of dependence, reduce your reliance on prescription drugs, and optimize your health. Your custom plan will include low-risk, high-value recommendations in the areas of diet, lifestyle, fitness, and medicines so that you can start to live your healthiest life.</p>
+      </HiwCta>
       <DrFaq
-        eyebrow="Before you visit"
         title={ <span>A few questions.<br />Clear answers.</span> }
         lede="It’s natural to have questions about your care. Here are a few things you might be wondering."
         link={ { label: "Have another question?", href: "/contact" } }
