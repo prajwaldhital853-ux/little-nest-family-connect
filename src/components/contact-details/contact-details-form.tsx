@@ -3,11 +3,7 @@ import { useCallback, useId, useRef, useState } from 'react';
 
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import type { CreateContactMessageInput } from '@/lib/data-provider';
-import { useDataProvider } from '@/lib/data-provider';
 import { cn } from '@/lib/utils';
-
-type InquiryType = CreateContactMessageInput['inquiry_type'];
 
 export type EnquiryField =
   | { id: string; kind: 'text' | 'email' | 'tel'; label: string; required?: boolean; half?: boolean }
@@ -16,12 +12,14 @@ export type EnquiryField =
   | { id: string; kind: 'textarea'; label: string; placeholder?: string; required?: boolean };
 
 export interface ContactDetailsFormProps {
-  subject?: string;
-  inquiryType?: InquiryType;
   fields?: EnquiryField[];
   submitLabel?: string;
   initial?: Record<string, string>;
   className?: string;
+  /* Where the enquiry goes. The site hands it the clinic backend, so nothing is
+     ever stored in the browser. It resolves with the line to show in place of the
+     form, or rejects with an Error carrying an optional `fields` map of id to message. */
+  onSend: ( values: Record<string, string>, fields: EnquiryField[] ) => Promise<string | void>;
 }
 
 const DEFAULT_FIELDS: EnquiryField[] = [
@@ -29,6 +27,9 @@ const DEFAULT_FIELDS: EnquiryField[] = [
   { id: 'email', kind: 'email', label: 'Your email', required: true },
   { id: 'message', kind: 'textarea', label: 'Your message', required: true }
 ];
+
+const THANKS = 'Thanks. Your message is on its way.';
+const FAILURE = 'That did not go through. Please try again, or write to me directly.';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -84,16 +85,17 @@ function ChoiceGroup( { name, value, options, idPrefix, onChoice, groupRef }: { 
   );
 }
 
-export function ContactDetailsForm( { subject = 'General', inquiryType = 'General Question', fields, submitLabel = 'Send', initial = {}, className = '' }: ContactDetailsFormProps ) {
+export function ContactDetailsForm( { fields, submitLabel = 'Send', initial = {}, className = '', onSend }: ContactDetailsFormProps ) {
   const id = useId();
   const custom = fields !== undefined;
   const list = fields ?? DEFAULT_FIELDS;
-  const data = useDataProvider();
-  const { mutate, isPending } = data.useCreateContactMessage();
-  const send = mutate as ( input: CreateContactMessageInput, options?: { onSuccess?: () => void } ) => void;
   const [ values, setValues ] = useState<Record<string, string>>( () => Object.fromEntries( list.map( field => [ field.id, initial[field.id] ?? '' ] ) ) );
   const [ errors, setErrors ] = useState<Record<string, string>>( {} );
   const [ sent, setSent ] = useState( false );
+  const [ receipt, setReceipt ] = useState( THANKS );
+  const [ problem, setProblem ] = useState( '' );
+  const [ pending, setPending ] = useState( false );
+  const busy = pending;
   const refs = useRef<Record<string, HTMLElement | null>>( {} );
 
   const onChange = useCallback( ( event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> ) => {
@@ -105,11 +107,7 @@ export function ContactDetailsForm( { subject = 'General', inquiryType = 'Genera
     setValues( before => ( { ...before, [ name ]: value } ) );
   }, [] );
 
-  const onSent = useCallback( () => {
-    setSent( true );
-  }, [] );
-
-  const onSubmit = useCallback( ( event: FormEvent<HTMLFormElement> ) => {
+  const onSubmit = useCallback( async ( event: FormEvent<HTMLFormElement> ) => {
     event.preventDefault();
     const found: Record<string, string> = {};
     for ( const field of list ) {
@@ -119,19 +117,32 @@ export function ContactDetailsForm( { subject = 'General', inquiryType = 'Genera
       }
     }
     setErrors( found );
+    setProblem( '' );
     const first = list.find( field => found[field.id] );
     if ( first ) {
       refs.current[first.id]?.focus();
       return;
     }
-    const message = custom ?
-      list.filter( field => field.id !== 'name' && field.id !== 'email' ).map( field => `${ field.label }: ${ ( values[field.id] ?? '' ).trim() || 'not provided' }` ).join( '\n' ) :
-      ( values.message ?? '' ).trim();
-    send( { name: ( values.name ?? '' ).trim(), email: ( values.email ?? '' ).trim(), subject, inquiry_type: inquiryType, message }, { onSuccess: onSent } );
-  }, [ custom, inquiryType, list, onSent, send, subject, values ] );
+    setPending( true );
+    try {
+      const line = await onSend( values, list );
+      setReceipt( line || THANKS );
+      setSent( true );
+    } catch ( reason ) {
+      const failure = reason as { message?: string; fields?: Record<string, string> };
+      const [ firstBad ] = Object.keys( failure.fields ?? {} );
+      if ( firstBad ) {
+        setErrors( failure.fields ?? {} );
+        refs.current[firstBad]?.focus();
+      }
+      setProblem( failure.message || FAILURE );
+    } finally {
+      setPending( false );
+    }
+  }, [ list, onSend, values ] );
 
   if ( sent ) {
-    return <p className={ cn( 'm-0', className ) } role="status">Thanks. Your message is on its way.</p>;
+    return <p className={ cn( 'm-0', className ) } role="status">{ receipt }</p>;
   }
 
   return (
@@ -213,9 +224,12 @@ export function ContactDetailsForm( { subject = 'General', inquiryType = 'Genera
           </div>
         );
       } ) }
+      { problem && (
+        <p role="alert" className={ cn( 'm-0 text-small', custom ? 'min-[735px]:col-span-2' : 'mt-2' ) }>{ problem }</p>
+      ) }
       <div className={ cn( 'mt-[7px]', custom && 'flex justify-end min-[735px]:col-span-2' ) }>
-        <button type="submit" disabled={ isPending } className="m-0 cursor-pointer border-0 border-b border-current bg-transparent p-0 text-inherit disabled:opacity-50">
-          { isPending ? 'Sending…' : submitLabel }
+        <button type="submit" disabled={ busy } className="m-0 cursor-pointer border-0 border-b border-current bg-transparent p-0 text-inherit disabled:opacity-50">
+          { busy ? 'Sending…' : submitLabel }
         </button>
       </div>
     </form>

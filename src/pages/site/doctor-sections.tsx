@@ -1,4 +1,4 @@
-import type { ComponentType, CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, Check, ChevronsLeft, MapPin, Menu, Phone, Play, Plus, X } from "lucide-react";
@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils";
 
 import type { SitePhoto } from "./media";
 import { home } from "./media";
+import { fill } from "./copy";
 import type { PublicationGroup } from "./publications";
 import { orcidUrl, scholarProfileUrl } from "./publications";
+import type { CopyIcon } from "./icons";
 
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
@@ -65,7 +67,8 @@ export function DrButton( { href, children, tone = "yellow", className }: { href
 
 export interface DrHeaderLink { label: string; href: string }
 
-export function DoctorHeader( { name, role, strip, place, links, phone, cta }: {
+/* The header is built once in `site.tsx` and handed to `SiteTemplate`, so its shape lives here alone. */
+export interface DoctorHeaderData {
   name: string;
   role: string;
   strip: string;
@@ -73,9 +76,16 @@ export function DoctorHeader( { name, role, strip, place, links, phone, cta }: {
   links: DrHeaderLink[];
   phone: { label: string; href: string };
   cta: DrHeaderLink;
-} ) {
+  collaborate?: DrHeaderLink;
+  photo?: SitePhoto;
+  aria?: { primary?: string; drawer?: string; open?: string; close?: string };
+}
+
+export function DoctorHeader( { name, role, strip, place, links, phone, cta, collaborate, photo = home.portrait, aria = {} }: DoctorHeaderData ) {
   const [ open, setOpen ] = useState( false );
   const [ scrolled, setScrolled ] = useState( false );
+  const drawer = useRef<HTMLDivElement>( null );
+  const menuButton = useRef<HTMLButtonElement>( null );
 
   useEffect( () => {
     const onScroll = () => setScrolled( window.scrollY > 80 );
@@ -89,6 +99,29 @@ export function DoctorHeader( { name, role, strip, place, links, phone, cta }: {
     return () => { document.body.style.overflow = ""; };
   }, [ open ] );
 
+  useEffect( () => {
+    if ( !open ) return;
+    const linksIn = () => Array.from( drawer.current?.querySelectorAll<HTMLElement>( "a[href],button:not([disabled])" ) ?? [] );
+    linksIn()[ 0 ]?.focus();
+    const onKey = ( event: KeyboardEvent ) => {
+      if ( event.key === "Escape" ) {
+        setOpen( false );
+        menuButton.current?.focus();
+        return;
+      }
+      if ( event.key !== "Tab" ) return;
+      const items = linksIn();
+      if ( items.length === 0 ) return;
+      const first = items[ 0 ];
+      const last = items[ items.length - 1 ];
+      if ( event.shiftKey && document.activeElement === first ) { event.preventDefault(); last.focus(); }
+      else if ( !event.shiftKey && document.activeElement === last ) { event.preventDefault(); first.focus(); }
+      else if ( !drawer.current?.contains( document.activeElement ) ) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener( "keydown", onKey );
+    return () => document.removeEventListener( "keydown", onKey );
+  }, [ open ] );
+
   return (
     <>
       <div className="dr-strip text-small">
@@ -99,29 +132,32 @@ export function DoctorHeader( { name, role, strip, place, links, phone, cta }: {
         <div className="dr-bar">
           <Link to="/" className="dr-brand">
             <span className="dr-brand-photo" aria-hidden>
-              <img src={ home.portrait.src } alt="" />
+              <img src={ photo.src } alt="" width={ photo.width } height={ photo.height } />
             </span>
             <span className="dr-brand-text">
               <span className="dr-brand-name">{ name }</span>
               <span className="dr-brand-role text-small">{ role }</span>
             </span>
           </Link>
-          <nav aria-label="Primary" className="dr-nav">
+          <nav aria-label={ aria.primary ?? "Primary" } className="dr-nav">
             { links.map( link => (
               <NavLink key={ link.href } to={ link.href } className="dr-nav-link dr-meta text-small">{ link.label }</NavLink>
             ) ) }
           </nav>
           <div className="dr-actions">
+            { collaborate && (
+              <SmartLink href={ collaborate.href } className="dr-collab dr-meta text-small">{ collaborate.label }</SmartLink>
+            ) }
             <a href={ phone.href } className="dr-call dr-meta text-small"><Phone aria-hidden className="size-4" /><span>{ phone.label }</span></a>
             <SmartLink href={ cta.href } className="dr-pill text-small">{ cta.label }<ArrowUpRight aria-hidden className="dr-btn-icon" /></SmartLink>
-            <button type="button" className="dr-menu-btn" aria-label={ open ? "Close menu" : "Open menu" } aria-expanded={ open } onClick={ () => setOpen( v => !v ) }>
+            <button type="button" ref={ menuButton } className="dr-menu-btn" aria-label={ open ? ( aria.close ?? "Close menu" ) : ( aria.open ?? "Open menu" ) } aria-expanded={ open } aria-controls="dr-drawer" onClick={ () => setOpen( v => !v ) }>
               { open ? <X aria-hidden /> : <Menu aria-hidden /> }
             </button>
           </div>
         </div>
-        <div className={ cn( "dr-drawer", open && "is-open" ) } aria-hidden={ !open }>
-          <nav aria-label="Menu" className="flex flex-col gap-1">
-            { [ ...links, cta ].map( ( link, i ) => (
+        <div id="dr-drawer" ref={ drawer } className={ cn( "dr-drawer", open && "is-open" ) } aria-hidden={ !open }>
+          <nav aria-label={ aria.drawer ?? "Menu" } className="flex flex-col gap-1">
+            { [ ...links, ...( collaborate ? [ collaborate ] : [] ), cta ].map( ( link, i ) => (
               <SmartLink key={ link.href + i } href={ link.href } onClick={ () => setOpen( false ) } className="dr-drawer-link text-h3" >
                 { link.label }
               </SmartLink>
@@ -147,7 +183,7 @@ export function DoctorHero( { eyebrow, title, lede, primary, secondary, ticks, p
   ticks: string[];
   photo: SitePhoto;
   bandTitle: ReactNode;
-  bandItems: { icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>; label: string }[];
+  bandItems: { icon: CopyIcon; label: string }[];
 } ) {
   return (
     <section className="dr-hero" data-header="solid">
@@ -165,7 +201,8 @@ export function DoctorHero( { eyebrow, title, lede, primary, secondary, ticks, p
           </ul>
         </div>
         <div className="dr-hero-photo">
-          <img src={ photo.src } alt={ photo.alt } fetchPriority="high" />
+          { /* React 18 drops the camelCase prop, so the attribute is handed over in its DOM spelling. */ }
+          <img src={ photo.src } alt={ photo.alt } width={ photo.width } height={ photo.height } { ...{ fetchpriority: "high" } } />
         </div>
       </div>
       <div className="dr-band">
@@ -186,13 +223,14 @@ export function DoctorHero( { eyebrow, title, lede, primary, secondary, ticks, p
 /* Centred intro with signature (SS2)                                  */
 /* ------------------------------------------------------------------ */
 
-export function NamasteIntro( { eyebrow, title, body, name, credentials, marks }: {
+export function NamasteIntro( { eyebrow, title, body, name, credentials, marks, marksLabel }: {
   eyebrow: string;
   title: ReactNode;
   body: ReactNode;
   name: string;
   credentials: string;
   marks?: string[];
+  marksLabel?: string;
 } ) {
   const { ref, inView } = useInView<HTMLElement>( 0.2 );
   return (
@@ -204,7 +242,7 @@ export function NamasteIntro( { eyebrow, title, body, name, credentials, marks }
       <p className="dr-sign-name dr-meta text-large">{ name }</p>
       <p className="dr-sign-cred text-small">{ credentials }</p>
       { marks && (
-        <ul className="dr-marks dr-meta text-small" aria-label="Trained and trusted at">
+        <ul className="dr-marks dr-meta text-small" aria-label={ marksLabel ?? "Trained and trusted at" }>
           { marks.map( m => <li key={ m }>{ m }</li> ) }
         </ul>
       ) }
@@ -220,7 +258,7 @@ export interface JourneyStep {
   id: string;
   title: string;
   text: string;
-  icon: ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>;
+  icon: CopyIcon;
   tone: "yellow" | "black" | "red";
 }
 
@@ -272,7 +310,7 @@ export function WhyItMatters( { kicker, title, body, items, quote, quoteName, qu
         <p className="dr-why-areas text-small">{ items.map( ( { label } ) => label ).join( ", " ) }.</p>
       </div>
       <div className="dr-why-panel">
-        <img className="dr-why-photo" src={ photo.src } alt={ photo.alt } loading="lazy" />
+        <img className="dr-why-photo" src={ photo.src } alt={ photo.alt } width={ photo.width } height={ photo.height } loading="lazy" decoding="async" />
         <div className="dr-why-voice">
           <figure className="dr-why-quote">
             <blockquote className="m-0 dr-why-quote-text text-large">{ quote }</blockquote>
@@ -296,7 +334,7 @@ export interface DrMediaItem {
   url: string;
   kind: string;
   title: string;
-  date?: string;
+  source?: string;
   poster?: SitePhoto;
 }
 
@@ -320,7 +358,7 @@ function nextThumb( id: string, img: HTMLImageElement, poster?: string ) {
   }
 }
 
-function MediaCard( { item, index, onPlay }: { item: DrMediaItem; index: number; onPlay: ( item: DrMediaItem ) => void } ) {
+function MediaCard( { item, index, onPlay, playLabel }: { item: DrMediaItem; index: number; onPlay: ( item: DrMediaItem ) => void; playLabel?: string } ) {
   const id = youtubeId( item.url );
   const thumb = id ? `https://i.ytimg.com/vi/${ id }/maxresdefault.jpg` : item.poster?.src;
   const thumbRef = useRef<HTMLImageElement>( null );
@@ -337,6 +375,8 @@ function MediaCard( { item, index, onPlay }: { item: DrMediaItem; index: number;
             className="dr-media-thumb"
             src={ thumb }
             alt={ item.title }
+            loading="lazy"
+            decoding="async"
             onError={ event => {
               if ( id ) nextThumb( id, event.currentTarget, item.poster?.src );
             } }
@@ -351,21 +391,29 @@ function MediaCard( { item, index, onPlay }: { item: DrMediaItem; index: number;
       </div>
       <div className="dr-media-body">
         <h3 className="dr-media-title text-large">{ item.title }</h3>
-        <p className="dr-media-date text-small">{ item.kind }{ item.date ? `, ${ item.date }` : "" }</p>
+        <p className="dr-media-date text-small">{ item.kind }{ item.source ? `, ${ item.source }` : "" }</p>
       </div>
       { item.url && (
         <button
           type="button"
           className="dr-media-open"
           onClick={ () => onPlay( item ) }
-          aria-label={ `Play ${ item.kind }: ${ item.title }` }
+          aria-label={ fill( playLabel ?? "Play {kind}: {title}", { kind: item.kind, title: item.title } ) }
         />
       ) }
     </article>
   );
 }
 
-export function MediaGallery( { kicker, title, items, allHref }: { kicker: string; title: string; items: DrMediaItem[]; allHref?: string } ) {
+export function MediaGallery( { kicker, title, items, allHref, allLabel, playLabel, page }: {
+  kicker: string;
+  title: string;
+  items: DrMediaItem[];
+  allHref?: string;
+  allLabel?: string;
+  playLabel?: string;
+  page?: FeedControl;
+} ) {
   const { ref, inView } = useInView<HTMLElement>( 0.12 );
   const [ playing, setPlaying ] = useState<DrMediaItem | null>( null );
   const playingId = playing ? youtubeId( playing.url ) : undefined;
@@ -375,15 +423,22 @@ export function MediaGallery( { kicker, title, items, allHref }: { kicker: strin
       <h2 className="dr-media-heading text-h2">{ title }</h2>
       <div className="dr-media-grid">
         { items.map( ( item, index ) => (
-          <MediaCard key={ `${ item.title }-${ index }` } item={ item } index={ index } onPlay={ setPlaying } />
+          <MediaCard key={ `${ item.title }-${ index }` } item={ item } index={ index } onPlay={ setPlaying } playLabel={ playLabel } />
         ) ) }
       </div>
       { allHref && (
         <div className="dr-media-more">
           <SmartLink href={ allHref } className="dr-home-blog-all text-small">
-            All videos
+            { allLabel ?? "All videos" }
             <ArrowUpRight aria-hidden className="size-4" />
           </SmartLink>
+        </div>
+      ) }
+      { page?.hasMore && (
+        <div className="dr-media-more">
+          <button type="button" className="dr-blog-more-btn text-meta" disabled={ page.loading } onClick={ page.more }>
+            { page.label ?? "More clips" }
+          </button>
         </div>
       ) }
       <Dialog open={ playing !== null } onOpenChange={ open => { if ( !open ) setPlaying( null ); } }>
@@ -425,7 +480,13 @@ export interface PressItem {
   blurb: string;
 }
 
-export function PressSection( { kicker, title, lede, items }: { kicker: string; title: string; lede: string; items: PressItem[] } ) {
+export function PressSection( { kicker, title, lede, items, readLabel }: {
+  kicker: string;
+  title: string;
+  lede: string;
+  items: PressItem[];
+  readLabel?: string;
+} ) {
   const { ref, inView } = useInView<HTMLElement>( 0.1 );
   return (
     <section ref={ ref } data-header="solid" className={ cn( "dr-press", inView && "is-in" ) }>
@@ -438,7 +499,7 @@ export function PressSection( { kicker, title, lede, items }: { kicker: string; 
         { items.map( ( item, index ) => (
           <article key={ item.href } className="dr-blog-card" style={ { "--i": index } as CSSProperties }>
             <a className="dr-blog-card-img-wrap" href={ item.href } target="_blank" rel="noreferrer">
-              <img src={ item.photo.src } alt={ item.photo.alt } className="dr-blog-card-img" />
+              <img src={ item.photo.src } alt={ item.photo.alt } className="dr-blog-card-img" width={ item.photo.width } height={ item.photo.height } loading="lazy" decoding="async" />
             </a>
             <div className="dr-blog-card-body">
               <div className="dr-blog-card-top">
@@ -449,7 +510,7 @@ export function PressSection( { kicker, title, lede, items }: { kicker: string; 
               <p className="dr-blog-card-excerpt text-small m-0">{ item.blurb }</p>
               <div className="dr-blog-card-foot">
                 <a href={ item.href } target="_blank" rel="noreferrer" className="dr-blog-card-link text-small">
-                  Read article
+                  { readLabel ?? "Read article" }
                   <ArrowUpRight aria-hidden className="size-4" />
                 </a>
               </div>
@@ -465,12 +526,15 @@ export function PressSection( { kicker, title, lede, items }: { kicker: string; 
 /* Cinematic work section — full-bleed photo bg + slide-in cards       */
 /* ------------------------------------------------------------------ */
 
-export function CinematicWork( { kicker, title, caption, photo, areas }: {
+export function CinematicWork( { id, kicker, title, caption, photo, areas, introTitle, learnMore }: {
+  id?: string;
   kicker: string;
   title: ReactNode;
   caption?: string;
   photo: SitePhoto;
   areas: { id: string; title: string; text: string; href: string }[];
+  introTitle?: string;
+  learnMore?: string;
 } ) {
   const { ref: headRef, inView: headIn } = useInView<HTMLDivElement>( 0.3 );
   return (
@@ -479,7 +543,8 @@ export function CinematicWork( { kicker, title, caption, photo, areas }: {
       <div
         className="dr-cinematic-frame"
         style={ { "--cinematic-img": `url(${ photo.src })` } as CSSProperties }
-        aria-hidden={ false }
+        role="img"
+        aria-label={ photo.alt }
       >
         {/* headline centred inside the frame */}
         <div ref={ headRef } className={ cn( "dr-cinematic-head", headIn && "is-in" ) }>
@@ -489,27 +554,27 @@ export function CinematicWork( { kicker, title, caption, photo, areas }: {
       </div>
 
       {/* 'My areas of work' heading — sits directly above the yellow cards */}
-      <div className="dr-cinematic-intro">
+      <div id={ id } className="dr-cinematic-intro">
         <p className="dr-kicker text-small">{ kicker }</p>
-        <h2 className="dr-cinematic-intro-title text-h1">Where I focus my energy.</h2>
+        <h2 className="dr-cinematic-intro-title text-h1">{ introTitle ?? "Where I focus my energy." }</h2>
       </div>
 
       {/* cards that appear below the parallax frame */}
       <ul className="dr-cinematic-cards">
-        { areas.map( ( area, i ) => <CinematicCard key={ area.id } area={ area } index={ i } /> ) }
+        { areas.map( ( area, i ) => <CinematicCard key={ area.id } area={ area } index={ i } learnMore={ learnMore } /> ) }
       </ul>
     </section>
   );
 }
 
-function CinematicCard( { area, index }: { area: { id: string; title: string; text: string; href: string }; index: number } ) {
+function CinematicCard( { area, index, learnMore }: { area: { id: string; title: string; text: string; href: string }; index: number; learnMore?: string } ) {
   const { ref, inView } = useInView<HTMLLIElement>( 0.2 );
   return (
     <li ref={ ref } className={ cn( "dr-cinematic-card", inView && "is-in" ) } style={ { "--ci": index } as CSSProperties }>
       <span className="dr-cinematic-num" aria-hidden>{ String( index + 1 ).padStart( 2, "0" ) }</span>
       <h3 className="dr-cinematic-card-title">{ area.title }</h3>
       <p className="dr-cinematic-card-text">{ area.text }</p>
-      <SmartLink href={ area.href } className="dr-why-link text-small">Learn more<ArrowRight aria-hidden className="size-4" /></SmartLink>
+      <SmartLink href={ area.href } className="dr-why-link text-small">{ learnMore ?? "Learn more" }<ArrowRight aria-hidden className="size-4" /></SmartLink>
     </li>
   );
 }
@@ -519,7 +584,7 @@ function CinematicCard( { area, index }: { area: { id: string; title: string; te
 /* FAQ accordion (SS-FAQ)                                              */
 /* ------------------------------------------------------------------ */
 
-export interface FaqItem { q: string; a: ReactNode; }
+export interface FaqItem { q: string; a: string; }
 
 export function DrFaq( { eyebrow, title, lede, link, items }: {
   eyebrow?: string;
@@ -568,7 +633,7 @@ export function DrFaq( { eyebrow, title, lede, link, items }: {
                   className="dr-faq-answer"
                   style={ { maxHeight: isOpen ? "24rem" : undefined } }
                 >
-                  <div className="dr-faq-answer-inner">{ item.a }</div>
+                  <div className="dr-faq-answer-inner"><p>{ item.a }</p></div>
                 </div>
               </li>
             );
@@ -583,10 +648,10 @@ export function DrFaq( { eyebrow, title, lede, link, items }: {
 /* Closing call to action                                              */
 /* ------------------------------------------------------------------ */
 
-export function ClosingCta( { kicker, title, lede, primary, secondary, note }: { kicker: string; title: ReactNode; lede: ReactNode; primary: DrHeaderLink; secondary: DrHeaderLink; note?: string } ) {
+export function ClosingCta( { id, kicker, title, lede, primary, secondary, note }: { id?: string; kicker: string; title: ReactNode; lede: ReactNode; primary: DrHeaderLink; secondary: DrHeaderLink; note?: string } ) {
   const { ref, inView } = useInView<HTMLElement>( 0.3 );
   return (
-    <section ref={ ref } data-header="solid" className={ cn( "dr-cta", inView && "is-in" ) }>
+    <section id={ id } ref={ ref } data-header="solid" className={ cn( "dr-cta", inView && "is-in" ) }>
       <span className="dr-cta-stripe" aria-hidden />
       <p className="dr-kicker text-small">{ kicker }</p>
       <h2 className="dr-cta-title text-h1">{ title }</h2>
@@ -616,7 +681,7 @@ export function PageHero( { kicker, title, lede, photo, actions }: {
         { actions && <div className="dr-hero-actions">{ actions }</div> }
       </div>
       <div className="dr-page-hero-media">
-        <img src={ photo.src } alt={ photo.alt } />
+        <img src={ photo.src } alt={ photo.alt } width={ photo.width } height={ photo.height } />
       </div>
     </section>
   );
@@ -642,6 +707,12 @@ export function ProseSection( { kicker, title, children, ground = "ivory" }: {
   );
 }
 
+/* One paragraph per string, the shape the CMS body field arrives in     */
+
+export function Paragraphs( { lines }: { lines: string[] } ) {
+  return <>{ lines.map( ( line, i ) => <p key={ i }>{ line }</p> ) }</>;
+}
+
 /* Full-bleed photo hero: scrim, centred pill, name, lede               */
 
 export function FullBleedHero( { kicker, title, lede, photo }: {
@@ -652,7 +723,7 @@ export function FullBleedHero( { kicker, title, lede, photo }: {
 } ) {
   return (
     <section className="dr-bleed" data-header="solid">
-      <img className="dr-bleed-photo" src={ photo.src } alt={ photo.alt } />
+      <img className="dr-bleed-photo" src={ photo.src } alt={ photo.alt } width={ photo.width } height={ photo.height } />
       <div className="dr-bleed-copy">
         <p className="dr-bleed-pill text-small">{ kicker }</p>
         <h1 className="dr-bleed-title text-h1">{ title }</h1>
@@ -703,10 +774,10 @@ export function StoryProse( { kicker, photos, signature, children }: {
       <div className="dr-story-body">
         <div className="dr-story-media">
           <div className="dr-story-panel">
-            <img className="dr-story-photo" src={ lead.src } alt={ lead.alt } loading="lazy" />
+            <img className="dr-story-photo" src={ lead.src } alt={ lead.alt } loading="lazy" decoding="async" />
           </div>
           { rest.map( ( photo ) => (
-            <img key={ photo.src } className="dr-story-photo dr-story-photo-sub" src={ photo.src } alt={ photo.alt } loading="lazy" />
+            <img key={ photo.src } className="dr-story-photo dr-story-photo-sub" src={ photo.src } alt={ photo.alt } loading="lazy" decoding="async" />
           ) ) }
         </div>
         <div className="dr-story-text text-large">
@@ -727,7 +798,7 @@ export function StatementBand( { kicker, children, cta, note }: {
   const { ref, inView } = useInView<HTMLElement>( 0.2 );
   return (
     <section ref={ ref } data-header="solid" className={ cn( "dr-statement", inView && "is-in" ) }>
-      <p className="dr-kicker text-small">{ kicker }</p>
+      <h2 className="dr-kicker text-small">{ kicker }</h2>
       <div className="dr-statement-body text-h3">{ children }</div>
       <DrButton href={ cta.href } tone="black">{ cta.label }</DrButton>
       <p className="dr-statement-note text-small">{ note }</p>
@@ -794,16 +865,20 @@ export interface DrPost {
   excerpt: string;
   minutes?: number;
   photo: SitePhoto;
-  body: ReactNode;
+  body: string[];
 }
 
+export interface BlogCardLabels { read?: string; minutes?: string }
+
 /* Blog card used in the 3-col grid */
-function BlogCard( { post, index }: { post: DrPost; index: number } ) {
+function BlogCard( { post, index, labels }: { post: DrPost; index: number; labels?: BlogCardLabels } ) {
   const href = `/blog/${ post.slug }`;
+  const read = labels?.read ?? "Read article";
+  const minutes = fill( labels?.minutes ?? "{minutes} min read", { minutes: post.minutes ?? 0 } );
   return (
     <article className="dr-blog-card" style={ { "--i": index } as CSSProperties }>
       <SmartLink href={ href } className="dr-blog-card-img-wrap">
-        <img src={ post.photo.src } alt={ post.photo.alt } className="dr-blog-card-img" loading="lazy" />
+        <img src={ post.photo.src } alt={ post.photo.alt } className="dr-blog-card-img" width={ post.photo.width } height={ post.photo.height } loading="lazy" decoding="async" />
       </SmartLink>
       <div className="dr-blog-card-body">
         <div className="dr-blog-card-top">
@@ -813,9 +888,9 @@ function BlogCard( { post, index }: { post: DrPost; index: number } ) {
         <h3 className="dr-blog-card-title text-large m-0"><SmartLink href={ href }>{ post.title }</SmartLink></h3>
         <p className="dr-blog-card-excerpt text-small m-0">{ post.excerpt }</p>
         <div className="dr-blog-card-foot">
-          { post.minutes && <span className="dr-blog-card-read text-small">{ post.minutes } min read</span> }
+          { post.minutes && <span className="dr-blog-card-read text-small">{ minutes }</span> }
           <SmartLink href={ href } className="dr-blog-card-link text-small">
-            Read article
+            { read }
             <ArrowRight aria-hidden className="size-4" />
           </SmartLink>
         </div>
@@ -828,28 +903,42 @@ function BlogCard( { post, index }: { post: DrPost; index: number } ) {
 const PAGE_FIRST = 10;
 const PAGE_MORE = 9;
 
-export function PostList( { posts, author, avatar }: {
+/** What a section needs to keep asking the CMS for the next page, one cursor at a time. */
+export interface FeedControl {
+  hasMore: boolean;
+  loading: boolean;
+  more: () => void;
+  label?: string;
+}
+
+export function PostList( { posts, author, avatar, labels, page, heading }: {
   posts: DrPost[];
   author: string;
   avatar: SitePhoto;
+  labels?: BlogCardLabels & { continue?: string; by?: string; older?: string };
+  page?: FeedControl;
+  heading?: string;
 } ) {
   const { ref, inView } = useInView<HTMLElement>( 0.08 );
   const [ shown, setShown ] = useState( PAGE_FIRST );
   const featured = posts[ 0 ];
-  const rest = posts.slice( 1, shown );
+  /* With a feed in charge the rows arriving are the rows to show; the local counter only
+     applies when this list is paging through the bundle by itself. */
+  const rest = page ? posts.slice( 1 ) : posts.slice( 1, shown );
   return (
     <section ref={ ref } data-header="solid" className={ cn( "dr-blog-page", inView && "is-in" ) }>
+      { heading && <h1 className="sr-only">{ heading }</h1> }
       { featured && (
         <article className="dr-blog-featured">
-          <img className="dr-blog-featured-photo" src={ featured.photo.src } alt={ featured.photo.alt } />
+          <img className="dr-blog-featured-photo" src={ featured.photo.src } alt={ featured.photo.alt } width={ featured.photo.width } height={ featured.photo.height } loading="lazy" decoding="async" />
           <div className="dr-blog-featured-copy">
-            <h1 className="dr-blog-featured-title text-h1 m-0">{ featured.title }</h1>
+            <h2 className="dr-blog-featured-title text-h1 m-0">{ featured.title }</h2>
             <div className="dr-blog-featured-meta">
-              <SmartLink href={ `/blog/${ featured.slug }` } className="dr-blog-featured-cta text-meta">Continue reading</SmartLink>
+              <SmartLink href={ `/blog/${ featured.slug }` } className="dr-blog-featured-cta text-meta">{ labels?.continue ?? "Continue reading" }</SmartLink>
               <p className="dr-blog-featured-topic text-meta m-0">{ featured.topic }</p>
               <p className="dr-blog-featured-by text-meta m-0">
                 <img className="dr-blog-featured-avatar" src={ avatar.src } alt="" />
-                <span className="dr-blog-featured-byword">by</span>{ author }
+                <span className="dr-blog-featured-byword">{ labels?.by ?? "by" }</span>{ author }
               </p>
             </div>
           </div>
@@ -857,13 +946,18 @@ export function PostList( { posts, author, avatar }: {
       ) }
       <div className="dr-blog-grid-wrap">
         <div className="dr-blog-grid">
-          { rest.map( ( post, i ) => <BlogCard key={ post.slug } post={ post } index={ i } /> ) }
+          { rest.map( ( post, i ) => <BlogCard key={ post.slug } post={ post } index={ i } labels={ labels } /> ) }
         </div>
-        { posts.length > shown && (
+        { ( page ? page.hasMore : posts.length > shown ) && (
           <div className="dr-blog-more">
-            <button type="button" className="dr-blog-more-btn text-meta" onClick={ () => setShown( s => s + PAGE_MORE ) }>
+            <button
+              type="button"
+              className="dr-blog-more-btn text-meta"
+              disabled={ page?.loading }
+              onClick={ page ? page.more : () => setShown( s => s + PAGE_MORE ) }
+            >
               <ChevronsLeft aria-hidden className="dr-blog-more-icon" />
-              Older articles
+              { page?.label ?? labels?.older ?? "Older articles" }
             </button>
           </div>
         ) }
@@ -873,12 +967,14 @@ export function PostList( { posts, author, avatar }: {
 }
 
 /* Home-page blog preview section */
-export function HomeBlogSection( { kicker, title, lede, posts, allHref }: {
+export function HomeBlogSection( { kicker, title, lede, posts, allHref, allLabel, labels }: {
   kicker: string;
   title: ReactNode;
   lede?: ReactNode;
   posts: DrPost[];
   allHref: string;
+  allLabel?: string;
+  labels?: BlogCardLabels;
 } ) {
   const { ref, inView } = useInView<HTMLElement>( 0.1 );
   const preview = posts.slice( 0, 3 );
@@ -891,20 +987,20 @@ export function HomeBlogSection( { kicker, title, lede, posts, allHref }: {
           { lede && <div className="dr-home-blog-lede text-large">{ lede }</div> }
         </div>
         <SmartLink href={ allHref } className="dr-home-blog-all text-small">
-          All articles
+          { allLabel ?? "All articles" }
           <ArrowUpRight aria-hidden className="size-4" />
         </SmartLink>
       </div>
       <div className="dr-blog-grid">
         { preview.map( ( post, i ) => (
-          <BlogCard key={ post.slug } post={ post } index={ i } />
+          <BlogCard key={ post.slug } post={ post } index={ i } labels={ labels } />
         ) ) }
       </div>
     </section>
   );
 }
 
-export function DoctorFooter( { name, note, links, email, phone, cvHref, social, copyright }: {
+export function DoctorFooter( { name, note, links, email, phone, cvHref, social, copyright, cta = { label: "Get in touch", href: "/contact" }, cvLabel, navLabel }: {
   name: string;
   note: string;
   links: DrHeaderLink[];
@@ -913,6 +1009,9 @@ export function DoctorFooter( { name, note, links, email, phone, cvHref, social,
   cvHref: string;
   social: { label: string; href: string }[];
   copyright: string;
+  cta?: DrHeaderLink;
+  cvLabel?: string;
+  navLabel?: string;
 } ) {
   return (
     <footer className="dr-footer">
@@ -921,11 +1020,11 @@ export function DoctorFooter( { name, note, links, email, phone, cvHref, social,
           <p className="dr-brand-name">{ name }</p>
           <p className="dr-footer-note text-large">{ note }</p>
           <div className="dr-hero-actions mt-6">
-            <DrButton href="/contact" tone="black">Get in touch</DrButton>
-            <DrButton href={ cvHref } tone="ghost">Download my CV</DrButton>
+            <DrButton href={ cta.href } tone="black">{ cta.label }</DrButton>
+            <DrButton href={ cvHref } tone="ghost">{ cvLabel ?? "Download my CV" }</DrButton>
           </div>
         </div>
-        <nav aria-label="Footer" className="dr-footer-nav">
+        <nav aria-label={ navLabel ?? "Footer" } className="dr-footer-nav">
           { links.map( link => <SmartLink key={ link.href } href={ link.href } className="dr-meta text-small">{ link.label }</SmartLink> ) }
         </nav>
         <div className="dr-footer-contact">
@@ -944,12 +1043,12 @@ export function DoctorFooter( { name, note, links, email, phone, cvHref, social,
 /* How it works: reference-cloned blocks                               */
 /* ------------------------------------------------------------------ */
 
-type HiwIcon = ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>;
+type HiwIcon = CopyIcon;
 
 export function HiwPill( { href, children, tone = "white" }: {
   href: string;
   children: ReactNode;
-  tone?: "white" | "outline" | "teal" | "blue";
+  tone?: "white" | "outline" | "teal" | "blue" | "gold";
 } ) {
   return (
     <SmartLink href={ href } className={ cn( "dr-hiw-pill text-small", `dr-hiw-pill-${ tone }` ) }>
@@ -976,7 +1075,7 @@ export function HiwHero( { title, lede, action, note, photo }: {
           { note && <p className="dr-hiw-hero-note text-small">{ note }</p> }
         </div>
         <div className="dr-hiw-hero-photo">
-          <img src={ photo.src } alt={ photo.alt } />
+          <img src={ photo.src } alt={ photo.alt } width={ photo.width } height={ photo.height } />
         </div>
       </div>
     </section>
@@ -997,7 +1096,7 @@ export function HiwSplit( { kicker, title, photo, children, action, note, checks
     <section ref={ ref } data-header="solid" className={ cn( "dr-hiw-split", inView && "is-in" ) }>
       <div className="dr-hiw-split-body">
         <div className="dr-hiw-split-media">
-          <img src={ photo.src } alt={ photo.alt } loading="lazy" />
+          <img src={ photo.src } alt={ photo.alt } width={ photo.width } height={ photo.height } loading="lazy" decoding="async" />
         </div>
         <div>
           <p className="dr-kicker text-small">{ kicker }</p>
@@ -1101,7 +1200,7 @@ export function HiwConsult( { kicker, title, children, icon: Icon, photo, cardTi
           </div>
         </div>
         <div className="dr-hiw-card">
-          <img className="dr-hiw-card-photo" src={ photo.src } alt={ photo.alt } loading="lazy" />
+          <img className="dr-hiw-card-photo" src={ photo.src } alt={ photo.alt } width={ photo.width } height={ photo.height } loading="lazy" decoding="async" />
           <h3 className="dr-hiw-card-title text-h3">{ cardTitle }</h3>
           <p className="dr-hiw-card-text text-large">{ cardText }</p>
           <p className="dr-hiw-card-name text-large">{ cardName }</p>
@@ -1152,13 +1251,14 @@ export interface HiwChartBand { label: string; range: string; color: string; fro
 export interface HiwChartPoint { month: string; year: string; value: number; color: string }
 
 /* Bands and points share one linear scale, so the stacked column and the plotted trend line up */
-export function HiwChart( { name, metric, unit, bands, points, domain }: {
+export function HiwChart( { name, metric, unit, bands, points, domain, riskLabel }: {
   name: string;
   metric: string;
   unit: string;
   bands: HiwChartBand[];
   points: HiwChartPoint[];
   domain: [ number, number ];
+  riskLabel?: string;
 } ) {
   const [ high, low ] = domain;
   const yOf = ( value: number ) => ( ( high - value ) / ( high - low ) ) * 100;
@@ -1171,7 +1271,7 @@ export function HiwChart( { name, metric, unit, bands, points, domain }: {
         <span className="dr-hiw-chart-metric text-large">{ metric }</span>
       </figcaption>
       <div className="dr-hiw-chart-scale text-meta">
-        <span>Risk ranges</span>
+        <span>{ riskLabel ?? "Risk ranges" }</span>
         <span>{ unit }</span>
       </div>
       <div className="dr-hiw-chart-body">
@@ -1248,7 +1348,7 @@ export function HiwTrack( { kicker, title, children, media }: {
 
 export function HiwFaq( { title, items }: {
   title: ReactNode;
-  items: { q: string; a: ReactNode }[];
+  items: { q: string; a: string }[];
 } ) {
   const { ref, inView } = useInView<HTMLElement>( 0.1 );
   return (
@@ -1261,7 +1361,7 @@ export function HiwFaq( { title, items }: {
               <span>{ q }</span>
               <span className="dr-hiw-faq-plus" aria-hidden />
             </summary>
-            <div className="dr-hiw-faq-a text-large">{ a }</div>
+            <div className="dr-hiw-faq-a text-large"><p>{ a }</p></div>
           </details>
         ) ) }
       </div>
@@ -1269,17 +1369,18 @@ export function HiwFaq( { title, items }: {
   );
 }
 
-export function HiwCta( { kicker, title, accent, children, action, note }: {
+export function HiwCta( { kicker, title, accent, children, action, note, variant }: {
   kicker: string;
   title: ReactNode;
   accent: string;
   children: ReactNode;
   action?: ReactNode;
   note?: string;
+  variant?: "doctor";
 } ) {
   const { ref, inView } = useInView<HTMLElement>( 0.2 );
   return (
-    <section ref={ ref } data-header="solid" className={ cn( "dr-hiw-cta", inView && "is-in" ) }>
+    <section ref={ ref } data-header="solid" className={ cn( "dr-hiw-cta", variant === "doctor" && "is-doctor", inView && "is-in" ) }>
       <p className="dr-hiw-cta-kicker text-small">{ kicker }</p>
       <h2 className="dr-hiw-cta-title text-h2">
         { title } <em className="dr-hiw-cta-accent">{ accent }.</em>
@@ -1291,16 +1392,27 @@ export function HiwCta( { kicker, title, accent, children, action, note }: {
   );
 }
 
-export function PublicationList( { groups }: { groups: PublicationGroup[] } ) {
+export function PublicationList( { groups, kicker, title, lede, allHref, allLabel }: {
+  groups: PublicationGroup[];
+  kicker?: string;
+  title?: string;
+  lede?: ReactNode;
+  allHref?: string;
+  allLabel?: string;
+} ) {
   const { ref, inView } = useInView<HTMLElement>( 0.05 );
   return (
     <section ref={ ref } data-header="solid" className={ cn( "dr-pubs", inView && "is-in" ) }>
       <header className="dr-pubs-head">
-        <p className="dr-pubs-kicker text-meta">Full publication list</p>
-        <h2 className="dr-pubs-title text-h3">Every paper, chapter and report, with links.</h2>
+        <p className="dr-pubs-kicker text-meta">{ kicker ?? "Full publication list" }</p>
+        <h2 className="dr-pubs-title text-h3">{ title ?? "Every paper, chapter and report, with links." }</h2>
         <p className="dr-pubs-lede text-large">
-          Compiled from <a href={ scholarProfileUrl } target="_blank" rel="noreferrer">Google Scholar</a>,{" "}
-          <a href={ orcidUrl } target="_blank" rel="noreferrer">ORCID</a> and the curriculum vitae annexure.
+          { lede ?? (
+            <>
+              Compiled from <a href={ scholarProfileUrl } target="_blank" rel="noreferrer">Google Scholar</a>,{" "}
+              <a href={ orcidUrl } target="_blank" rel="noreferrer">ORCID</a> and the curriculum vitae annexure.
+            </>
+          ) }
         </p>
       </header>
       { groups.map( ( group ) => (
@@ -1323,6 +1435,14 @@ export function PublicationList( { groups }: { groups: PublicationGroup[] } ) {
           </ol>
         </div>
       ) ) }
+      { allHref && (
+        <div className="dr-pubs-more">
+          <SmartLink href={ allHref } className="dr-home-blog-all text-small">
+            { allLabel ?? "More research" }
+            <ArrowUpRight aria-hidden className="size-4" />
+          </SmartLink>
+        </div>
+      ) }
     </section>
   );
 }

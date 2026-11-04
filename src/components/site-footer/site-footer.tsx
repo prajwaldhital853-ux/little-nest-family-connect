@@ -48,7 +48,7 @@ export function SiteFooter( { contact, address, photos, legal, social, copyright
   }, [ clearLeaving, stepShown ] );
 
   return (
-    <footer className={ cn( 'bg-background px-[var(--grid-margin)] pb-[30px] pt-[120px] text-foreground', className ) }>
+    <footer className={ cn( 'bg-background px-[var(--grid-margin)] pb-[30px] pt-[72px] text-foreground', className ) }>
       <div className="flex flex-col gap-[50px] lg:grid lg:grid-cols-12 lg:items-start lg:gap-[var(--grid-gutter)]">
         <div className="flex flex-col lg:col-span-8">
           <p className="m-0 opacity-50">{ contact.label }</p>

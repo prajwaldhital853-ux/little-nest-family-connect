@@ -1,0 +1,1638 @@
+{
+  "global": {
+    "label": "Global wording",
+    "titles": {
+      "home": "Dr. Ramesh Kandel, Geriatric Medicine in Nepal",
+      "suffix": "Dr. Ramesh Kandel"
+    },
+    "contact": {
+      "email": "drameshkandel@gmail.com",
+      "phone": "+977-9857042717",
+      "phoneHref": "tel:+9779857042717",
+      "cv": "/Ramesh_Kandel_CV.pdf",
+      "orcid": "https://orcid.org/0000-0002-7827-1471",
+      "scholar": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en"
+    },
+    "brand": {
+      "name": "Dr. Ramesh Kandel",
+      "role": "Professor of Geriatric Medicine",
+      "strip": "Geriatric Medicine · Healthy Ageing · Research · Education",
+      "place": "Nepal",
+      "logo": "portrait"
+    },
+    "nav": {
+      "links": [
+        {
+          "label": "About",
+          "href": "/about"
+        },
+        {
+          "label": "Research",
+          "href": "/research"
+        },
+        {
+          "label": "Healthy Ageing",
+          "href": "/healthy-ageing"
+        },
+        {
+          "label": "Teaching",
+          "href": "/teaching"
+        },
+        {
+          "label": "Media",
+          "href": "/media"
+        },
+        {
+          "label": "Insights",
+          "href": "/blog"
+        }
+      ],
+      "pathway": {
+        "label": "How a consultation works",
+        "href": "/healthy-ageing"
+      },
+      "contact": {
+        "label": "Contact",
+        "href": "/contact"
+      },
+      "phone": {
+        "label": "Call"
+      },
+      "cta": {
+        "label": "Book an appointment",
+        "href": "/contact"
+      },
+      "collaborate": {
+        "label": "Collaborate",
+        "href": "/#collaboration"
+      }
+    },
+    "footer": {
+      "name": "Dr. Ramesh Kandel",
+      "note": "The views on this website are my own unless otherwise stated. Educational content is for general information and does not replace an individual clinical assessment.",
+      "copyright": "© 2026 Dr. Ramesh Kandel. All rights reserved.",
+      "cta": {
+        "label": "Get in touch",
+        "href": "/contact"
+      },
+      "social": [
+        {
+          "label": "Facebook",
+          "href": "https://www.facebook.com/drameshkandel"
+        },
+        {
+          "label": "LinkedIn",
+          "href": "https://www.linkedin.com/in/ramesh-kandel-133673154/"
+        },
+        {
+          "label": "YouTube",
+          "href": "https://www.youtube.com/@rameshkandel650"
+        }
+      ]
+    },
+    "labels": {
+      "primaryMenu": "Primary",
+      "drawerMenu": "Menu",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "footerMenu": "Footer",
+      "trustedAt": "Trained and trusted at",
+      "allVideos": "All videos",
+      "allArticles": "All articles",
+      "olderArticles": "Older articles",
+      "olderMedia": "More clips",
+      "moreResearch": "More research",
+      "continueReading": "Continue reading",
+      "byline": "by",
+      "readArticle": "Read article",
+      "readMinutes": "{minutes} min read",
+      "learnMore": "Learn more",
+      "riskRanges": "Risk ranges",
+      "getInTouch": "Get in touch",
+      "downloadCv": "Download my CV",
+      "whereIFocus": "Where I focus my energy.",
+      "playVideo": "Play {kind}: {title}",
+      "sendEnquiry": "Send enquiry"
+    }
+  },
+  "home": {
+    "label": "Home page",
+    "hero": {
+      "show": true,
+      "eyebrow": "",
+      "title": "Advancing healthy ageing in Nepal.",
+      "lede": "Geriatrician, researcher and academic working across clinical care, research, education and health systems to improve the lives of older people.",
+      "primary": {
+        "label": "Explore my work",
+        "href": "/#work"
+      },
+      "secondary": {
+        "label": "Book a consultation",
+        "href": "/contact"
+      },
+      "ticks": [
+        "Care for older adults and their families",
+        "Research, teaching and health systems",
+        "Time for your questions"
+      ],
+      "photo": "portrait",
+      "photo_url": "",
+      "photo_alt": "",
+      "bandTitle": "Good care starts with trust and understanding",
+      "bandItems": [
+        {
+          "icon": "heart-handshake",
+          "label": "Care based on your needs"
+        },
+        {
+          "icon": "stethoscope",
+          "label": "Advice you can understand"
+        },
+        {
+          "icon": "heart-pulse",
+          "label": "Support beyond your first visit"
+        },
+        {
+          "icon": "graduation-cap",
+          "label": "Professionals prepared for ageing"
+        }
+      ]
+    },
+    "namaste": {
+      "show": true,
+      "eyebrow": "Namaste, I'm Dr. Kandel",
+      "title": "Care that listens first.",
+      "body": [
+        "After more than a decade in geriatric medicine in Nepal, I have sat with farmers, grandparents, teachers and their families as several small problems stacked into a life that suddenly felt unsafe. A fall, a new tablet, poor sleep, a change in memory. Each of them deserves the same thing: time, an honest explanation, and a plan written in words they understand."
+      ],
+      "name": "Dr. Ramesh Kandel",
+      "credentials": "MD (Geriatric Medicine, AIIMS New Delhi) · MBBS (BPKIHS) · Professor, Rapti Academy of Health Sciences",
+      "marks": [
+        "RAHS",
+        "WHO-SEARO",
+        "HAMS",
+        "Patan Academy",
+        "NIAH"
+      ]
+    },
+    "work": {
+      "show": true,
+      "kicker": "My areas of work",
+      "title": "Most of us reach a doctor only when it is already serious.",
+      "caption": "Community health camp, Lumbini Province",
+      "photo": "checkup",
+      "areas": [
+        {
+          "id": "geriatrics",
+          "title": "Clinical geriatrics",
+          "text": "Comprehensive assessment for adults living with frailty, falls, memory change and several conditions at once. Care planned around daily function and what matters to the person.",
+          "href": "/healthy-ageing"
+        },
+        {
+          "id": "healthy-ageing",
+          "title": "Healthy ageing and ICOPE",
+          "text": "Population work on healthy ageing with the WHO Integrated Care for Older People pathway: screening, community capacity and follow-up that does not stop at a diagnosis.",
+          "href": "/healthy-ageing"
+        },
+        {
+          "id": "research",
+          "title": "Research",
+          "text": "Practical studies on frailty, multimorbidity, integrated care and how services are organised in resource-constrained settings, with universities and programme partners.",
+          "href": "/research"
+        },
+        {
+          "id": "education",
+          "title": "Education and leadership",
+          "text": "Lectures, bedside teaching, curriculum work and institutional leadership that prepare health professionals and services for an ageing Nepal.",
+          "href": "/teaching"
+        }
+      ],
+      "photo_url": "",
+      "photo_alt": ""
+    },
+    "impact": {
+      "show": true,
+      "kicker": "Selected work and impact",
+      "title": "The work travels further than the clinic.",
+      "items": [
+        {
+          "id": "icope",
+          "title": "ICOPE in Lumbini Province",
+          "text": "Programme coordinator and consultant for the WHO-supported project developing an Integrated Care for Older People implementation model across district and community services."
+        },
+        {
+          "id": "standards",
+          "title": "National standards",
+          "text": "Principal consultant for Nepal's National Geriatric Strategy and Geriatric Service Standards, and a subject expert on the country's Minimum Service Standards."
+        },
+        {
+          "id": "who",
+          "title": "WHO, in two offices",
+          "text": "Consultant on healthy ageing for WHO-SEARO in New Delhi, and a member of the WHO Clinical Consortium on Healthy Ageing in Geneva."
+        },
+        {
+          "id": "institution",
+          "title": "Building a department",
+          "text": "Dean of the School of Medicine, then Hospital and Medical Director, now Professor of Geriatric Medicine at Rapti Academy of Health Sciences."
+        }
+      ]
+    },
+    "journey": {
+      "show": true,
+      "kicker": "The process",
+      "title": "Your health journey",
+      "lede": "Good geriatric care is a sequence, not a single visit. These are the steps I keep joined up in clinic, in teaching and in national programmes.",
+      "steps": [
+        {
+          "id": "listen",
+          "title": "Understand the person",
+          "text": "Health, daily activities, relationships and what matters most, before any test or tablet.",
+          "icon": "users",
+          "tone": "black"
+        },
+        {
+          "id": "assess",
+          "title": "Screen and assess",
+          "text": "Frailty, falls, memory, medicines and nutrition, using tools that can work in Nepal.",
+          "icon": "stethoscope",
+          "tone": "yellow"
+        },
+        {
+          "id": "plan",
+          "title": "Plan together",
+          "text": "A written plan families can follow, with benefits and burdens spoken aloud.",
+          "icon": "clipboard-list",
+          "tone": "red"
+        },
+        {
+          "id": "family",
+          "title": "Support families",
+          "text": "Caregivers are partners. They need skills, information and care for themselves too.",
+          "icon": "heart-handshake",
+          "tone": "yellow"
+        },
+        {
+          "id": "follow",
+          "title": "Keep care going",
+          "text": "Referral, rehabilitation and follow-up so a screening result does not become a dead end.",
+          "icon": "activity",
+          "tone": "red"
+        }
+      ]
+    },
+    "why": {
+      "show": true,
+      "kicker": "Healthy ageing and ICOPE",
+      "title": "Ageing well is not a luxury.",
+      "body": [
+        "The WHO Integrated Care for Older People pathway starts where families already are: with a health worker asking what an older person can still do, not only what they have been diagnosed with. Screen for loss of capacity, agree a plan, refer where needed, keep following up.",
+        "ICOPE is now being built into services in Nepal, and that is the work I know best. In a country where several manageable problems can stack into a crisis, healthy ageing is a service question. It needs trained people, simple tools and a plan a family can hold."
+      ],
+      "items": [
+        {
+          "label": "Intrinsic capacity"
+        },
+        {
+          "label": "Care planning"
+        },
+        {
+          "label": "Follow-up"
+        }
+      ],
+      "quote": "Growing up in Nepal and watching older family members taught me that dignity, support and the right care are not extras. They are the work.",
+      "quoteName": "Dr. Ramesh Kandel",
+      "quotePlace": "Rapti Academy of Health Sciences",
+      "quoteRole": "Professor of Geriatric Medicine",
+      "quoteLink": {
+        "label": "Explore healthy ageing",
+        "href": "/healthy-ageing"
+      },
+      "photo": "portrait",
+      "photo_url": "",
+      "photo_alt": ""
+    },
+    "research": {
+      "show": true,
+      "kicker": "Featured research",
+      "title": "Papers that began in the outpatient department.",
+      "lede": "A selection from the [full publication list](/research), compiled from [Google Scholar](https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en) and [ORCID](https://orcid.org/0000-0002-7827-1471).",
+      "limit": 5,
+      "allHref": "/research"
+    },
+    "teaching": {
+      "show": true,
+      "kicker": "Teaching and leadership",
+      "body": [
+        "I teach the way I practise: lectures, bedside rounds and skills workshops that start with the person in front of the learner and end with something repeatable on their own ward.",
+        "Curriculum work, clinical governance and institutional leadership go with it, because one trained geriatrician helps one clinic while a good programme helps a country."
+      ],
+      "cta": {
+        "label": "See the teaching work",
+        "href": "/teaching"
+      },
+      "note": "Colleges, hospitals, professional bodies and community programmes are welcome to ask for a session built around their own cases."
+    },
+    "media": {
+      "show": true,
+      "kicker": "In the media",
+      "title": "Talks and interviews",
+      "limit": 3,
+      "allHref": "/media"
+    },
+    "blog": {
+      "show": true,
+      "kicker": "Insights",
+      "title": "Notes from the work",
+      "lede": [
+        "Short pieces on ageing, care, families and the services in between."
+      ],
+      "allHref": "/blog"
+    },
+    "cta": {
+      "show": true,
+      "kicker": "Appointments",
+      "title": "Care starts with",
+      "accent": "one appointment",
+      "body": [
+        "Older people usually reach me after something has already gone wrong: a fall, a memory that slips, a bag full of tablets nobody can name. I take the time to find the cause, explain it plainly and write a plan the whole family can follow. Consultations run as long as they need to."
+      ],
+      "pills": [
+        {
+          "label": "Book a consultation",
+          "href": "/contact",
+          "tone": "gold"
+        }
+      ],
+      "note": "Send an enquiry and I will reply with availability, directions and what to bring."
+    },
+    "faq": {
+      "show": true,
+      "title": "A few questions.\nClear answers.",
+      "lede": "It’s natural to have questions about your care. Here are a few things you might be wondering.",
+      "link": {
+        "label": "Have another question?",
+        "href": "/contact"
+      },
+      "group": "home"
+    },
+    "closing": {
+      "show": true,
+      "kicker": "For collaborators",
+      "title": "I welcome serious collaboration.",
+      "lede": "Researchers, universities, health programmes, professional bodies and conference organisers: tell me who you are, what you need and when, and I will reply with what is realistic.",
+      "primary": {
+        "label": "Start a conversation",
+        "href": "/contact"
+      },
+      "secondary": {
+        "label": "Read my research",
+        "href": "/research"
+      },
+      "note": "Speaking, lecture and media invitations are welcome too."
+    }
+  },
+  "about": {
+    "label": "About page",
+    "title": "About",
+    "hero": {
+      "show": true,
+      "kicker": "About",
+      "title": "Dr. Ramesh Kandel.",
+      "lede": [
+        "A physician specialising in geriatric medicine, working across clinical practice, research, medical education and institutional leadership in Nepal."
+      ],
+      "photo": "portrait"
+    },
+    "lead": {
+      "show": true,
+      "kicker": "Stop the guesswork and finally get answers",
+      "title": "Have you ever asked yourself",
+      "questions": [
+        "Is this **normal ageing**, or is something actually wrong?",
+        "Are all of these **medicines** still needed, and for how long?",
+        "What do we do after a **fall**, before the next one happens?",
+        "Is this **memory change** treatable, or something the family simply accepts?",
+        "Who do we call when **every specialist** says something different?",
+        "What will the **next ten years** look like, honestly?"
+      ],
+      "cta": {
+        "label": "See how the care works",
+        "href": "/healthy-ageing"
+      }
+    },
+    "story": {
+      "show": true,
+      "kicker": "My story",
+      "photos": [
+        "portrait",
+        "checkup"
+      ],
+      "signature": "Ramesh Kandel",
+      "body": [
+        "**I am a physician specialising in geriatric medicine**, working across clinical practice, research, medical education and institutional leadership in Nepal.",
+        "**My training began at B.P. Koirala Institute of Health Sciences** and continued in Geriatric Medicine at the All India Institute of Medical Sciences, New Delhi. That training shaped how I care for older adults: looking beyond individual diagnoses to understand how illness affects independence, wellbeing and everyday life.",
+        "**My interest in older people’s health has personal roots.** Growing up in Nepal and observing the experiences of older family members helped me recognise the importance of dignity, support and access to appropriate care.",
+        "**Much of my work now builds the services around the person.** At Rapti Academy of Health Sciences that has included academic leadership as Dean of the School of Medicine, hospital administration as Hospital Director and Medical Director, and the development of medicine and geriatric services. Before that I led geriatric services at the Hospital for Advanced Medicine and Surgery, taught at Patan Academy of Health Sciences, and worked as a consultant on healthy ageing at the WHO South-East Asia Regional Office in New Delhi."
+      ]
+    },
+    "statement": {
+      "show": true,
+      "kicker": "How I work",
+      "body": [
+        "Several manageable problems can combine into a crisis: a fall, a new medicine, poor nutrition, a change in memory that reaches the whole family.",
+        "Good care means careful listening, sound judgement and decisions made with the person rather than around them. The same principle guides my research and teaching: work that responds to real needs and can be delivered in local settings."
+      ],
+      "cta": {
+        "label": "Book a consultation",
+        "href": "/contact"
+      },
+      "note": "General information about my practice. It does not replace an individual clinical assessment."
+    },
+    "credentials": {
+      "show": true,
+      "columns": [
+        [
+          {
+            "title": "Training and appointments",
+            "entries": [
+              {
+                "id": "md",
+                "text": "M.D. Geriatric Medicine, AIIMS, New Delhi",
+                "meta": "2012 – 2015"
+              },
+              {
+                "id": "mbbs",
+                "text": "M.B.B.S., B.P. Koirala Institute of Health Sciences, Dharan",
+                "meta": "2005 – 2011"
+              },
+              {
+                "id": "prof",
+                "text": "Professor of Geriatric Medicine, Rapti Academy of Health Sciences",
+                "meta": "Nov 2025 – present"
+              },
+              {
+                "id": "dean",
+                "text": "Dean, School of Medicine, Rapti Academy of Health Sciences",
+                "meta": "Oct 2024 – May 2026"
+              },
+              {
+                "id": "director",
+                "text": "Hospital Director and Medical Director, Rapti Academy of Health Sciences",
+                "meta": "2022 – 2024"
+              },
+              {
+                "id": "hams",
+                "text": "Consultant and Chief of Geriatric Services, HAMS, Nepal",
+                "meta": "2020 – 2022"
+              },
+              {
+                "id": "who",
+                "text": "Consultant, Healthy Ageing, WHO-SEARO, New Delhi",
+                "meta": "2019"
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "title": "Where I see patients",
+            "entries": [
+              {
+                "id": "place",
+                "text": "Rapti Academy of Health Sciences",
+                "meta": "Dang, Nepal"
+              },
+              {
+                "id": "email",
+                "text": "drameshkandel@gmail.com",
+                "href": "mailto:drameshkandel@gmail.com",
+                "via": "text",
+                "meta": "Email"
+              },
+              {
+                "id": "phone",
+                "text": "+977-9857042717",
+                "href": "tel:+9779857042717",
+                "via": "text",
+                "meta": "Clinic enquiries"
+              },
+              {
+                "id": "enquiry",
+                "text": "Send an enquiry",
+                "href": "/contact",
+                "via": "text",
+                "meta": "Availability and directions"
+              },
+              {
+                "id": "cv",
+                "text": "Curriculum vitae (PDF)",
+                "href": "/Ramesh_Kandel_CV.pdf",
+                "via": "anchor",
+                "meta": "Full list of roles and publications"
+              }
+            ]
+          },
+          {
+            "title": "Memberships and advisory work",
+            "entries": [
+              {
+                "id": "niah",
+                "text": "National Institute on Ageing and Health (NIAH), Nepal",
+                "meta": "Founder President"
+              },
+              {
+                "id": "consortium",
+                "text": "WHO Clinical Consortium on Healthy Ageing, Geneva",
+                "meta": "Member"
+              },
+              {
+                "id": "strategy",
+                "text": "Nepal National Geriatric Strategy and Geriatric Service Standards",
+                "meta": "Principal consultant"
+              },
+              {
+                "id": "standards",
+                "text": "Minimum Service Standards, Nepal",
+                "meta": "Subject expert"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    "closing": {
+      "show": true,
+      "kicker": "Get started today",
+      "title": "Bring the whole picture to *one* appointment.",
+      "lede": "An assessment, a medicine review and a written plan the household can actually follow. Tell me who you are, what you need and when.",
+      "primary": {
+        "label": "Book a consultation",
+        "href": "/contact"
+      },
+      "secondary": {
+        "label": "Read my research",
+        "href": "/research"
+      },
+      "note": "For a first visit, bring every medicine currently in use and, if you can, a family member or caregiver who knows the daily routine."
+    }
+  },
+  "research": {
+    "label": "Research page",
+    "title": "Research",
+    "hero": {
+      "show": true,
+      "kicker": "Research",
+      "title": "Grounded in clinical and community needs.",
+      "lede": [
+        "My research focuses on improving care for older adults and people living with chronic conditions. I look for approaches that are practical, affordable and responsive to patients, caregivers and health professionals in Nepal."
+      ],
+      "photo": "research"
+    },
+    "lead": {
+      "show": true,
+      "kicker": "Questions that start in the clinic",
+      "title": "What the work keeps asking",
+      "questions": [
+        "How do **several conditions together** change independence, risk and what care should actually do?",
+        "Can **community screening** lead to assessment, a plan, referral and follow-up?",
+        "What supports people and families **between visits**, not only in hospital?",
+        "How do people carry the **mental load** of long-term disease, and what helps?",
+        "After a fall or a medicine change, which **results matter** to older people?",
+        "How does evidence become **routine practice**, and what does it cost?"
+      ],
+      "cta": {
+        "label": "Discuss a collaboration",
+        "href": "/contact"
+      }
+    },
+    "story": {
+      "show": true,
+      "kicker": "Programme work",
+      "photos": [
+        "research",
+        "clinic"
+      ],
+      "signature": "Ramesh Kandel",
+      "body": [
+        "**My research begins in the clinic and the community.** It focuses on improving care for older adults and people living with chronic conditions, looking for approaches that are practical, affordable and responsive to patients, caregivers and health professionals in Nepal.",
+        "**Integrated Care for Older People is a central thread.** My work explores how the WHO ICOPE approach can be adapted to local services and communities: identifying implementation needs, supporting health-worker training and examining how screening can lead to assessment, care planning, referral and follow-up.",
+        "**I served as programme coordinator and consultant** for the WHO-supported project developing an ICOPE implementation model in Lumbini Province, and as a member of the WHO Clinical Consortium on Healthy Ageing in Geneva.",
+        "**My clinical research interests include frailty, falls and other geriatric syndromes**, alongside antimicrobial resistance in older patients. These areas reflect challenges encountered in routine practice and the need for evidence that can inform care in Nepal."
+      ]
+    },
+    "statement": {
+      "show": true,
+      "kicker": "How the work is used",
+      "body": [
+        "Adapting WHO guidance to Nepali services, so screening becomes assessment, a plan and follow-up rather than a form.",
+        "Studying frailty, geriatric syndromes and antimicrobial resistance where they actually occur, in routine practice and local settings."
+      ],
+      "cta": {
+        "label": "Discuss a collaboration",
+        "href": "/contact"
+      },
+      "note": "Research that stays on a shelf changes nothing. The test is whether a district health worker or a family at home can use it."
+    },
+    "credentials": {
+      "show": true,
+      "columns": [
+        [
+          {
+            "title": "Selected publications",
+            "entries": [
+              {
+                "id": "amr-uro",
+                "text": "Frailty and antimicrobial resistance in uropathogens",
+                "href": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:LkGwnXOMwfcC",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "Journal of Indian Academy of Geriatrics, 2025"
+              },
+              {
+                "id": "amr-rahs",
+                "text": "Antimicrobial resistance among older patients at RAHS",
+                "href": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:YsMSGLbcyi4C",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "Journal of Rapti Academy of Health Sciences, 2025"
+              },
+              {
+                "id": "syndromes",
+                "text": "Geriatric syndromes in a tertiary Geri OPD, western Nepal",
+                "href": "https://doi.org/10.70027/jrahs29",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "Journal of Rapti Academy of Health Sciences, 2025"
+              },
+              {
+                "id": "strategy",
+                "text": "Nepal’s Geriatric Health Strategy 2021–2030: a narrative review",
+                "href": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:u-x6o8ySG0sC",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "Journal of Indian Academy of Geriatrics, 2024"
+              },
+              {
+                "id": "caregiver",
+                "text": "Caregiver burden in Alzheimer’s dementia in Nepal",
+                "href": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:hqOjcs7Dif8C",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "Journal of Indian Academy of Geriatrics, 2021"
+              },
+              {
+                "id": "cancer",
+                "text": "Care protocol for older adults with cancer in resource-limited settings",
+                "href": "https://doi.org/10.1016/j.jgo.2020.04.013",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "Journal of Geriatric Oncology, 2021"
+              },
+              {
+                "id": "walking",
+                "text": "Nordic walking and nutrition in pre-frail older Indians",
+                "href": "https://doi.org/10.1186/s12877-018-0890-4",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "BMC Geriatrics, 2018"
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "title": "Research interests",
+            "entries": [
+              {
+                "id": "frailty",
+                "text": "Frailty, function and multimorbidity",
+                "meta": "Independence, risk and what care should do"
+              },
+              {
+                "id": "icope",
+                "text": "Integrated care and community healthy ageing",
+                "meta": "WHO ICOPE adapted to local services"
+              },
+              {
+                "id": "chronic",
+                "text": "Chronic disease self-management",
+                "meta": "Support people can use between visits"
+              },
+              {
+                "id": "mind",
+                "text": "Psychological wellbeing in chronic illness",
+                "meta": "The mental load of long-term disease"
+              },
+              {
+                "id": "systems",
+                "text": "Health services and implementation",
+                "meta": "How evidence becomes routine practice"
+              }
+            ]
+          },
+          {
+            "title": "Where the work appears",
+            "entries": [
+              {
+                "id": "jiag",
+                "text": "Journal of Indian Academy of Geriatrics",
+                "meta": "Peer reviewed"
+              },
+              {
+                "id": "jrahs",
+                "text": "Journal of Rapti Academy of Health Sciences",
+                "meta": "Peer reviewed"
+              },
+              {
+                "id": "jgo",
+                "text": "Journal of Geriatric Oncology",
+                "meta": "Peer reviewed"
+              },
+              {
+                "id": "swasthya",
+                "text": "Swasthya Khabarpatrika",
+                "href": "https://swasthyakhabar.com/story/63850",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "Health feature article in Nepali"
+              },
+              {
+                "id": "scholar",
+                "text": "Google Scholar profile",
+                "href": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "Full citation list"
+              },
+              {
+                "id": "cv",
+                "text": "Curriculum vitae (PDF)",
+                "href": "/Ramesh_Kandel_CV.pdf",
+                "via": "anchor",
+                "meta": "Including case reports"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    "publications": {
+      "show": true,
+      "kicker": "Full publication list",
+      "title": "Every paper, chapter and report, with links.",
+      "lede": "Compiled from [Google Scholar](https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en), [ORCID](https://orcid.org/0000-0002-7827-1471) and the curriculum vitae annexure."
+    },
+    "closing": {
+      "show": true,
+      "kicker": "Collaboration",
+      "title": "I welcome research partners.",
+      "lede": "Clinical ageing research, implementation studies, health services research and multidisciplinary projects that aim to improve care for older people.",
+      "primary": {
+        "label": "Discuss a collaboration",
+        "href": "/contact"
+      },
+      "secondary": {
+        "label": "Google Scholar",
+        "href": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en"
+      },
+      "note": "The list above is compiled from Google Scholar, ORCID and the CV annexure."
+    }
+  },
+  "healthy-ageing": {
+    "label": "Healthy ageing page",
+    "title": "Healthy Ageing",
+    "hero": {
+      "show": true,
+      "kicker": "Healthy ageing",
+      "title": "Healthy ageing is a service question.",
+      "lede": [
+        "Nepal is ageing faster than the health services around it were designed for. The WHO Integrated Care for Older People pathway is the practical answer I work with, in clinic, in district programmes and in the classroom."
+      ],
+      "photo": "ageingCouple",
+      "photo_url": "",
+      "photo_alt": ""
+    },
+    "lead": {
+      "show": true,
+      "kicker": "What the pathway has to survive",
+      "title": "The questions behind the programme",
+      "questions": [
+        "Can a community health worker assess **intrinsic capacity** with tools that need no laboratory?",
+        "What follows a **positive screen**: a plan and a referral, or a dead end?",
+        "Who **follows up** when the person is at home and the nearest clinic is a day away?",
+        "How do **families** become partners rather than bystanders?",
+        "What changes when **one trained person** joins a district hospital team?",
+        "How does **national guidance** reach a ward that is short of everything?"
+      ],
+      "cta": {
+        "label": "Work with me on this",
+        "href": "/contact"
+      }
+    },
+    "story": {
+      "show": true,
+      "kicker": "ICOPE in Nepal",
+      "photos": [
+        "checkup",
+        "clinic"
+      ],
+      "signature": "Ramesh Kandel",
+      "body": [
+        "**I served as programme coordinator and consultant** for the WHO-supported project developing an ICOPE implementation model in Lumbini Province: identifying what the services needed, training health workers, and testing how screening can lead to assessment, a care plan, referral and follow-up.",
+        "**Healthy ageing is not a service of its own.** It is ordinary care, organised so that capacity is measured early, medicines are reviewed, falls are taken seriously and someone keeps in touch. Most of that belongs to primary care, where Nepali older people already go.",
+        "**In 2019 I worked as Consultant on Healthy Ageing for WHO-SEARO** in New Delhi, and I am a member of the WHO Clinical Consortium on Healthy Ageing in Geneva. Both roles keep the Nepali work in conversation with guidance written for settings like it.",
+        "**The part I would defend longest** is follow-up. A screening result without a plan, or a plan without a phone call, teaches families that the system asks questions but does not answer them."
+      ]
+    },
+    "statement": {
+      "show": true,
+      "kicker": "What I want changed",
+      "body": [
+        "Geriatric services staffed, sized and measured like any other specialty, from the district hospital outward to the community.",
+        "Screening that leads somewhere: a written plan a family can follow, and someone who checks whether it worked."
+      ],
+      "cta": {
+        "label": "Read the research behind it",
+        "href": "/research"
+      },
+      "note": "Educational content about healthy ageing. It does not replace an individual clinical assessment."
+    },
+    "credentials": {
+      "show": true,
+      "columns": [
+        [
+          {
+            "title": "Programmes and policy",
+            "entries": [
+              {
+                "id": "icope-lumbini",
+                "text": "WHO-supported ICOPE implementation model, Lumbini Province",
+                "meta": "Programme coordinator and consultant"
+              },
+              {
+                "id": "searo",
+                "text": "Healthy Ageing, WHO-SEARO, New Delhi",
+                "meta": "Consultant, 2019"
+              },
+              {
+                "id": "consortium",
+                "text": "WHO Clinical Consortium on Healthy Ageing, Geneva",
+                "meta": "Member"
+              },
+              {
+                "id": "strategy",
+                "text": "Nepal National Geriatric Strategy and Geriatric Service Standards",
+                "meta": "Principal consultant"
+              },
+              {
+                "id": "minimum-standards",
+                "text": "Minimum Service Standards, Nepal",
+                "meta": "Subject expert"
+              },
+              {
+                "id": "niah",
+                "text": "National Institute on Ageing and Health (NIAH), Nepal",
+                "meta": "Founder President"
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "title": "Where to read it",
+            "entries": [
+              {
+                "id": "icope-paper",
+                "text": "Facilitators and barriers of implementing the WHO ICOPE care model in Nepal",
+                "href": "https://doi.org/10.1016/j.jarlif.2025.100032",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "The Journal of Aging Research & Lifestyle, 2025"
+              },
+              {
+                "id": "strategy-review",
+                "text": "Nepal's Geriatric Health Strategy 2021-2030: a narrative review",
+                "href": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:u-x6o8ySG0sC",
+                "via": "anchor",
+                "newTab": true,
+                "meta": "Journal of the Indian Academy of Geriatrics, 2024"
+              },
+              {
+                "id": "all-research",
+                "text": "The full publication list",
+                "href": "/research",
+                "via": "text",
+                "meta": "Compiled from Google Scholar and ORCID"
+              },
+              {
+                "id": "programme-contact",
+                "text": "Discuss a programme or a partnership",
+                "href": "/contact",
+                "via": "text",
+                "meta": "Implementation, research and training work"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    "closing": {
+      "show": true,
+      "kicker": "Collaboration",
+      "title": "Healthy ageing needs more people working on it.",
+      "lede": "Programmes, universities, professional bodies and funders building something that will still be running when this decade's older people are next decade's.",
+      "primary": {
+        "label": "Start a conversation",
+        "href": "/contact"
+      },
+      "secondary": {
+        "label": "Read my research",
+        "href": "/research"
+      },
+      "note": "Tell me who you are, what you need and when."
+    }
+  },
+  "how-it-works": {
+    "label": "How it works page",
+    "title": "How it works",
+    "hero": {
+      "show": true,
+      "title": "Good care in older age is so much more than the absence of disease.",
+      "lede": [
+        "A comprehensive geriatric assessment and a written health plan to help you live longer in the home you love."
+      ],
+      "pill": {
+        "label": "Book a consultation",
+        "href": "/contact",
+        "tone": "white"
+      },
+      "note": "Send an enquiry and I will reply with availability, directions and what to bring.",
+      "photo": "portrait"
+    },
+    "help": {
+      "show": true,
+      "kicker": "Who I can help",
+      "title": "Your health is not a destination, it’s a journey.",
+      "photo": "cyclist",
+      "body": [
+        "Although you may be currently struggling with an illness or symptoms, my focus is on restoring function and independence rather than just treating disease. This approach may be different from what you are used to, but it is far superior for improving your overall quality of life and reducing your future risk of dependence.",
+        "I only work with people who are ready to make changes and who I know I can help. If I do not think that I can help you I will refer you to someone or something that can.",
+        "To determine if this type of consultation is a good fit for you, click the button below and send a short enquiry. I will be in touch shortly with details."
+      ],
+      "pill": {
+        "label": "Book a consultation",
+        "href": "/contact",
+        "tone": "outline"
+      },
+      "note": "Send an enquiry and I will reply with availability, directions and what to bring."
+    },
+    "process": {
+      "show": true,
+      "kicker": "The process",
+      "title": "Your care journey",
+      "steps": [
+        {
+          "id": "enquire",
+          "label": "Send an enquiry",
+          "icon": "mail",
+          "color": "#1e60ce"
+        },
+        {
+          "id": "assess",
+          "label": "Comprehensive assessment",
+          "icon": "stethoscope",
+          "color": "#91dad1"
+        },
+        {
+          "id": "consult",
+          "label": "Family consultation",
+          "icon": "video",
+          "color": "#f01444"
+        },
+        {
+          "id": "plan",
+          "label": "Personalized written plan",
+          "icon": "clipboard-list",
+          "color": "#f3bb0c"
+        },
+        {
+          "id": "track",
+          "label": "Track your progress",
+          "icon": "trending-up",
+          "color": "#f87879"
+        }
+      ]
+    },
+    "first": {
+      "show": true,
+      "kicker": "The first appointment",
+      "title": "Build your health story and gain clarity about the years ahead.",
+      "photo": "laptop",
+      "checks": [
+        "Medical history",
+        "Current medicines",
+        "Daily function",
+        "Diet and appetite",
+        "Lifestyle choices",
+        "Fitness and balance"
+      ],
+      "body": [
+        "Before the first appointment, write the story in your own words: the medical history, the current challenges, and the goals that matter most to you and your family."
+      ]
+    },
+    "assess": {
+      "show": true,
+      "kicker": "The assessment",
+      "title": "What a comprehensive assessment includes:",
+      "rows": [
+        {
+          "id": "mind",
+          "icon": "brain",
+          "color": "#f01444",
+          "left": {
+            "title": "Memory and thinking",
+            "text": "A simple bedside screening of recall, attention and language, explained as we go."
+          },
+          "right": {
+            "title": "Mood and motivation",
+            "text": "A screening for low mood, anxiety, apathy and the losses that accompany them."
+          }
+        },
+        {
+          "id": "move",
+          "icon": "footprints",
+          "color": "#f3bb0c",
+          "left": {
+            "title": "Function and gait",
+            "text": "How you rise, walk, turn and sit, observed and timed at your own pace."
+          },
+          "right": {
+            "title": "Falls and balance",
+            "text": "A determination of your level of fall risk and the confidence lost after a fall."
+          }
+        },
+        {
+          "id": "meds",
+          "icon": "pill",
+          "color": "#f87879",
+          "left": {
+            "title": "Medicines and prescriptions",
+            "text": "Every tablet, injection and remedy matched against its purpose, benefit and burden."
+          },
+          "right": {
+            "title": "Nutrition and weight",
+            "text": "An assessment of appetite, weight, meals and the risk of deficiency."
+          }
+        },
+        {
+          "id": "senses",
+          "icon": "eye",
+          "color": "#91dad1",
+          "left": {
+            "title": "Vision and hearing",
+            "text": "A screening of the senses that quietly withdraw people from conversation and street life."
+          },
+          "right": {
+            "title": "Sleep and continence",
+            "text": "A review of nights, daytime tiredness and the problems people rarely volunteer."
+          }
+        },
+        {
+          "id": "body",
+          "icon": "heart-pulse",
+          "color": "#1e60ce",
+          "left": {
+            "title": "Heart, lungs and circulation",
+            "text": "An examination of rate, rhythm, breath and the feet, with referral where needed."
+          },
+          "right": {
+            "title": "Bones, joints and strength",
+            "text": "A determination of arthritis, osteoporosis risk and the strength needed for daily life."
+          }
+        }
+      ]
+    },
+    "consult": {
+      "show": true,
+      "kicker": "The consultation",
+      "title": "One conversation, the whole picture.",
+      "icon": "home",
+      "photo": "portrait",
+      "body": [
+        "During the first consultation we meet for a full hour, in person or by video, to prioritize your goals, review your history and medicines, determine the underlying causes of your complaints, and create a custom written plan."
+      ],
+      "cardTitle": "Focused time",
+      "cardText": "The first appointment is a full hour of focused time. I listen for the hidden details and ask the questions that reveal so much more than I can observe.",
+      "cardName": "Ramesh Kandel",
+      "cardMeta": "Professor of Geriatric Medicine"
+    },
+    "plan": {
+      "show": true,
+      "kicker": "The written plan",
+      "title": "A personalized written plan designed to protect your independence",
+      "body": [
+        "Your custom plan will help to reduce your future risk of dependence, as well as the need for extra medicines and hospital visits.",
+        "Click below to see the areas that make up your complete plan."
+      ],
+      "pill": {
+        "label": "View Here",
+        "href": "/contact",
+        "tone": "teal"
+      }
+    },
+    "benefits": {
+      "show": true,
+      "items": [
+        {
+          "id": "convenient",
+          "icon": "mouse-pointer-click",
+          "title": "Convenient",
+          "paragraphs": [
+            "One appointment, one room, with the family present where possible, in person or by video.",
+            "Get all your important health questions answered without the usual barriers."
+          ]
+        },
+        {
+          "id": "time",
+          "icon": "alarm-clock",
+          "title": "Time saving",
+          "paragraphs": [
+            "There is no need to spend precious days moving from desk to desk to get a single answer.",
+            "The assessment, the review and the plan happen in one unhurried visit."
+          ]
+        },
+        {
+          "id": "answers",
+          "icon": "lightbulb",
+          "title": "Get answers",
+          "paragraphs": [
+            "Make more informed decisions about diet, fitness, and medicines based on your own health data.",
+            "Understand the steps that are needed to achieve your health goals."
+          ]
+        }
+      ]
+    },
+    "track": {
+      "show": true,
+      "kicker": "Track your progress",
+      "title": "Track your health progress over time.",
+      "body": [
+        "From a **structured review of function, mood, medicines and falls** we will determine if the plan is working, if your exercise is adequate, and if every medicine is still worth its burden. In addition, monitoring these trends year after year helps us to determine if your health is declining, maintaining, or improving."
+      ],
+      "chart": {
+        "name": "Mobility",
+        "metric": "Timed Up and Go",
+        "unit": "seconds",
+        "domain": [
+          30,
+          8
+        ],
+        "bands": [
+          {
+            "label": "High risk",
+            "range": ">20",
+            "color": "#f01444",
+            "from": 30,
+            "to": 20
+          },
+          {
+            "label": "Moderate",
+            "range": "13–20",
+            "color": "#f3bb0c",
+            "from": 20,
+            "to": 13
+          },
+          {
+            "label": "Optimal",
+            "range": "<13",
+            "color": "#91dad1",
+            "from": 13,
+            "to": 8
+          }
+        ],
+        "points": [
+          {
+            "month": "May",
+            "year": "2026",
+            "value": 24,
+            "color": "#f01444"
+          },
+          {
+            "month": "Jul",
+            "year": "2026",
+            "value": 17,
+            "color": "#f3bb0c"
+          },
+          {
+            "month": "Nov",
+            "year": "2026",
+            "value": 12,
+            "color": "#91dad1"
+          }
+        ]
+      }
+    },
+    "faq": {
+      "show": true,
+      "title": "Frequently asked questions",
+      "group": "how-it-works"
+    },
+    "cta": {
+      "show": true,
+      "kicker": "GET STARTED TODAY",
+      "title": "Start to improve your",
+      "accent": "Independence",
+      "body": [
+        "It is important to find and treat the root cause of decline, not just the symptoms. Let us work together to reverse your risk of dependence, reduce your reliance on prescription drugs, and optimize your health. Your custom plan will include low-risk, high-value recommendations in the areas of diet, lifestyle, fitness, and medicines so that you can start to live your healthiest life."
+      ],
+      "pills": [
+        {
+          "label": "Book a consultation",
+          "href": "/contact",
+          "tone": "blue"
+        }
+      ],
+      "note": "Send an enquiry and I will reply with availability, directions and what to bring."
+    }
+  },
+  "teaching": {
+    "label": "Teaching page",
+    "title": "Teaching",
+    "hero": {
+      "show": true,
+      "title": "Teaching is how good care outlives one clinician.",
+      "lede": [
+        "Lectures, bedside teaching, skills workshops and curriculum work that prepare health professionals for an ageing population."
+      ],
+      "pill": {
+        "label": "Enquire about teaching",
+        "href": "/contact",
+        "tone": "white"
+      },
+      "note": "Send an enquiry and I will reply with availability, formats and a suggested outline.",
+      "photo": "teaching"
+    },
+    "why": {
+      "show": true,
+      "kicker": "Why teach geriatrics",
+      "title": "Lessons that travel across healthcare.",
+      "photo": "caregiver",
+      "body": [
+        "Geriatric medicine offers lessons every specialty needs: understanding several conditions at once, reviewing medicines thoughtfully, assessing function, and making decisions together with patients and families.",
+        "I teach the way I practise. A session starts with the person in front of us and ends with something the learner can repeat on their own ward.",
+        "Colleges, hospitals, professional bodies and community programmes are all welcome to ask for a session built around their own cases."
+      ],
+      "pill": {
+        "label": "See recorded talks",
+        "href": "/media",
+        "tone": "outline"
+      }
+    },
+    "process": {
+      "show": true,
+      "kicker": "How I teach",
+      "title": "Ways of working with learners",
+      "steps": [
+        {
+          "id": "lecture",
+          "label": "Guest lecture",
+          "icon": "presentation",
+          "color": "#6b4a12"
+        },
+        {
+          "id": "ward",
+          "label": "Bedside and ward round teaching",
+          "icon": "stethoscope",
+          "color": "#8a6110"
+        },
+        {
+          "id": "workshop",
+          "label": "Skills workshop",
+          "icon": "users",
+          "color": "#a03412"
+        },
+        {
+          "id": "curriculum",
+          "label": "Curriculum and assessment design",
+          "icon": "book-open",
+          "color": "#7d6216"
+        },
+        {
+          "id": "faculty",
+          "label": "Faculty development",
+          "icon": "graduation-cap",
+          "color": "#8c5a3c"
+        }
+      ]
+    },
+    "topics": {
+      "show": true,
+      "kicker": "What I teach",
+      "title": "Topics I bring to a classroom or a clinic",
+      "rows": [
+        {
+          "id": "assessment",
+          "icon": "stethoscope",
+          "color": "#8a6110",
+          "left": {
+            "title": "Comprehensive geriatric assessment",
+            "text": "A structured way to see the whole person, not a single organ."
+          },
+          "right": {
+            "title": "Frailty and multimorbidity",
+            "text": "When several conditions travel together, plans have to change."
+          }
+        },
+        {
+          "id": "syndromes",
+          "icon": "footprints",
+          "color": "#9a7b1f",
+          "left": {
+            "title": "Falls, cognition and other syndromes",
+            "text": "The presentations that do not fit neatly on a referral form."
+          },
+          "right": {
+            "title": "Person-centred clinical decisions",
+            "text": "Goals, burdens and what the person actually wants from treatment."
+          }
+        },
+        {
+          "id": "practice",
+          "icon": "heart-handshake",
+          "color": "#a03412",
+          "left": {
+            "title": "Chronic disease self-management",
+            "text": "Skills people use on the days they are not in clinic."
+          },
+          "right": {
+            "title": "Research methods and appraisal",
+            "text": "Clear questions, honest methods and evidence that can be used."
+          }
+        }
+      ]
+    },
+    "leadership": {
+      "show": true,
+      "kicker": "Academic leadership",
+      "title": "Institutions that teach well.",
+      "icon": "building-2",
+      "photo": "portrait",
+      "body": [
+        "My experience includes academic and hospital leadership at Rapti Academy of Health Sciences, alongside work in curriculum development and educational quality improvement.",
+        "I am interested in programmes that connect classroom learning with clinical and community needs, prepare graduates for local practice and support continuous improvement."
+      ],
+      "cardTitle": "Mentoring",
+      "cardText": "I support students and early-career health professionals as they build clinical, teaching and research skills, with honest feedback and room to ask a second question.",
+      "cardName": "Ramesh Kandel",
+      "cardMeta": "Professor of Geriatric Medicine"
+    },
+    "benefits": {
+      "show": true,
+      "items": [
+        {
+          "id": "students",
+          "icon": "graduation-cap",
+          "title": "For students",
+          "paragraphs": [
+            "Medical and nursing students, interns and residents get a framework for the older patient that a single-organ syllabus rarely provides.",
+            "Every session starts with a real case and ends with an assessment anyone can repeat."
+          ]
+        },
+        {
+          "id": "professionals",
+          "icon": "users",
+          "title": "For professionals",
+          "paragraphs": [
+            "General practitioners, medical officers and specialists refresh the prescribing and referral habits that matter most in later life.",
+            "Workshops are built around the cases your team actually saw last month."
+          ]
+        },
+        {
+          "id": "institutions",
+          "icon": "building-2",
+          "title": "For institutions",
+          "paragraphs": [
+            "Curriculum design, assessment tools and faculty development, worked through with the teachers who will have to run them.",
+            "Quality improvement projects that connect teaching to the community the college serves."
+          ]
+        }
+      ]
+    },
+    "faq": {
+      "show": true,
+      "title": "Questions from organisers",
+      "group": "teaching"
+    },
+    "cta": {
+      "show": true,
+      "kicker": "INVITATIONS",
+      "title": "Teaching, training and",
+      "accent": "professional discussion",
+      "body": [
+        "Invitations on geriatric medicine, healthy ageing, integrated care and medical education are welcome from colleges, hospitals, professional bodies and community programmes."
+      ],
+      "pills": [
+        {
+          "label": "Enquire about teaching",
+          "href": "/contact",
+          "tone": "white"
+        },
+        {
+          "label": "Download my CV",
+          "href": "/Ramesh_Kandel_CV.pdf",
+          "tone": "outline"
+        }
+      ],
+      "note": "Send an enquiry and I will reply with availability, formats and a suggested outline."
+    }
+  },
+  "media": {
+    "label": "Media page",
+    "title": "Media",
+    "hero": {
+      "show": true,
+      "kicker": "Media",
+      "title": "Interviews, speeches and talks.",
+      "lede": [
+        "Television interviews, recorded talks and community conversations about ageing, Alzheimer’s disease, geriatric care and healthy ageing in Nepal."
+      ],
+      "photo": "teaching"
+    },
+    "gallery": {
+      "show": true,
+      "kicker": "Watch",
+      "title": "All videos"
+    },
+    "press": {
+      "show": true,
+      "kicker": "In the press",
+      "title": "Written for a wider audience.",
+      "lede": "Longer pieces for Nepali readers, turning clinical evidence into advice families can act on."
+    },
+    "closing": {
+      "show": true,
+      "kicker": "Invitations",
+      "title": "Speaking and media requests.",
+      "lede": "Available for interviews, lectures, workshops and community talks on geriatric medicine, healthy ageing and integrated care.",
+      "primary": {
+        "label": "Enquire about speaking",
+        "href": "/contact"
+      },
+      "secondary": {
+        "label": "Download my CV",
+        "href": "/Ramesh_Kandel_CV.pdf"
+      }
+    }
+  },
+  "blog": {
+    "label": "Insights page",
+    "title": "Insights",
+    "list": {
+      "author": "Dr. Ramesh Kandel",
+      "avatar": "portrait"
+    }
+  },
+  "article": {
+    "label": "Article pages",
+    "closing": {
+      "kicker": "Keep reading",
+      "title": "Back to the writing.",
+      "lede": "More notes from clinic, classroom and community work.",
+      "primary": {
+        "label": "All articles",
+        "href": "/blog"
+      },
+      "secondary": {
+        "label": "Get in touch",
+        "href": "/contact"
+      }
+    }
+  },
+  "contact": {
+    "label": "Contact page",
+    "title": "Contact",
+    "heading": "Let’s connect",
+    "photo": "portrait",
+    "rows": [
+      {
+        "id": "enquiry",
+        "label": "Professional enquiry",
+        "anchor": "enquiry",
+        "text": "I welcome professional enquiries about research collaboration, teaching, speaking and initiatives that improve care for older people. Please include a brief description of your enquiry, your organisation and any relevant timeline.",
+        "form": {
+          "submitLabel": "Send enquiry",
+          "thanks": "Thank you. Your enquiry is filed as {reference}. I reply to every one with availability and what to bring.",
+          "received": "Thank you. Your enquiry has been received.",
+          "offline": "The enquiry could not be sent right now. Please email or call and we will arrange it from there.",
+          "invalid": "Something in that enquiry did not fit. Please check the marked answers and send it again.",
+          "fields": [
+            {
+              "id": "name",
+              "kind": "text",
+              "label": "Your name",
+              "required": true,
+              "half": true
+            },
+            {
+              "id": "email",
+              "kind": "email",
+              "label": "Your email",
+              "required": true,
+              "half": true
+            },
+            {
+              "id": "phone",
+              "kind": "tel",
+              "label": "Your phone number",
+              "required": true,
+              "half": true
+            },
+            {
+              "id": "organisation",
+              "kind": "text",
+              "label": "Organisation",
+              "half": true
+            },
+            {
+              "id": "topic",
+              "kind": "choice",
+              "label": "Nature of enquiry",
+              "required": true,
+              "options": [
+                "Research collaboration",
+                "Teaching and speaking",
+                "Programme and policy work",
+                "Other"
+              ]
+            },
+            {
+              "id": "timeline",
+              "kind": "text",
+              "label": "Timeline, if any"
+            },
+            {
+              "id": "concerns",
+              "kind": "textarea",
+              "label": "Please briefly list your top 3 most important health concerns or goals",
+              "required": true
+            },
+            {
+              "id": "aim",
+              "kind": "textarea",
+              "label": "What are you hoping to achieve from a consultation with me?",
+              "required": true
+            },
+            {
+              "id": "message",
+              "kind": "textarea",
+              "label": "Your message",
+              "required": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "work",
+        "label": "What I can help with",
+        "text": [
+          "Research collaboration on frailty, healthy ageing, multimorbidity, integrated care, chronic disease self-management and health services research.",
+          "Teaching and speaking: academic lectures, professional training, workshops and conference contributions.",
+          "Programme and policy work: healthy-ageing services, workforce development and community-based approaches to care."
+        ]
+      },
+      {
+        "id": "write",
+        "label": "Write or call",
+        "items": [
+          {
+            "text": "drameshkandel@gmail.com",
+            "href": "mailto:drameshkandel@gmail.com"
+          },
+          {
+            "text": "+977-9857042717",
+            "href": "tel:+9779857042717"
+          },
+          {
+            "text": "Professor of Geriatric Medicine, Rapti Academy of Health Sciences, Nepal."
+          },
+          {
+            "text": "ORCID",
+            "href": "https://orcid.org/0000-0002-7827-1471"
+          },
+          {
+            "text": "Google Scholar",
+            "href": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en"
+          },
+          {
+            "socials": true
+          }
+        ]
+      },
+      {
+        "id": "clinic",
+        "label": "Clinical appointments",
+        "text": "For clinical appointments, please contact the relevant hospital or clinic directly. Please do not submit confidential medical information through this website."
+      }
+    ]
+  }
+}

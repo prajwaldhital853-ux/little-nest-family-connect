@@ -7,25 +7,18 @@ import { cn } from "@/lib/utils";
 import { applySitePack } from "@/style-packs";
 import type { SitePack } from "@/style-packs/types";
 
-import { DoctorHeader, type DrHeaderLink } from "./doctor-sections";
+import { DoctorHeader, type DoctorHeaderData } from "./doctor-sections";
 import type { SitePhoto } from "./media";
 
 export type PageLayout = "margin" | "apple-1260" | "apple-1100" | "apple-980";
 
-export function SiteTemplate( { name, pack, header, footer, layout = "margin", children }: {
+export function SiteTemplate( { name, pack, header, footer, skip, layout = "margin", children }: {
   name: string;
   pack: SitePack;
   layout?: PageLayout;
-  header: {
-    name: string;
-    role: string;
-    strip: string;
-    place: string;
-    links: DrHeaderLink[];
-    phone: { label: string; href: string };
-    cta: DrHeaderLink;
-  };
+  header: DoctorHeaderData;
   footer?: ReactNode;
+  skip?: string;
   children: ReactNode;
 } ) {
   useLayoutEffect( () => {
@@ -43,13 +36,24 @@ export function SiteTemplate( { name, pack, header, footer, layout = "margin", c
 
   return (
     <div className={ cn( "themed-type site-template min-h-screen bg-background text-foreground", `site-template-${ name }`, `layout-${ layout }` ) }>
+      <a className="dr-skip text-small" href="#main">{ skip ?? "Skip to the page" }</a>
       <DoctorHeader { ...header } />
-      <main>{ children }</main>
+      <main id="main">{ children }</main>
       { footer }
     </div>
   );
 }
 
 export function Img( { photo, style }: { photo: SitePhoto; style?: CSSProperties } ) {
-  return <img src={ photo.src } alt={ photo.alt } style={ style } />;
+  return (
+    <img
+      src={ photo.src }
+      alt={ photo.alt }
+      style={ style }
+      width={ photo.width }
+      height={ photo.height }
+      loading="lazy"
+      decoding="async"
+    />
+  );
 }

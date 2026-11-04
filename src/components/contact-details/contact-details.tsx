@@ -20,10 +20,10 @@ export function ContactDetails( { title, rows, media, className = '' }: ContactD
   return (
     <section
       data-header="solid"
-      className={ cn( 'bg-background px-[var(--grid-margin)] pb-40 pt-[calc(var(--site-header-height)_+_3.75rem)] text-foreground', className ) }
+      className={ cn( 'bg-background px-[var(--grid-margin)] pb-16 pt-[calc(var(--site-header-height)_+_3.75rem)] text-foreground', className ) }
     >
       <Reveal as="h1" className="m-0 text-h1 lg:w-[calc(var(--col)*11_-_var(--grid-gutter))]">{ title }</Reveal>
-      <div className="mt-20 flex flex-col gap-[var(--grid-gutter)] lg:mt-[180px] lg:grid lg:grid-cols-12 lg:items-start">
+      <div className="mt-16 flex flex-col gap-[var(--grid-gutter)] lg:mt-[96px] lg:grid lg:grid-cols-12 lg:items-start">
         <div
           className={ cn(
             'relative aspect-[3/4] overflow-hidden lg:sticky lg:top-[calc(var(--site-header-height)_+_1.25rem)] lg:order-2 lg:col-span-6 lg:col-start-7',
