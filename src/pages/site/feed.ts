@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import type { DrMediaItem, DrPost, PressItem } from "./doctor-sections";
 import { home } from "./media";
 import type { PhotoKey, SitePhoto } from "./media";
-import type { PublicationGroup } from "./publications";
+import type { Publication, PublicationGroup, PublicationKind } from "./publications";
+import { publicationKindOrder } from "./publications";
 import type { SiteFaq } from "./content";
 import { API_BASE } from "./api";
 
@@ -55,6 +56,7 @@ export interface ApiPublication {
   venue: string;
   link: string;
   tag: string;
+  kind: string;
 }
 
 export interface ApiSitePayload {
@@ -107,15 +109,20 @@ export function pressRow( row: ApiPress ): PressItem {
   };
 }
 
+/* The type buckets are built here rather than trusted from the panel, so every row lands under a
+   heading the site knows how to draw. A type with nothing in it never appears on the page. */
 export function groupPublications( rows: ApiPublication[] ): PublicationGroup[] {
-  const groups: PublicationGroup[] = [];
+  const buckets = new Map<PublicationKind, Publication[]>();
   for ( const row of rows ) {
+    const kind = publicationKindOrder.find( value => value === row.kind ) ?? "other";
     const entry = { year: row.year, title: row.title, authors: row.authors, venue: row.venue, href: row.link };
-    const found = groups.find( group => group.label === row.tag );
-    if ( found ) found.items.push( entry );
-    else groups.push( { label: row.tag, items: [ entry ] } );
+    const found = buckets.get( kind );
+    if ( found ) found.push( entry );
+    else buckets.set( kind, [ entry ] );
   }
-  return groups;
+  return publicationKindOrder
+    .filter( kind => buckets.has( kind ) )
+    .map( kind => ( { kind, items: buckets.get( kind ) ?? [] } ) );
 }
 
 /* ------------------------------------------------------------------ */

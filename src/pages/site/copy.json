@@ -5,6 +5,24 @@
       "home": "Dr. Ramesh Kandel, Geriatric Medicine in Nepal",
       "suffix": "Dr. Ramesh Kandel"
     },
+    "seo": {
+      "indexable": true,
+      "title": "",
+      "description": "",
+      "keywords": "geriatric medicine Nepal, healthy ageing, elderly care, Dr. Ramesh Kandel",
+      "og_image": "",
+      "og_image_url": "",
+      "og_image_alt": "",
+      "pages": {
+        "about": { "title": "", "description": "" },
+        "research": { "title": "", "description": "" },
+        "healthy-ageing": { "title": "", "description": "" },
+        "teaching": { "title": "", "description": "" },
+        "media": { "title": "", "description": "" },
+        "blog": { "title": "", "description": "" },
+        "contact": { "title": "", "description": "" }
+      }
+    },
     "contact": {
       "email": "drameshkandel@gmail.com",
       "phone": "+977-9857042717",

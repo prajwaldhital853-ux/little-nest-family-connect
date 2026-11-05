@@ -36,7 +36,18 @@ function kindOf( value: unknown ): string {
 export function mergeValue( base: unknown, live: unknown ): unknown {
   const wanted = kindOf( live );
   if ( !wanted || wanted !== kindOf( base ) ) return base;
-  if ( wanted === "array" ) return ( live as unknown[] ).length > 0 ? live : base;
+  if ( wanted === "array" ) {
+    const liveList = live as unknown[];
+    if ( liveList.length === 0 ) return base;
+    const baseList = base as unknown[];
+    /* Elements keep the bundle's shape: a row the panel half-saved, like a column that arrived as
+       an empty list, is dropped instead of reaching a renderer that would fall over on it. */
+    const merged = liveList.map( ( item, index ) =>
+      index < baseList.length ? mergeValue( baseList[ index ], item ) : item
+    );
+    const kept = merged.filter( ( item, index ) => index < baseList.length || kindOf( item ) === kindOf( baseList[ 0 ] ) );
+    return kept.length > 0 ? kept : base;
+  }
   if ( wanted === "object" ) {
     const merged: Record<string, unknown> = { ...( base as Record<string, unknown> ) };
     for ( const [ key, value ] of Object.entries( live as Record<string, unknown> ) ) {

@@ -6,17 +6,32 @@ export interface Publication {
   href: string;
 }
 
+/** What kind of written work an entry is. The panel sets it; the site draws each one differently. */
+export type PublicationKind = "research" | "review" | "case" | "abstract" | "other";
+
 export interface PublicationGroup {
-  label: string;
+  kind: PublicationKind;
   items: Publication[];
 }
+
+/* The heading each type carries on the page, in the order the list reads. A type with no rows
+   never shows its heading, and a row the panel labelled some other way lands in "other". */
+export const publicationKindOrder: PublicationKind[] = [ "research", "review", "case", "abstract", "other" ];
+
+export const publicationKindHeading: Record<PublicationKind, string> = {
+  research: "Original research",
+  review: "Reviews and book chapters",
+  case: "Case reports",
+  abstract: "Conference abstracts and editorials",
+  other: "Other writing",
+};
 
 const scholar = ( key: string ) =>
   `https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:${ key }`;
 
 export const publicationGroups: PublicationGroup[] = [
   {
-    label: "Original research",
+    kind: "research",
     items: [
       {
         year: 2026,
@@ -119,7 +134,7 @@ export const publicationGroups: PublicationGroup[] = [
     ],
   },
   {
-    label: "Reviews and book chapters",
+    kind: "review",
     items: [
       {
         year: 2026,
@@ -138,7 +153,7 @@ export const publicationGroups: PublicationGroup[] = [
     ],
   },
   {
-    label: "Case reports",
+    kind: "case",
     items: [
       {
         year: 2022,
@@ -178,7 +193,7 @@ export const publicationGroups: PublicationGroup[] = [
     ],
   },
   {
-    label: "Conference abstracts and editorials",
+    kind: "abstract",
     items: [
       {
         year: 2024,

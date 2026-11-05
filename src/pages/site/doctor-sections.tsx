@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import type { SitePhoto } from "./media";
 import { home } from "./media";
 import { fill } from "./copy";
-import type { PublicationGroup } from "./publications";
-import { orcidUrl, scholarProfileUrl } from "./publications";
+import type { Publication, PublicationGroup } from "./publications";
+import { orcidUrl, publicationKindHeading, scholarProfileUrl } from "./publications";
 import type { CopyIcon } from "./icons";
 
 /* ------------------------------------------------------------------ */
@@ -1416,23 +1416,12 @@ export function PublicationList( { groups, kicker, title, lede, allHref, allLabe
         </p>
       </header>
       { groups.map( ( group ) => (
-        <div key={ group.label } className="dr-pubs-group">
-          <h3 className="dr-pubs-group-label text-small">{ group.label }</h3>
-          <ol className="dr-pubs-items">
-            { group.items.map( ( item ) => (
-              <li key={ item.href + item.title } className="dr-pub">
-                <span className="dr-pub-year text-meta">{ item.year }</span>
-                <div className="dr-pub-body">
-                  <a className="dr-pub-title text-large" href={ item.href } target="_blank" rel="noreferrer">
-                    { item.title }
-                    <ArrowUpRight className="dr-pub-arrow" aria-hidden />
-                  </a>
-                  <p className="dr-pub-meta text-small">{ item.authors }</p>
-                  <p className="dr-pub-meta text-small"><em>{ item.venue }</em></p>
-                </div>
-              </li>
-            ) ) }
-          </ol>
+        <div key={ group.kind } className={ cn( "dr-pubs-group", `is-${ group.kind }` ) }>
+          <h3 className="dr-pubs-group-label text-small">
+            <span>{ publicationKindHeading[ group.kind ] }</span>
+            <span className="dr-pubs-group-count">{ group.items.length }</span>
+          </h3>
+          <PublicationRows group={ group } />
         </div>
       ) ) }
       { allHref && (
@@ -1444,5 +1433,75 @@ export function PublicationList( { groups, kicker, title, lede, allHref, allLabe
         </div>
       ) }
     </section>
+  );
+}
+
+function PublicationLink( { item }: { item: Publication } ) {
+  return (
+    <a className="dr-pub-title text-large" href={ item.href } target="_blank" rel="noreferrer">
+      { item.title }
+      <ArrowUpRight className="dr-pub-arrow" aria-hidden />
+    </a>
+  );
+}
+
+/* Each kind of written work is drawn its own way, so a reader can see the difference between a
+   paper, a chapter, a case and an abstract before reading a word of it. */
+function PublicationRows( { group }: { group: PublicationGroup } ) {
+  if ( group.kind === "review" ) {
+    return (
+      <ol className="dr-pubs-items">
+        { group.items.map( ( item ) => (
+          <li key={ item.href + item.title } className="dr-pub-chapter">
+            <p className="dr-pub-in text-small">In <em>{ item.venue }</em></p>
+            <PublicationLink item={ item } />
+            <p className="dr-pub-meta text-small">{ item.authors }, { item.year }</p>
+          </li>
+        ) ) }
+      </ol>
+    );
+  }
+  if ( group.kind === "case" ) {
+    return (
+      <ol className="dr-pubs-items">
+        { group.items.map( ( item ) => (
+          <li key={ item.href + item.title } className="dr-pub-case">
+            <PublicationLink item={ item } />
+            <p className="dr-pub-meta text-small">
+              <em>{ item.venue }</em> · { item.year }
+            </p>
+          </li>
+        ) ) }
+      </ol>
+    );
+  }
+  if ( group.kind === "abstract" ) {
+    return (
+      <ol className="dr-pubs-items">
+        { group.items.map( ( item ) => (
+          <li key={ item.href + item.title } className="dr-pub-abstract">
+            <span className="dr-pub-year text-meta">{ item.year }</span>
+            <div className="dr-pub-body">
+              <PublicationLink item={ item } />
+              <p className="dr-pub-meta text-small">{ item.venue }</p>
+            </div>
+          </li>
+        ) ) }
+      </ol>
+    );
+  }
+  return (
+    <ol className="dr-pubs-items">
+      { group.items.map( ( item ) => (
+        <li key={ item.href + item.title } className="dr-pub-paper">
+          <span className="dr-pub-year text-meta">{ item.year }</span>
+          <div className="dr-pub-body">
+            <PublicationLink item={ item } />
+            <p className="dr-pub-meta text-small">{ item.authors }</p>
+            <p className="dr-pub-meta text-small"><em>{ item.venue }</em></p>
+          </div>
+        </li>
+      ) ) }
+    </ol>
   );
 }

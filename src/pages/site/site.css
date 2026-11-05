@@ -1321,11 +1321,12 @@ html:has( .site-template ) {
 .dr-pubs-lede { margin: 1.25rem 0 0; color: color-mix( in srgb, var( --band-black ) 72%, transparent ); }
 .dr-pubs-lede a { color: inherit; text-decoration: none; border-bottom: 1px solid currentColor; transition: color 0.25s, border-color 0.25s; }
 .dr-pubs-lede a:hover { color: var( --band-red ); border-color: var( --band-red ); }
-.dr-pubs-group + .dr-pubs-group { margin-top: 3.5rem; }
-.dr-pubs-group-label { margin: 0 0 0.5rem; color: color-mix( in srgb, var( --band-black ) 58%, transparent ); }
-.dr-pubs-items { list-style: none; margin: 0; padding: 0; }
-.dr-pub { display: grid; grid-template-columns: 1fr; gap: 0.35rem 1.5rem; padding: 1.4rem 0; border-top: 1px solid color-mix( in srgb, var( --band-black ) 12%, transparent ); }
-.dr-pub-year { color: color-mix( in srgb, var( --band-black ) 58%, transparent ); }
+/* four registers, one per kind of work, so the list never reads as one long block */
+.dr-pubs-group + .dr-pubs-group { margin-top: 3.75rem; }
+.dr-pubs-group-label { display: flex; align-items: center; gap: 0.55rem; margin: 0 0 0.5rem; color: color-mix( in srgb, var( --band-black ) 58%, transparent ); }
+.dr-pubs-group-count { padding: 0.05rem 0.42rem; border-radius: 999px; background: color-mix( in srgb, var( --band-black ) 9%, transparent ); font-variant-numeric: tabular-nums; }
+.dr-pubs-items { list-style: none; margin: 0; padding: 0; display: grid; }
+.dr-pub-year { color: color-mix( in srgb, var( --band-black ) 58%, transparent ); font-variant-numeric: tabular-nums; }
 .dr-pub-body { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
 .dr-pub-title { display: inline; color: var( --band-black ); font-weight: 700; text-decoration: none; transition: color 0.25s; }
 .dr-pub-title:hover { color: var( --band-red ); }
@@ -1333,6 +1334,26 @@ html:has( .site-template ) {
 .dr-pub-title:hover .dr-pub-arrow { opacity: 1; }
 .dr-pub-meta { margin: 0; color: color-mix( in srgb, var( --band-black ) 62%, transparent ); }
 .dr-pub-meta em { font-style: italic; }
+
+/* original research: a year in the rail, then title, authors and journal */
+.dr-pub-paper { display: grid; grid-template-columns: 1fr; gap: 0.35rem 1.5rem; padding: 1.4rem 0; border-top: 1px solid color-mix( in srgb, var( --band-black ) 12%, transparent ); }
+
+/* reviews and book chapters: the book or journal is named first, each entry ruled at its side */
+.is-review .dr-pubs-items { gap: 0 2.75rem; }
+.dr-pub-chapter { padding: 0.15rem 0 1.2rem 1.1rem; border-left: 2px solid color-mix( in srgb, var( --band-black ) 14%, transparent ); }
+.dr-pub-in { margin: 0 0 0.3rem; color: color-mix( in srgb, var( --band-black ) 48%, transparent ); }
+.dr-pubs .is-review .dr-pub-title { font-size: 1.08rem; }
+
+/* case reports: short reports, gathered together onto their own ground */
+.is-case .dr-pubs-items { padding: 0 1.4rem 0.5rem; background: var( --band-paper ); }
+.dr-pub-case { display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem 0; border-top: 1px dashed color-mix( in srgb, var( --band-black ) 18%, transparent ); }
+.is-case .dr-pub-case:first-child { border-top: 0; }
+
+/* conference abstracts and editorials: the dense register, a year beside a short line */
+.is-abstract .dr-pubs-items { gap: 0 2.25rem; }
+.dr-pub-abstract { display: grid; grid-template-columns: 1fr; gap: 0.15rem; padding: 0.8rem 0; border-top: 1px solid color-mix( in srgb, var( --band-black ) 8%, transparent ); }
+.dr-pubs .is-abstract .dr-pub-title { font-size: 1.02rem; }
+.dr-pubs .is-abstract .dr-pub-body { gap: 0.1rem; }
 .dr-pubs-more { margin-top: 2.75rem; text-align: center; }
 /* The one control under a long list is meant to be found, so it sits larger than the strip links.
    The type name is part of the selector because .themed-type .text-small would otherwise win on order. */
@@ -1347,8 +1368,11 @@ html:has( .site-template ) {
 @media ( min-width: 1024px ) {
   .dr-pubs { padding: 4.5rem var( --grid-margin ) 3.5rem; }
   .dr-pubs-head { margin-bottom: 4.5rem; }
-  .dr-pub { grid-template-columns: 4.5rem minmax( 0, 1fr ); }
+  .dr-pub-paper { grid-template-columns: 4.5rem minmax( 0, 1fr ); }
   .dr-pub-year { padding-top: 0.35rem; }
+  .is-review .dr-pubs-items,
+  .is-abstract .dr-pubs-items { grid-template-columns: repeat( 2, minmax( 0, 1fr ) ); }
+  .is-abstract .dr-pub-abstract { grid-template-columns: 3.25rem minmax( 0, 1fr ); }
 }
 
 /* closing band note and the accent word in the heading */

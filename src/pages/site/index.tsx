@@ -42,6 +42,11 @@ export function SitePage() {
   const subpage = page === undefined ? undefined : item === undefined ? site.pages?.[page] : site.items?.[page]?.( item );
   const title = subpage?.title ? `${ subpage.title } · ${ site.titleSuffix }` : site.title;
   const description = subpage?.description ?? site.description ?? "";
+  /* Plain strings, so the head is rewritten when a value changes rather than on every render. */
+  const share = site.image?.src ?? "";
+  const shareAlt = site.image?.alt ?? "";
+  const keywords = site.keywords ?? "";
+  const robots = site.indexable === false ? "noindex,nofollow" : "index,follow";
   /* A string to hang the effect on, so a rebuilt site object does not rewrite the head every render. */
   const personKey = JSON.stringify( site.person );
 
@@ -61,13 +66,19 @@ export function SitePage() {
   useEffect( () => {
     const url = pageUrl( pathname );
     putTag( "meta", { name: "description" }, description );
+    putTag( "meta", { name: "keywords" }, keywords );
+    putTag( "meta", { name: "robots" }, robots );
     putTag( "link", { rel: "canonical" }, url );
     putTag( "meta", { property: "og:title" }, title );
     putTag( "meta", { property: "og:description" }, description );
     putTag( "meta", { property: "og:url" }, url );
+    putTag( "meta", { property: "og:image" }, share );
+    putTag( "meta", { property: "og:image:alt" }, shareAlt );
     putTag( "meta", { name: "twitter:title" }, title );
     putTag( "meta", { name: "twitter:description" }, description );
-  }, [ title, description, pathname ] );
+    putTag( "meta", { name: "twitter:image" }, share );
+    putTag( "meta", { name: "twitter:image:alt" }, shareAlt );
+  }, [ title, description, pathname, share, shareAlt, keywords, robots ] );
 
   useEffect( () => {
     const origin = window.location.origin;

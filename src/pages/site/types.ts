@@ -17,6 +17,10 @@ export interface SiteContent {
   title: string;
   titleSuffix: string;
   description?: string;
+  /** The picture a search result or a chat preview shows beside the words. */
+  image?: { src: string; alt: string };
+  keywords?: string;
+  indexable?: boolean;
   person: Record<string, unknown>;
   pack: SitePack;
   layout: PageLayout;

@@ -58,10 +58,14 @@ import type { SiteContent, SiteEntry } from "./types";
    An uploaded picture arrives as a link instead, and a name the panel got wrong still shows a
    bundled photo rather than a hole. */
 const photos: Record<string, SitePhoto> = { ...home, ...hiw };
+/* A page that stores its picture as one word holds either a bundled name or an uploaded link, so a
+   link in the name's place resolves as a link instead of falling through to the standby photo. */
+const looksLikeLink = ( value: string ) => value.startsWith( "/" ) || /^([a-z][a-z0-9+.-]*:)?\/\//i.test( value );
+
 const photoOf = ( key?: string, url?: string, alt?: string ): SitePhoto => {
   const bundled = key ? photos[ key ] : undefined;
   if ( bundled ) return bundled;
-  const link = mediaUrl( url );
+  const link = mediaUrl( key && looksLikeLink( key ) ? key : url );
   return link ? { src: link, alt: alt ?? "" } : home.ageingCouple;
 };
 
@@ -204,10 +208,41 @@ const seoLine = ( blob: unknown ): string | undefined => {
   return undefined;
 };
 
+interface SeoCopy {
+  indexable?: boolean;
+  title?: string;
+  description?: string;
+  keywords?: string;
+  og_image?: string;
+  og_image_url?: string;
+  og_image_alt?: string;
+  pages?: Record<string, { title?: string; description?: string }>;
+}
+
+/* A preview card is fetched by a crawler on another machine, so it needs the whole address rather
+   than a path that only means something on this site. */
+const absoluteUrl = ( src: string ): string => {
+  if ( !src ) return "";
+  try {
+    return new URL( src, window.location.origin ).href;
+  } catch {
+    return src;
+  }
+};
+
+/* The share picture the doctor chose. With nothing chosen the head keeps the preview card that
+   ships in the site's own files, which is drawn to be seen beside a link. */
+const seoImage = ( seo: SeoCopy ): { src: string; alt: string } => {
+  if ( !seo.og_image && !seo.og_image_url ) return { src: "", alt: seo.og_image_alt ?? "" };
+  const photo = photoOf( seo.og_image, seo.og_image_url, seo.og_image_alt );
+  return { src: absoluteUrl( photo.src ), alt: photo.alt || seo.og_image_alt || "" };
+};
+
 /* Built per render so a CMS edit can replace anything below without a redeploy. */
 export function buildSite( data: SiteData ): SiteContent {
   const copy = mergeCopy( data.copy );
   const word = copy.global;
+  const seo = ( word.seo ?? {} ) as SeoCopy;
   const front = copy.home;
   const hiwPage = copy[ "how-it-works" ];
   const labels = word.labels;
@@ -216,7 +251,7 @@ export function buildSite( data: SiteData ): SiteContent {
 
   const site: SiteContent = {
     name: "site",
-    title: word.titles.home,
+    title: seo.title || word.titles.home,
     titleSuffix: word.titles.suffix,
     person: {
       name: word.brand.name,
@@ -252,7 +287,9 @@ export function buildSite( data: SiteData ): SiteContent {
       <DoctorFooter
         name={ word.footer.name }
         note={ word.footer.note }
-        links={ [ ...word.nav.links, word.nav.pathway, word.nav.contact ] }
+        links={ [ ...word.nav.links, word.nav.pathway, word.nav.contact ].filter(
+          ( link, index, all ) => all.findIndex( other => other.href === link.href ) === index
+        ) }
         email={ word.contact.email }
         phone={ word.contact.phone }
         cvHref={ word.contact.cv }
@@ -427,7 +464,7 @@ export function buildSite( data: SiteData ): SiteContent {
             { copy.about.story.show && (
               <StoryProse
                 kicker={ copy.about.story.kicker }
-                photos={ copy.about.story.photos.map( photoOf ) }
+                photos={ copy.about.story.photos.filter( Boolean ).map( photoOf ) }
                 signature={ copy.about.story.signature }
               >
                 <Paras lines={ copy.about.story.body } />
@@ -479,7 +516,7 @@ export function buildSite( data: SiteData ): SiteContent {
             { copy.research.story.show && (
               <StoryProse
                 kicker={ copy.research.story.kicker }
-                photos={ copy.research.story.photos.map( photoOf ) }
+                photos={ copy.research.story.photos.filter( Boolean ).map( photoOf ) }
                 signature={ copy.research.story.signature }
               >
                 <Paras lines={ copy.research.story.body } />
@@ -541,7 +578,7 @@ export function buildSite( data: SiteData ): SiteContent {
             { copy[ "healthy-ageing" ].story.show && (
               <StoryProse
                 kicker={ copy[ "healthy-ageing" ].story.kicker }
-                photos={ copy[ "healthy-ageing" ].story.photos.map( key => photoOf( key ) ) }
+                photos={ copy[ "healthy-ageing" ].story.photos.filter( Boolean ).map( key => photoOf( key ) ) }
                 signature={ copy[ "healthy-ageing" ].story.signature }
               >
                 <Paras lines={ copy[ "healthy-ageing" ].story.body } />
@@ -889,11 +926,24 @@ export function buildSite( data: SiteData ): SiteContent {
   const pages: Record<string, SiteEntry> = { ...( site.pages ?? {} ) };
   pages[ "healthy-ageing" ] = { ...pages[ "how-it-works" ], title: copy[ "healthy-ageing" ].title, description: seoLine( hiwPage ) };
   delete pages[ "how-it-works" ];
+  const seoPages = seo.pages ?? {};
   return {
     ...site,
-    description: described( "home" ),
+    description: seo.description || described( "home" ),
+    image: seoImage( seo ),
+    keywords: seo.keywords ?? "",
+    indexable: seo.indexable !== false,
     pages: Object.fromEntries(
-      Object.entries( pages ).map( ( [ key, entry ] ) => [ key, { ...entry, description: entry.description ?? described( key ) } ] )
+      Object.entries( pages ).map( ( [ key, entry ] ) => {
+        /* A line written in the panel's SEO section is used exactly as it stands; blank means the
+           page's own name and its own first paragraph. */
+        const own = seoPages[ key ] ?? {};
+        return [ key, {
+          ...entry,
+          title: own.title || entry.title,
+          description: own.description || entry.description || described( key ),
+        } ];
+      } )
     ),
   };
 }
