@@ -5,6 +5,14 @@
   "installCommand": "npm install",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://kandel-api.onrender.com/:path*"
+    },
+    {
+      "source": "/media/:path*",
+      "destination": "https://kandel-api.onrender.com/:path*"
+    },
+    {
       "source": "/admin/:path*",
       "destination": "/admin/index.html"
     },

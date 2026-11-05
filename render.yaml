@@ -55,26 +55,31 @@ services:
       - key: DJANGO_TIME_ZONE
         value: Asia/Kathmandu
       - key: DJANGO_ALLOWED_HOSTS
-        value: ".onrender.com"
+        # Both names the API is reached by: the site's, because Vercel forwards /api here, and the
+        # service's own, for Render's health check and any direct call.
+        value: "drkandel.vercel.app,kandel-api.onrender.com"
       - key: ADMIN_LOGIN_EMAILS
         sync: false
       # The panel is mounted at /admin on the site, so this is the site's own address with scheme.
       # It also builds the reset link that goes out by mail, so leaving it at the development
       # default sends the doctor a link to his own laptop.
       - key: PANEL_ORIGIN
-        sync: false
+        value: "https://drkandel.vercel.app"
       - key: PANEL_PATH
         value: /admin
       # Same origin as the site only if that host forwards /api and /media here. If it does not, the
       # sign in cookies are third party and the browser will not store them.
       - key: CORS_ALLOWED_ORIGINS
-        sync: false
+        value: "https://drkandel.vercel.app"
       - key: CORS_ALLOW_ALL_ORIGINS
         value: "false"
       - key: AUTH_COOKIE_SECURE
         value: "true"
+      # Lax, not None: vercel.json forwards /api and /media to this service, so the browser only
+      # ever talks to drkandel.vercel.app and the cookie stays first party. None would be needed if
+      # the panel called this address directly, and then Safari would drop it.
       - key: AUTH_COOKIE_SAMESITE
-        value: None
+        value: Lax
       # Render terminates TLS and forwards what the visitor used. Without these two the app believes
       # every call is plain http on the container's internal name.
       - key: USE_X_FORWARDED_HOST

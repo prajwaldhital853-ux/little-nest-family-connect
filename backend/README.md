@@ -174,13 +174,13 @@ The variables to add, and what goes in each:
 | `DJANGO_SECRET_KEY` | generate one. Changing it signs everyone out, because it is what the session rests on. |
 | `JWT_SIGNING_KEY` | generate one, or leave it out and `DJANGO_SECRET_KEY` signs the tokens. |
 | `DJANGO_DEBUG` | `false` |
-| `DJANGO_ALLOWED_HOSTS` | `.onrender.com` and the site's own domain, comma separated. The site forwards `/api` here, so the calls arrive naming that domain. |
+| `DJANGO_ALLOWED_HOSTS` | the site's domain and the service's own `*.onrender.com` name, comma separated. The site forwards `/api` here, so the calls arrive naming the site's domain. |
 | `ADMIN_LOGIN_EMAILS` | the doctor's address. Nothing else can sign in with a password. |
 | `PANEL_ORIGIN` | `https://` and the site's domain. The reset link mailed out is built from this, so the development default would mail him a link to his own laptop. |
 | `PANEL_PATH` | `/admin` |
 | `CORS_ALLOWED_ORIGINS` | the same site origin. Only needed when a call really does cross origins; a forwarded `/api` is the same origin. |
 | `AUTH_COOKIE_SECURE` | `true` |
-| `AUTH_COOKIE_SAMESITE` | `None` |
+| `AUTH_COOKIE_SAMESITE` | `Lax`, when the site forwards `/api` and `/media` here as below. `None` only if the panel really does call this address across origins, and then Safari drops the cookie. |
 | `USE_X_FORWARDED_HOST` | `true` |
 | `SECURE_PROXY_SSL_HEADER` | `HTTP_X_FORWARDED_PROTO,https` |
 | `USE_X_FORWARDED_FOR` | `true`, because Render's proxy is what overwrites the client address the lockout and the duplicate enquiry check are counted against. |
@@ -188,6 +188,42 @@ The variables to add, and what goes in each:
 | `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL` | a real mail account. Without it the one time codes and reset links are written into `outbox/` inside the build, which the next deploy throws away, and a new device cannot finish signing in. |
 | `MEDIA_ROOT` | a folder inside an attached Disk, see below. |
 | `UPLOAD_MAX_BYTES` | the largest picture the panel will take, default 6 MB. |
+
+Filled in for the live site, everything except the three values marked below. `DATABASE_URL` is
+pasted from the database's own page (Internal key), and `ADMIN_LOGIN_EMAILS`, `EMAIL_HOST_USER`,
+`EMAIL_HOST_PASSWORD` and `DEFAULT_FROM_EMAIL` are the doctor's addresses and his mail account:
+
+```
+DJANGO_SECRET_KEY=<generated, see the service's Info page once created>
+JWT_SIGNING_KEY=<generated, same>
+DATABASE_URL=<From Database picker, Internal key>
+DJANGO_DEBUG=false
+DJANGO_TIME_ZONE=Asia/Kathmandu
+DJANGO_ALLOWED_HOSTS=drkandel.vercel.app,kandel-api.onrender.com
+ADMIN_LOGIN_EMAILS=<the doctor's address>
+PANEL_ORIGIN=https://drkandel.vercel.app
+PANEL_PATH=/admin
+CORS_ALLOWED_ORIGINS=https://drkandel.vercel.app
+CORS_ALLOW_ALL_ORIGINS=false
+AUTH_COOKIE_SECURE=true
+AUTH_COOKIE_SAMESITE=Lax
+USE_X_FORWARDED_HOST=true
+SECURE_PROXY_SSL_HEADER=HTTP_X_FORWARDED_PROTO,https
+USE_X_FORWARDED_FOR=true
+SECURE_SSL_REDIRECT=true
+EMAIL_HOST=<smtp host>
+EMAIL_PORT=587
+EMAIL_HOST_USER=<mail account>
+EMAIL_HOST_PASSWORD=<mail app password>
+EMAIL_USE_TLS=true
+DEFAULT_FROM_EMAIL=<the address letters appear to come from>
+UPLOAD_MAX_BYTES=6291456
+```
+
+`VITE_API_URL` stays empty in Vercel's settings for both the site and the panel: an empty value
+means "call my own origin", which is what makes `vercel.json`'s `/api` and `/media` rewrites the
+whole of the wiring. Set it to the Render address instead and the sign in cookies go cross site and
+the panel stops remembering the doctor between tabs.
 
 Two things the API cannot settle by itself, and both are about where a request comes in:
 
