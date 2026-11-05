@@ -206,9 +206,15 @@ The variables to add, and what goes in each:
 | `SECURE_PROXY_SSL_HEADER` | `HTTP_X_FORWARDED_PROTO,https` |
 | `USE_X_FORWARDED_FOR` | `true`, because Render's proxy is what overwrites the client address the lockout and the duplicate enquiry check are counted against. |
 | `SECURE_SSL_REDIRECT` | `true` |
-| `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL` | a real mail account. Without it the one time codes and reset links are written into `outbox/` inside the build, which the next deploy throws away, and a new device cannot finish signing in. |
+| `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL` | a real mail account. Left blank, the letters go into `outbox/` inside the build, which the next deploy throws away. Left as the dashboard's placeholder, the server tries to reach a host that does not exist. Either way a new device cannot finish signing in, and `/api/health/` answers `mail: not configured`. |
 | `MEDIA_ROOT` | a folder inside an attached Disk, see below. |
 | `UPLOAD_MAX_BYTES` | the largest picture the panel will take, default 6 MB. |
+
+Every row has to be replaced, because a placeholder is not empty as far as the server is concerned.
+`ADMIN_LOGIN_EMAILS` is the one that misleads: only an address on that list can sign in with a
+password, so a leftover `FILL:` value answers a perfectly correct password with "Email or password is
+not correct". The mail names are honest about it, and `/api/health/` says `mail: not configured`
+until the host looks like a host and the account looks like an address.
 
 Filled in for the live site, everything except the three values marked below. `DATABASE_URL` is
 pasted from the database's own page (Internal key), and `ADMIN_LOGIN_EMAILS`, `EMAIL_HOST_USER`,

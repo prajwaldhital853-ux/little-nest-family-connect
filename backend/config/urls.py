@@ -4,6 +4,8 @@ from django.db.migrations.executor import MigrationExecutor
 from django.http import JsonResponse
 from django.urls import include, path
 
+from apps.accounts.emails import can_send_mail
+
 if settings.DJANGO_ADMIN_ENABLED:
     from django.contrib import admin
 
@@ -34,9 +36,7 @@ def mail_state():
     gives no shell cannot read that folder, so signing in from a new device stops with no explanation.
     """
 
-    if settings.EMAIL_BACKEND.endswith( "smtp.EmailBackend" ) and settings.EMAIL_HOST and settings.EMAIL_HOST_USER:
-        return "configured"
-    return "not configured"
+    return "configured" if can_send_mail() else "not configured"
 
 
 def health( request ):

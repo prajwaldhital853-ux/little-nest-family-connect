@@ -485,6 +485,18 @@ class MailAvailabilityTests( APITestCase ):
         self.assertNotIn( "access", response.data )
         self.assertEqual( OtpChallenge.objects.count(), 0 )
 
+    def test_a_placeholder_in_the_mail_settings_is_not_treated_as_an_account( self ):
+        with override_settings(
+            DEBUG = False,
+            EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend",
+            EMAIL_HOST = "FILL:smtp host",
+            EMAIL_HOST_USER = "FILL:mail account",
+        ):
+            response = self.sign_in()
+        self.assertEqual( response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data )
+        self.assertIn( "no mail account", response.data[ "detail" ] )
+        self.assertEqual( OtpChallenge.objects.count(), 0 )
+
     def test_a_mail_server_that_refuses_the_letter_is_reported_not_crashed( self ):
         with mock.patch( "apps.accounts.emails.send_mail", side_effect = SMTPAuthenticationError( 454, "username and password not accepted" ) ):
             response = self.sign_in()

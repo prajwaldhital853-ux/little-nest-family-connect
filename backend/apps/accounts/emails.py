@@ -16,6 +16,19 @@ class MailNotSent( Exception ):
     """A letter the mail server would not take, reported as something the panel can show."""
 
 
+def mail_account_ready():
+    """Whether the mail settings name a real account rather than a placeholder left in a dashboard.
+
+    A host never contains a space or a colon and an address always contains an at sign, so text
+    like `FILL:smtp host` fails here at once. Without this the sign in waits for a connection that
+    cannot work and then reports a refusal, which reads like a wrong password.
+    """
+
+    host = settings.EMAIL_HOST.strip()
+    user = settings.EMAIL_HOST_USER.strip()
+    return bool( host ) and " " not in host and ":" not in host and "@" in user and " " not in user
+
+
 def can_send_mail():
     """Whether there is anywhere for a code to go.
 
@@ -24,9 +37,12 @@ def can_send_mail():
     will ever read, so the sign-in page says so rather than waiting for mail that never comes.
     """
 
-    if settings.DEBUG:
-        return True
-    return not settings.EMAIL_BACKEND.endswith( "filebased.EmailBackend" )
+    backend = settings.EMAIL_BACKEND
+    if backend.endswith( "filebased.EmailBackend" ):
+        return bool( settings.DEBUG )
+    if backend.endswith( "smtp.EmailBackend" ):
+        return mail_account_ready()
+    return True
 
 
 def _send( *, subject, message, recipient ):
