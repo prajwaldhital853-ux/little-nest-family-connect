@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import type { DrMediaItem, DrPost, PressItem } from "./doctor-sections";
+import type { ArticleBlock, DrMediaItem, DrPost, PressItem } from "./doctor-sections";
 import { home } from "./media";
 import type { PhotoKey, SitePhoto } from "./media";
 import type { Publication, PublicationGroup, PublicationKind } from "./publications";
@@ -25,6 +25,7 @@ export interface ApiPost extends PhotoFields {
   date?: string;
   minutes?: number;
   body: string[];
+  blocks?: ArticleBlock[];
 }
 
 export interface ApiVideo {
@@ -85,6 +86,7 @@ export function postRow( row: ApiPost ): DrPost {
     minutes: row.minutes,
     photo: photoFor( row, row.title ),
     body: row.body,
+    blocks: row.blocks,
   };
 }
 

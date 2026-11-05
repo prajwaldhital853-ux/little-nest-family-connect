@@ -11,7 +11,7 @@ walk, which also takes the old `/how-it-works` address), `/teaching`,
 - Words: every word the site shows is in `src/pages/site/copy.json`, one key per page plus
   `global`, and `buildSite()` reads it through `mergeCopy()` in `src/pages/site/copy.ts`. The
   backend can replace any of it, so nothing here is a place to hardcode a sentence the doctor
-  should own. Published content comes from `../backend` through `src/pages/site/site-data.tsx`,
+  should own. Published content comes from `backend/` through `src/pages/site/site-data.tsx`,
   and `src/pages/site/content.ts` is the bundled copy of that. Both fall back to the bundle when
   the API is down, slow or empty, and `mergeValue()` refuses a live value that is not the same
   kind of thing as the bundled one.
@@ -39,7 +39,7 @@ walk, which also takes the old `/how-it-works` address), `/teaching`,
 - Type comes from the pack's seven styles: `text-h1` to `text-h4`, `text-large`, body,
   `text-small`. Never set a font size or a font family in a component.
 - Keep every page's single h1, and words people can read in its first screen.
-- Content columns live in `../backend/apps/cms`. New tables or fields go through a Django
+- Content columns live in `backend/apps/cms`. New tables or fields go through a Django
   migration there, never by editing `supabase/migrations/` by hand.
 - A page must never render emptier than the bundled copy: anything read from the API needs the
   bundle as its fallback.

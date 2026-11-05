@@ -1,0 +1,621 @@
+{
+  "videos": [
+    {
+      "url": "https://www.youtube.com/watch?v=l1H2YtG1vMw",
+      "kind": "Interview",
+      "title": "The truth about Alzheimer’s: myths and facts",
+      "source": "Kritika Dangi, Episode 02"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=IZrt-D8j3dk",
+      "kind": "Interview",
+      "title": "Geriatric problems in Nepal",
+      "source": "Health Television Nepal"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=rSY9I1-c5Ig",
+      "kind": "TV interview",
+      "title": "Health Station with Binisha Thapa",
+      "source": "Himalaya TV"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=BJ6bUJ0LhA8",
+      "kind": "Talk",
+      "title": "Climate change and older people in Nepal",
+      "source": "बाढीमा बगेको बुढ्यौली, recorded talk"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=gbIswWAYIAI",
+      "kind": "Interview",
+      "title": "के हो अल्जाइमर (बिर्सने) रोग? लक्षण र रोकथामका उपाय",
+      "source": "UkeraaTV, Medianp.com"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Rf4jKLg2JKg",
+      "kind": "TV interview",
+      "title": "हाम्रो प्रश्न विज्ञको सुझाव: होम आइसोलेसन",
+      "source": "NTV Plus, 2078-03-15"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=cRIkwxFmhyQ",
+      "kind": "Interview",
+      "title": "जेष्ठ नागरिक रोग विशेषज्ञ: नसर्ने रोगबारे के भन्नुहुन्छ?",
+      "source": "Butwal Today Online TV"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=g_CN7jE4u8g",
+      "kind": "TV interview",
+      "title": "Swasthya Sarokar with Sobita Gautam",
+      "source": "Nepal Television, 2076-11-08"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=mLYJS-t37Sg",
+      "kind": "TV interview",
+      "title": "Swastha Sandesh with Tejendra K.C",
+      "source": "Buddha TV Butwal"
+    }
+  ],
+  "posts": [
+    {
+      "slug": "what-healthy-ageing-means",
+      "title": "What healthy ageing actually means",
+      "topic": "Ageing and everyday care",
+      "excerpt": "Healthy ageing is not the absence of disease. It is keeping people able to do the things they value for as long as possible.",
+      "date": "October 28, 2026",
+      "minutes": 6,
+      "photo": "ageingCouple",
+      "body": [
+        "Healthy ageing means supporting people to do the things they value as they grow older. It requires attention to physical and mental health, functional ability, social relationships and the environments in which people live.",
+        "That definition matters because it changes what we measure. A clinic visit that only asks about symptoms can miss the person who can no longer open a jar, walk to the shop or sleep through the night. Those losses are the ones families describe as the real problem.",
+        "In Nepal this work has to respond to diverse communities, changing family structures and wide differences in access to health and social care. A plan that depends on daily specialist visits, or on equipment that has to be imported, is not a plan at all for most households.",
+        "So I start from function and priorities, then work backwards to what is available locally."
+      ]
+    },
+    {
+      "slug": "screening-is-only-the-beginning",
+      "title": "Screening is only the beginning",
+      "topic": "Research into practice",
+      "excerpt": "Finding a problem is the easy half. What happens in the weeks after the result decides whether screening helped anyone.",
+      "date": "October 12, 2026",
+      "minutes": 7,
+      "photo": "checkup",
+      "body": [
+        "Identifying a health concern is only the beginning. Older people also need access to assessment, appropriate treatment, rehabilitation and continuing support.",
+        "This is where well-intentioned programmes quietly fail. A screening camp produces a list of names, and the list becomes a report. Nobody is worse off than before, but nobody is much better off either.",
+        "My work on the WHO ICOPE approach in Nepal has focused on connecting those steps: implementation planning, health-worker training, and understanding where the gaps between facilities and communities actually sit.",
+        "The central question is practical. How can we ensure that an older person identified as needing support receives care that is accessible, coordinated and meaningful to them?"
+      ]
+    },
+    {
+      "slug": "caregivers-are-partners",
+      "title": "Caregivers are partners, not extras",
+      "topic": "Families and caregiving",
+      "excerpt": "Most care for older people in Nepal is given by families at home. They need skills and support, not only instructions.",
+      "date": "September 26, 2026",
+      "minutes": 6,
+      "photo": "caregiver",
+      "body": [
+        "Families provide much of the care for older people in Nepal. Caregivers need information, practical skills and support for their own wellbeing.",
+        "In clinical practice I have seen how several manageable problems can combine to make life difficult for an older person. A fall, a new medicine, poor nutrition or a change in memory may affect the whole family, and the family is usually asked to absorb that without being equipped for it.",
+        "I am interested in approaches that recognise caregivers as partners in care while also acknowledging the pressures and responsibilities they carry. That means explaining what to watch for, what is expected, and when to come back.",
+        "It also means asking the caregiver how they are doing. The answer changes the plan more often than people expect."
+      ]
+    },
+    {
+      "slug": "what-geriatrics-teaches-every-clinician",
+      "title": "What geriatric medicine teaches every clinician",
+      "topic": "Education and leadership",
+      "excerpt": "Understanding multiple conditions together, reviewing medicines thoughtfully and deciding with patients are skills every specialty needs.",
+      "date": "September 8, 2026",
+      "minutes": 8,
+      "photo": "teaching",
+      "body": [
+        "Geriatric medicine offers valuable lessons across healthcare: understanding multiple conditions together, reviewing medicines thoughtfully, assessing function and making decisions with patients and families.",
+        "Medical training is organised by organ system, which prepares people well for single-disease emergencies and less well for the 78-year-old with diabetes, knee pain, poor sleep and six medicines who arrives with her daughter.",
+        "Teaching is a central part of my work. I aim to help learners combine clinical knowledge with careful observation, clear communication and respect for the person receiving care.",
+        "Good care requires careful listening, sound clinical judgement and shared decisions. Treatment should consider a person’s goals, functional ability, family circumstances and the benefits and burdens of available options."
+      ]
+    },
+    {
+      "slug": "a-fall-is-rarely-just-an-accident",
+      "title": "A fall is rarely just an accident",
+      "topic": "Ageing and everyday care",
+      "excerpt": "Older people who fall are usually told they were unlucky. Most of the time there is a reason, and finding it changes what happens next.",
+      "date": "August 21, 2026",
+      "minutes": 5,
+      "photo": "clinic",
+      "body": [
+        "When an older person falls, the first question is usually about the floor. Was it wet, was it dark, was the person in a hurry. Those things matter, but they are rarely the whole story.",
+        "A fall can be the first visible sign of something else. A medicine that lowers blood pressure too far, an infection, eyes that have not been checked in years, or a body that has quietly lost strength and balance over a long season. When we call it bad luck we lose the chance to look.",
+        "In practice I treat a fall as a clinical event. I ask how it happened, whether there was any loss of consciousness, what changed in the weeks before, and what the person was doing at the time. Then I look at medicines, vision, feet, footwear and the home itself.",
+        "Not every fall can be prevented. Many can be, and the difference usually comes from a few patient questions rather than another scan."
+      ]
+    },
+    {
+      "slug": "six-medicines-one-person",
+      "title": "Six medicines, one person",
+      "topic": "Ageing and everyday care",
+      "excerpt": "Each tablet may be reasonable on its own. The combination is a different prescription, and somebody has to look at it as a whole.",
+      "date": "August 3, 2026",
+      "minutes": 6,
+      "photo": "research",
+      "body": [
+        "A person can see four specialists and come home with four sets of instructions, each of which makes perfect sense on its own. Nobody has yet looked at those six medicines as a single regimen belonging to one body.",
+        "Older adults process medicines differently. Kidney function declines, muscle mass shrinks, and the small side effect a younger person never notices can cause dizziness, confusion or a fall.",
+        "A medication review is not a campaign to stop treatment. It asks what each medicine is still doing, whether the dose still fits the person, whether two of them are doing the same job, and what would happen if one was withdrawn with a plan and a follow-up date.",
+        "Bring every medicine to the appointment, including what was bought over the counter and what a relative recommended. The full list is the starting point."
+      ]
+    },
+    {
+      "slug": "memory-change-deserves-an-assessment",
+      "title": "Memory change deserves an assessment, not a label",
+      "topic": "Ageing and everyday care",
+      "excerpt": "Forgetfulness is not automatically dementia, and dementia is not a normal part of ageing. Both ideas cost families time they cannot get back.",
+      "date": "July 17, 2026",
+      "minutes": 5,
+      "photo": "ageingCouple",
+      "body": [
+        "Families often arrive having already decided. Either it is normal ageing and there is nothing to do, or it is dementia and there is nothing to do. Both conclusions are usually wrong, and both delay care.",
+        "Some causes of memory trouble are reversible or at least treatable: depression, thyroid disease, poor sleep, vitamin deficiency, sedating medicines, alcohol. Others are progressive, and knowing early is what makes planning possible.",
+        "A proper assessment takes time. It needs a history from someone who lives with the person as well as from the person, a look at daily function, mood and medicines, and simple cognitive testing. Blood tests and imaging answer specific questions rather than fill the file.",
+        "The goal is not a name for what is happening. The goal is a plan the household can live with, and an honest answer about what comes next."
+      ]
+    },
+    {
+      "slug": "eating-less-is-a-symptom",
+      "title": "Eating less in older age is a symptom",
+      "topic": "Ageing and everyday care",
+      "excerpt": "Weight loss and a poor appetite get filed under ageing. They are worth investigating, and sometimes they are the loudest clue in the room.",
+      "date": "June 29, 2026",
+      "minutes": 5,
+      "photo": "checkup",
+      "body": [
+        "A change in appetite is one of the first things a family notices and one of the easiest to dismiss. He is older now, he does not need as much food. That is not quite true, and the losses that follow are real.",
+        "Unintentional weight loss can point to dental pain, difficulty swallowing, depression, constipation, a medicine that blunts taste, eating alone, or an illness that has not been found yet. It also speeds up frailty, because muscle goes before fat.",
+        "Nutrition in older age is rarely solved by a supplement. It is solved by removing whatever makes eating hard, then protecting protein and regular meals in a way the household budget can sustain.",
+        "Weigh the person at home, write the number down, and bring it along. A trend over three months tells a clinician more than any description of appetite."
+      ]
+    },
+    {
+      "slug": "discharge-is-not-the-end",
+      "title": "Discharge is not the end of the illness",
+      "topic": "Families and caregiving",
+      "excerpt": "The week after a hospital stay is when older patients are most vulnerable, and it is the part of care least likely to be planned properly.",
+      "date": "June 12, 2026",
+      "minutes": 6,
+      "photo": "clinic",
+      "body": [
+        "A hospital is organised around the acute problem. Once that is fixed the patient goes home to a body that has been deconditioned, a medicine chart that has changed, and a family who was not in the conversation.",
+        "Delirium, falls and readmission cluster in this period. Much of it is preventable with a discharge that answers plain questions: what changed in the medicines, what is normal for the next week, what activity is allowed, and who to call when something is not.",
+        "Rehabilitation is not only physiotherapy. It is getting the person back to the stairs, the bathroom, the kitchen and the street, roughly in that order, and it needs a start date.",
+        "Ask for the revised medicine list in writing, and have one person who sees the whole picture check it. That single step prevents a large share of what goes wrong."
+      ]
+    },
+    {
+      "slug": "caregiver-exhaustion-is-a-clinical-sign",
+      "title": "Caregiver exhaustion is a clinical sign",
+      "topic": "Families and caregiving",
+      "excerpt": "When the person doing the caring has stopped sleeping, eating well or seeing anyone, that belongs in the record and not only in family conversation.",
+      "date": "May 22, 2026",
+      "minutes": 7,
+      "photo": "caregiver",
+      "body": [
+        "Most long-term care in Nepal is given at home by a family member, often a woman who has quietly stopped doing anything for herself. She is rarely treated as someone with her own health needs, and she is rarely asked how she is managing.",
+        "Caregiver strain is not a soft outcome. It predicts worse care, earlier institutionalisation, and genuine illness in the caregiver. It is also one of the few things a clinic can act on, by sharing tasks and teaching what to expect.",
+        "Practical help beats sympathy. People need to know how to move someone safely, what to do on a bad night, when agitation is a medical problem rather than behaviour, and which parts of the routine can be handed to another relative or a community worker.",
+        "If you are the one doing the caring, say so at the appointment. Bring your own questions, and let the plan include you."
+      ]
+    },
+    {
+      "slug": "frailty-is-a-description-not-a-verdict",
+      "title": "Frailty is a description, not a verdict",
+      "topic": "Research into practice",
+      "excerpt": "Frailty sounds final. In practice it is a measurable state on a spectrum, and one of the most useful things we can identify early.",
+      "date": "May 6, 2026",
+      "minutes": 6,
+      "photo": "research",
+      "body": [
+        "Frailty is often heard as a polite way of saying someone is declining and nothing can be done. That is not what it means clinically. It describes reduced reserve: less strength, slower walking, less tolerance for stress.",
+        "It matters because it predicts. Two people of the same age with the same diagnosis will tolerate the same operation, the same infection or the same new medicine very differently, and frailty explains much of that difference.",
+        "Measuring it is not complicated. Questions about exhaustion, weight loss, activity and walking speed, with a timed walk or a grip test, identify most people who need a different kind of plan. That is why frailty sits at the centre of WHO’s ICOPE approach and of the work I have done in Nepal.",
+        "Frailty can improve. Strength, nutrition, medicines and the home are all levers. What it must not do is decide in advance what a person is allowed to hope for."
+      ]
+    },
+    {
+      "slug": "what-happens-after-the-health-camp",
+      "title": "What happens after the health camp",
+      "topic": "Research into practice",
+      "excerpt": "Screening days reach many people in a week. Whether any of them get better depends on what was built for the day after.",
+      "date": "April 15, 2026",
+      "minutes": 7,
+      "photo": "checkup",
+      "body": [
+        "Community screening camps do something valuable: they reach people who would not otherwise come. They also produce a list of names with findings that need follow-up, and the follow-up is where programmes usually stop.",
+        "A blood pressure taken once at a camp is not a diagnosis. An X-ray nobody has read, or a referral with no transport and no money attached, is not care. The gap between the two is a service design problem rather than a medical one.",
+        "My work on ICOPE has been preoccupied with exactly this gap: which steps a trained community health worker can own, who supervises them, where the referral actually leads, and how a plan is written so a person can act on it.",
+        "If a camp result has been sitting in a folder, bring it. An interpretation and a next step are worth more than another test."
+      ]
+    },
+    {
+      "slug": "what-a-geriatric-assessment-involves",
+      "title": "What a geriatric assessment actually involves",
+      "topic": "Education and leadership",
+      "excerpt": "It is mostly conversation. That surprises families, and it is also why the visit can change care when scans have not.",
+      "date": "March 28, 2026",
+      "minutes": 8,
+      "photo": "teaching",
+      "body": [
+        "A comprehensive geriatric assessment is not a battery of machines. It is a structured way of looking at an older person who has several problems at once: function, cognition, mood, nutrition, continence, balance, medicines, and the social world around them.",
+        "It begins with what the person can do and what they want to keep doing. Then it searches for reversible contributors, and for the things that have accumulated because no single department owned them.",
+        "The output is a written plan with priorities, usually a small number of changes rather than a long list, with names attached to who does what. Families tend to remember the sentence that explained the situation more than any test result.",
+        "Not everyone needs one. It is for the person whose problems do not fit inside a single specialty."
+      ]
+    }
+  ],
+  "press": [
+    {
+      "url": "https://swasthyakhabar.com/story/63850",
+      "topic": "Feature article",
+      "title": "डिमेन्सिया रोक्न सकिन्छ? स्मरणशक्ति कमजोर हुनुअघि नै मस्तिष्कलाई जोगाऔँ",
+      "source": "Swasthya Khabarpatrika",
+      "blurb": "A Nepali-language article on what lowers dementia risk: lifelong behaviour, everyday health decisions and social policy that protect brain health before memory weakens.",
+      "photo": "press"
+    }
+  ],
+  "publications": [
+    {
+      "year": 2026,
+      "title": "Prevalence of Escherichia coli isolated from urinary tract infections and their antibiotic susceptibility patterns among patients at a tertiary care hospital",
+      "authors": "Pokhrel S, Karmacharya A, Sharma D, Kandel R, et al.",
+      "venue": "Journal of Rapti Academy of Health Sciences, 3(1), 52-58",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:Zph67rFs4hoC",
+      "tag": "Original research"
+    },
+    {
+      "year": 2025,
+      "title": "Facilitators and barriers of implementing the WHO ICOPE care model in Nepal: a clinical perspective",
+      "authors": "Aryal A, Bhattarai B, Bhattarai S, Kandel R, et al.",
+      "venue": "The Journal of Aging Research & Lifestyle, 15, 100032",
+      "link": "https://doi.org/10.1016/j.jarlif.2025.100032",
+      "tag": "Original research"
+    },
+    {
+      "year": 2025,
+      "title": "Association between frailty status and antimicrobial resistance patterns in uropathogens isolated from older people: a cross-sectional study at a tertiary care hospital in Nepal",
+      "authors": "Kandel R, Pokhrel S, Sharma D, Bhattarai B",
+      "venue": "Journal of the Indian Academy of Geriatrics, 21(3), 205-209",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:LkGwnXOMwfcC",
+      "tag": "Original research"
+    },
+    {
+      "year": 2025,
+      "title": "Antimicrobial resistance among older patients attending Rapti Academy of Health Sciences: a retrospective study",
+      "authors": "Kandel R, Pokhrel S, Sharma D",
+      "venue": "Journal of Rapti Academy of Health Sciences, 2(1), 15-19",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:YsMSGLbcyi4C",
+      "tag": "Original research"
+    },
+    {
+      "year": 2025,
+      "title": "Geriatric syndromes in older people attending geriatric outpatient department in a tertiary care center in western Nepal",
+      "authors": "Kandel R, Gautam AR, Bhattarai B, Lamichhane B",
+      "venue": "Journal of Rapti Academy of Health Sciences, 1(2), 26-30",
+      "link": "https://doi.org/10.70027/jrahs29",
+      "tag": "Original research"
+    },
+    {
+      "year": 2024,
+      "title": "Unveiling the volume and outcomes of upper gastrointestinal endoscopy at a tertiary care center: a descriptive cross-sectional study",
+      "authors": "Menyangbo S, Panthi J, Neupane A, Shahi D, Kandel R",
+      "venue": "Journal of Rapti Academy of Health Sciences, 1(2), 53-57",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:Se3iqnhoufwC",
+      "tag": "Original research"
+    },
+    {
+      "year": 2023,
+      "title": "Lung cancer in the older population: interactive effects of angiotensin converting enzyme gene polymorphism (rs 4340 ID) and tobacco addiction in risk assessment",
+      "authors": "Banerjee J, Gupta A, Agnihotri V, Pradhan R, Kandel R, et al.",
+      "venue": "Indian Journal of Cancer, 60(1), 12-17",
+      "link": "https://doi.org/10.4103/ijc.IJC_1082_19",
+      "tag": "Original research"
+    },
+    {
+      "year": 2021,
+      "title": "Implementing and validating a care protocol for older adults with cancer in resource limited settings with a newly developed screening tool",
+      "authors": "Banerjee J, Behal P, Satapathy S, Kandel R, et al.",
+      "venue": "Journal of Geriatric Oncology, 12(1), 139-145",
+      "link": "https://doi.org/10.1016/j.jgo.2020.04.013",
+      "tag": "Original research"
+    },
+    {
+      "year": 2021,
+      "title": "Challenges and determinants in the management of the older patients with cancer: report from a low- and middle-income country",
+      "authors": "Kandel R, Banerjee J, Saravanan M, Chatterjee P, et al.",
+      "venue": "Journal of the Indian Academy of Geriatrics, 17(1), 2-8",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:_FxGoFyzp5QC",
+      "tag": "Original research"
+    },
+    {
+      "year": 2020,
+      "title": "Caregiver burden and its correlates among people with Alzheimer's dementia: an exploratory study from Nepal",
+      "authors": "Kandel R, Sharma P, Singh S",
+      "venue": "Journal of the Indian Academy of Geriatrics, 16(4), 169-173",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:hqOjcs7Dif8C",
+      "tag": "Original research"
+    },
+    {
+      "year": 2020,
+      "title": "Old age-associated enrichment of peripheral T regulatory cells and altered redox status in pulmonary tuberculosis patients",
+      "authors": "Namdeo M, Kandel R, Thakur PK, Mohan A, Dey AB, Mitra DK",
+      "venue": "European Journal of Immunology, 50(8), 1195-1208",
+      "link": "https://doi.org/10.1002/eji.201948261",
+      "tag": "Original research"
+    },
+    {
+      "year": 2018,
+      "title": "Nordic walking training and nutritional supplementation in pre-frail older Indians: an open-labelled experimental pre-test and post-test pilot study to develop intervention model",
+      "authors": "Chatterjee P, Kumar P, Kandel R, Madan R, et al.",
+      "venue": "BMC Geriatrics, 18(1), 212",
+      "link": "https://doi.org/10.1186/s12877-018-0890-4",
+      "tag": "Original research"
+    },
+    {
+      "year": 2014,
+      "title": "Development of simple diagnostic criteria for frailty syndrome in Indian elderly population",
+      "authors": "Chatterjee P, Kandel R, Desai G, Chellaiyan VG, Biswas A, Dey AB",
+      "venue": "International Journal of Medicine and Pharmaceutical Sciences, 4(5), 21-30",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:roLk4NBRz8UC",
+      "tag": "Original research"
+    },
+    {
+      "year": 2014,
+      "title": "Grip strength: an alternative for measuring osteoporosis in elderly",
+      "authors": "Chatterjee P, Kandel R, Bhatti H, Challyion V, Chowdhury R, et al.",
+      "venue": "International Journal of Medicine and Pharmaceutical Sciences, 4(2), 91-100",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:u5HHmVD_uO8C",
+      "tag": "Original research"
+    },
+    {
+      "year": 2026,
+      "title": "Geriatric mental health care in Nepal: psychosocial aspects",
+      "authors": "Sharma P, Thapaliya S, Gautam K, Kandel R",
+      "venue": "Handbook on Psychosocial Aspects of Geriatric Mental Health Issues, 125-136, Springer",
+      "link": "https://doi.org/10.1007/978-981-95-2121-0_10",
+      "tag": "Reviews and book chapters"
+    },
+    {
+      "year": 2024,
+      "title": "Nepal's Geriatric Health Strategy 2021-2030: a narrative review",
+      "authors": "Kandel R",
+      "venue": "Journal of the Indian Academy of Geriatrics, 20(3), 141-143",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:u-x6o8ySG0sC",
+      "tag": "Reviews and book chapters"
+    },
+    {
+      "year": 2022,
+      "title": "Challenges of diagnosis and treatment of ANCA associated vasculitis in COVID-19 pandemic: a case report",
+      "authors": "Sharma P, Sijapati MJ, Gautam S, Kandel R, Simkhada S, Regmi SB",
+      "venue": "Nepalese Respiratory Journal, 1(1), 11-14",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:KlAtU1dfN6UC",
+      "tag": "Case reports"
+    },
+    {
+      "year": 2015,
+      "title": "Unusual presentation of tuberculosis in an elderly male: a case report",
+      "authors": "Kandel R, Bhattarai B, Maharjan S",
+      "venue": "Clinical Case Reports, 3(1), 43-45",
+      "link": "https://doi.org/10.1002/ccr3.144",
+      "tag": "Case reports"
+    },
+    {
+      "year": 2014,
+      "title": "Reversible ototoxicity: a rare adverse reaction of liposomal amphotericin-B used for the treatment of antimony-resistant visceral leishmaniasis in an elderly male",
+      "authors": "Das PC, Kandel R, Sikka K, Dey AB",
+      "venue": "Clinical Medicine Insights: Case Reports, 7, 63-66",
+      "link": "https://doi.org/10.4137/CCRep.S15111",
+      "tag": "Case reports"
+    },
+    {
+      "year": 2014,
+      "title": "An unexpected cause of orbital apex syndrome in an immune-competent elderly male",
+      "authors": "Singh H, Kandel R, Nisar S, Das CJ, Dey AB",
+      "venue": "Oxford Medical Case Reports, 2014(6), 115-117",
+      "link": "https://doi.org/10.1093/omcr/omu045",
+      "tag": "Case reports"
+    },
+    {
+      "year": 2014,
+      "title": "Multiple atypical presentations in a case of multiple myeloma in an elderly female",
+      "authors": "Kandel R, Nisar S, Desai GR, Chatterjee P, Dey AB",
+      "venue": "European Geriatric Medicine, 5(5), 334-335",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:8k81kl-MbHgC",
+      "tag": "Case reports"
+    },
+    {
+      "year": 2024,
+      "title": "Advancing research excellence: announcing the establishment of the Journal of Rapti Academy of Health Sciences",
+      "authors": "Lamsal DK, Lamichhane B, Bhandari HL, Kandel R",
+      "venue": "Journal of Rapti Academy of Health Sciences, 1(1), editorial",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:ufrVoPGSRksC",
+      "tag": "Conference abstracts and editorials"
+    },
+    {
+      "year": 2019,
+      "title": "Impact of Nordic walking training in patients with progressive supranuclear palsy",
+      "authors": "Kandel R, Bhattarai B",
+      "venue": "Movement Disorders, 34(Suppl), S892",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:qjMakFHDy7sC",
+      "tag": "Conference abstracts and editorials"
+    },
+    {
+      "year": 2018,
+      "title": "P2-305: Cognitive status and the outcomes of hip fracture surgery in elderly patients",
+      "authors": "Kandel R, Bhattarai B, Dahal S",
+      "venue": "Alzheimer's & Dementia, 14(7S), P799-P800",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:UeHWp8X0CEIC",
+      "tag": "Conference abstracts and editorials"
+    },
+    {
+      "year": 2017,
+      "title": "The impact of frailty in outcomes of hip fracture surgery in elderly patients",
+      "authors": "Kandel R, Basnyat S, Dahal S",
+      "venue": "Innovation in Aging, 1(Suppl), 1129-1130",
+      "link": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6185187/",
+      "tag": "Conference abstracts and editorials"
+    },
+    {
+      "year": 2015,
+      "title": "The burden of lung cancer and the various factors deciding the treatment of lung cancer in the developing world",
+      "authors": "Kandel R, Maharjan S, Kayastha G",
+      "venue": "Journal of Thoracic Oncology, 10(9), S789",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:d1gkVwhDpl0C",
+      "tag": "Conference abstracts and editorials"
+    },
+    {
+      "year": 2014,
+      "title": "P143: Impact of nutritional supplementation and nordic walking in frail older patients in geriatrics department of tertiary care hospital in India",
+      "authors": "Kandel R, Chatterjee P, Kumar V, Gopalan V, et al.",
+      "venue": "European Geriatric Medicine, 5(Suppl), S127-S128",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:eQOLeE2rZwMC",
+      "tag": "Conference abstracts and editorials"
+    },
+    {
+      "year": 2014,
+      "title": "O4.09: Functional status, comorbidities and their impact on management of older patients with cancer in India",
+      "authors": "Kandel R, Banerjee J, Thakur S, Kumar V, et al.",
+      "venue": "European Geriatric Medicine, 5(Suppl), S75",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:0EnyYjriUFMC",
+      "tag": "Conference abstracts and editorials"
+    },
+    {
+      "year": 2014,
+      "title": "P222: Grip strength: a simple and an alternate tool to bone densitometry (DEXA)",
+      "authors": "Kandel R, Chatterjee P, Singh H, Chellaiyan VG, Dey AB",
+      "venue": "European Geriatric Medicine, 5(Suppl), S155",
+      "link": "https://scholar.google.com/citations?user=Us6Zr_YAAAAJ&hl=en&citation_for_view=Us6Zr_YAAAAJ:2osOgNQ5qMEC",
+      "tag": "Conference abstracts and editorials"
+    }
+  ],
+  "faqs": [
+    {
+      "group": "home",
+      "order": 0,
+      "question": "When should I see a geriatrician?",
+      "answer": "If you or a family member is 60 or older and managing several health problems, medicines or a change in memory, balance or daily function, a geriatric assessment can help. You do not need a referral to enquire."
+    },
+    {
+      "group": "home",
+      "order": 1,
+      "question": "What should I bring to my first appointment?",
+      "answer": "Bring all your current medicines (or a list with doses), any recent test results, and a family member or caregiver if possible. A short note of your main concerns helps too."
+    },
+    {
+      "group": "home",
+      "order": 2,
+      "question": "Will I need tests at my first visit?",
+      "answer": "A comprehensive geriatric assessment focuses mainly on talking and listening. Further tests are arranged only if they will change your care, and we explain why before ordering them."
+    },
+    {
+      "group": "home",
+      "order": 3,
+      "question": "Can I come for a second opinion?",
+      "answer": "Yes. Second opinions are a normal and welcome part of good medical care. Please bring any previous reports or letters so we can review the full picture together."
+    },
+    {
+      "group": "home",
+      "order": 4,
+      "question": "Where is the clinic, and how do I book?",
+      "answer": "Current clinical sessions are at Rapti Academy of Health Sciences, Dang. Use the contact page to send an enquiry and we will confirm availability and directions."
+    },
+    {
+      "group": "home",
+      "order": 5,
+      "question": "What if I have concerns about a parent’s memory?",
+      "answer": "Memory changes can have many causes. A careful assessment including a medication review is the right first step. Please book an appointment so we can take a proper history."
+    },
+    {
+      "group": "how-it-works",
+      "order": 0,
+      "question": "What happens after I send an enquiry?",
+      "answer": "I reply with availability, directions and a short list of what to bring. If the situation is urgent, say so and I will advise on the fastest route to care."
+    },
+    {
+      "group": "how-it-works",
+      "order": 1,
+      "question": "Where do I meet you?",
+      "answer": "Current clinical sessions are at Rapti Academy of Health Sciences, Dang. The contact page has the enquiry form and directions."
+    },
+    {
+      "group": "how-it-works",
+      "order": 2,
+      "question": "Should a family member come along?",
+      "answer": "Yes, where possible. A relative or caregiver who knows the daily routine adds half the history, and leaves understanding the plan."
+    },
+    {
+      "group": "how-it-works",
+      "order": 3,
+      "question": "What should I bring?",
+      "answer": "Every medicine currently in use, including injections and remedies, plus recent test results and a short note of your main concerns."
+    },
+    {
+      "group": "how-it-works",
+      "order": 4,
+      "question": "Will this replace my usual doctor?",
+      "answer": "No. Geriatric assessment complements your existing care. With your consent, the written plan is shared with your usual doctor."
+    },
+    {
+      "group": "how-it-works",
+      "order": 5,
+      "question": "Can you review medicines prescribed by others?",
+      "answer": "Yes. Medicine review is a core part of the assessment. Any change is discussed with you and communicated to the prescriber rather than made silently."
+    },
+    {
+      "group": "how-it-works",
+      "order": 6,
+      "question": "What happens after the first appointment?",
+      "answer": "You leave with the written plan. Follow-up is arranged to review progress, and referral or rehabilitation is set in motion where needed."
+    },
+    {
+      "group": "how-it-works",
+      "order": 7,
+      "question": "What if you cannot help?",
+      "answer": "I will say so plainly and point you to someone or something that can. That answer is part of the service."
+    },
+    {
+      "group": "teaching",
+      "order": 0,
+      "question": "What formats do you teach?",
+      "answer": "Guest lectures, half and full-day workshops, bedside and ward-round teaching, faculty sessions, and curriculum or assessment design work."
+    },
+    {
+      "group": "teaching",
+      "order": 1,
+      "question": "Who benefits most?",
+      "answer": "Medical and nursing students, interns, general practitioners, specialists, allied health teams and the families who care for older people at home."
+    },
+    {
+      "group": "teaching",
+      "order": 2,
+      "question": "In which language?",
+      "answer": "English for academic and professional sessions, Nepali for community and caregiver programmes, and a mix of both in the classroom when it helps the discussion."
+    },
+    {
+      "group": "teaching",
+      "order": 3,
+      "question": "Can you design a whole module?",
+      "answer": "Yes. I prefer to build modules with the faculty who will teach them, so the content, the assessment and the staff development arrive together."
+    },
+    {
+      "group": "teaching",
+      "order": 4,
+      "question": "Do you still see patients?",
+      "answer": "Clinical sessions at Rapti Academy of Health Sciences continue alongside teaching, so the examples come from current practice rather than old notes."
+    },
+    {
+      "group": "teaching",
+      "order": 5,
+      "question": "How much notice do you need?",
+      "answer": "Four to six weeks is comfortable for a workshop or a series of lectures. A single class can often be arranged sooner."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+.env
+db/local.sql
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+staticfiles/
+media/
+*.log
+.coverage
+# Locally written copies of the letters the API sends, so nothing a patient wrote lands in git.
+outbox/
+.idea/
+.vscode/
+first-login.env

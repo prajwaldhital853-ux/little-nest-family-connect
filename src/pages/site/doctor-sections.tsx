@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import type { SitePhoto } from "./media";
 import { home } from "./media";
 import { fill } from "./copy";
+import { Paras, Rich } from "./rich";
 import type { Publication, PublicationGroup } from "./publications";
 import { orcidUrl, publicationKindHeading, scholarProfileUrl } from "./publications";
 import type { CopyIcon } from "./icons";
@@ -713,6 +714,40 @@ export function Paragraphs( { lines }: { lines: string[] } ) {
   return <>{ lines.map( ( line, i ) => <p key={ i }>{ line }</p> ) }</>;
 }
 
+/* One thing the doctor typed in the blog editor, named by what it is    */
+
+export interface ArticleBlock {
+  type: "h2" | "h3" | "p" | "ul" | "ol" | "quote";
+  text?: string;
+  items?: string[];
+}
+
+/**
+ * An article written as blocks keeps its headings, lists and its quote. An article written before
+ * there were blocks has only the plain paragraphs, and those still read.
+ */
+export function ArticleBody( { blocks, lines }: { blocks?: ArticleBlock[]; lines: string[] } ): ReactNode {
+  if ( !blocks || !blocks.length ) return <Paras lines={ lines } />;
+  return (
+    <>
+      { blocks.map( ( block, i ) => {
+        if ( block.type === "h2" ) return <h2 key={ i } className="dr-prose-h2"><Rich text={ block.text } /></h2>;
+        if ( block.type === "h3" ) return <h3 key={ i } className="dr-prose-h3"><Rich text={ block.text } /></h3>;
+        if ( block.type === "ul" || block.type === "ol" ) {
+          const List = block.type;
+          return (
+            <List key={ i } className="dr-prose-list">
+              { ( block.items ?? [] ).map( ( item, at ) => <li key={ at }><Rich text={ item } /></li> ) }
+            </List>
+          );
+        }
+        if ( block.type === "quote" ) return <blockquote key={ i } className="dr-prose-quote"><Rich text={ block.text } /></blockquote>;
+        return <p key={ i }><Rich text={ block.text } /></p>;
+      } ) }
+    </>
+  );
+}
+
 /* Full-bleed photo hero: scrim, centred pill, name, lede               */
 
 export function FullBleedHero( { kicker, title, lede, photo }: {
@@ -866,6 +901,7 @@ export interface DrPost {
   minutes?: number;
   photo: SitePhoto;
   body: string[];
+  blocks?: ArticleBlock[];
 }
 
 export interface BlogCardLabels { read?: string; minutes?: string }

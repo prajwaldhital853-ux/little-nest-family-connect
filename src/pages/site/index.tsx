@@ -1,12 +1,21 @@
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
 import NotFound from "@/pages/not-found";
 
 import { startAnalytics } from "./analytics";
 import { buildSite } from "./site";
-import { useSiteData } from "./site-data";
+import { useSiteData, useSiteStatus } from "./site-data";
 import { SiteTemplate } from "./parts";
+
+/* Shown while a page the cached copy has never seen is looked for once on the API. */
+function Opening() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <p className="text-sm text-muted-foreground">Fetching the newest wording.</p>
+    </div>
+  );
+}
 
 /* Write one tag in the head, making it if the static shell never had it. */
 function putTag( tag: "meta" | "link", attrs: Record<string, string>, value: string ) {
@@ -40,6 +49,17 @@ export function SitePage() {
   const { hash, pathname } = useLocation();
   const site = buildSite( useSiteData() );
   const subpage = page === undefined ? undefined : item === undefined ? site.pages?.[page] : site.items?.[page]?.( item );
+  const { busy, chase } = useSiteStatus();
+  const chased = useRef( "" );
+  const missing = page !== undefined && !subpage;
+  /* A page written since the copy the site is holding arrived is not a missing page, so the API is
+     asked once for that address before the site calls it one. */
+  const wanted = missing ? `${ page }/${ item ?? "" }` : "";
+  useEffect( () => {
+    if ( !wanted || chased.current === wanted ) return;
+    chased.current = wanted;
+    chase();
+  }, [ wanted, chase ] );
   const title = subpage?.title ? `${ subpage.title } · ${ site.titleSuffix }` : site.title;
   const description = subpage?.description ?? site.description ?? "";
   /* Plain strings, so the head is rewritten when a value changes rather than on every render. */
@@ -127,8 +147,8 @@ export function SitePage() {
     box.textContent = JSON.stringify( graph );
   }, [ personKey, title, description, pathname ] );
 
-  if ( page !== undefined && !subpage ) {
-    return <NotFound />;
+  if ( missing ) {
+    return busy ? <Opening /> : <NotFound />;
   }
   return (
     <SiteTemplate name={ site.name } pack={ site.pack } layout={ site.layout } header={ site.header } footer={ site.footer }>

@@ -954,6 +954,23 @@ html:has( .site-template ) {
 .dr-prose { max-width: 46rem; margin-top: 1.5rem; color: color-mix( in srgb, var( --band-black ) 82%, transparent ); }
 .dr-prose p { margin: 0 0 1.15rem; }
 .dr-prose p:last-child { margin-bottom: 0; }
+.dr-prose a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
+.dr-prose a:hover { color: var( --band-red ); }
+/* The article blocks he writes in the panel. The column is already at the reading size, so a
+   heading is measured against the paragraphs around it and not against a page title. */
+.dr-prose .dr-prose-h2 { margin: 2.9rem 0 1rem; color: var( --band-black ); font-family: var( --font-heading ); font-weight: 600; font-size: var( --text-h3 ); line-height: 1.2; }
+.dr-prose .dr-prose-h3 { margin: 2.3rem 0 0.75rem; color: var( --band-black ); font-family: var( --font-heading ); font-weight: 600; font-size: var( --text-h4 ); line-height: 1.25; }
+.dr-prose .dr-prose-list { margin: 0 0 1.35rem; padding-left: 1.5rem; display: grid; gap: 0.55rem; }
+.dr-prose ul.dr-prose-list { list-style: disc; }
+.dr-prose ol.dr-prose-list { list-style: decimal; }
+.dr-prose .dr-prose-list li { padding-left: 0.3rem; }
+.dr-prose .dr-prose-list li::marker { color: color-mix( in srgb, var( --band-black ) 45%, transparent ); }
+.dr-prose .dr-prose-quote {
+  margin: 2.2rem 0; padding: 0.3rem 0 0.3rem 1.6rem; border-left: 3px solid var( --band-black );
+  color: var( --band-black ); font-family: var( --font-heading ); font-style: italic; font-weight: 500; line-height: 1.5;
+}
+.dr-prose > :first-child { margin-top: 0; }
+.dr-prose > :last-child { margin-bottom: 0; }
 .dr-prose-sec > * { opacity: 0; }
 .dr-prose-sec.is-in > * { animation: dr-rise 0.9s var( --dr-ease ) forwards; }
 .dr-prose-sec.is-in > :nth-child( 2 ) { animation-delay: 0.12s; }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import type { DrMediaItem, DrPost, PressItem } from "./doctor-sections";
@@ -66,8 +66,16 @@ function fromApi( payload: ApiSitePayload ): SiteData {
 
 const SiteDataContext = createContext<SiteData>( bundledData );
 
+/* Whether the corpus is being asked for again, for a page written since the last copy arrived. */
+export interface SiteStatus {
+  busy: boolean;
+  chase: () => void;
+}
+
+const SiteStatusContext = createContext<SiteStatus>( { busy: false, chase: () => undefined } );
+
 export function SiteDataProvider( { children }: { children: ReactNode } ) {
-  const { data } = useQuery( {
+  const { data, isFetching, refetch } = useQuery( {
     queryKey: [ "site-content" ],
     queryFn: ( { signal } ) => fetchSiteContent( signal ),
     staleTime: 5 * 60 * 1000,
@@ -76,9 +84,29 @@ export function SiteDataProvider( { children }: { children: ReactNode } ) {
 
   const value = useMemo( () => ( data ? fromApi( data ) : bundledData ), [ data ] );
 
-  return <SiteDataContext.Provider value={ value }>{ children }</SiteDataContext.Provider>;
+  /* The panel writes straight to the API, so a new article exists a second after it is saved while
+     the copy the pages are built from can still be minutes old. One fresh copy settles it. */
+  const chased = useRef( 0 );
+  const chase = useCallback(() => {
+    const now = Date.now();
+    if ( now - chased.current < 4000 ) return;
+    chased.current = now;
+    void refetch();
+  }, [ refetch ] );
+
+  const status = useMemo( () => ( { busy: isFetching, chase } ), [ isFetching, chase ] );
+
+  return (
+    <SiteStatusContext.Provider value={ status }>
+      <SiteDataContext.Provider value={ value }>{ children }</SiteDataContext.Provider>
+    </SiteStatusContext.Provider>
+  );
 }
 
 export function useSiteData(): SiteData {
   return useContext( SiteDataContext );
+}
+
+export function useSiteStatus(): SiteStatus {
+  return useContext( SiteStatusContext );
 }

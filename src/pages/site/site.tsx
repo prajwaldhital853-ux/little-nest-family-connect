@@ -7,6 +7,7 @@ import { TextLink } from "@/components/base/text-link";
 import { hazelHouse } from "@/style-packs/hazel-house";
 
 import {
+  ArticleBody,
   CareJourney,
   CinematicWork,
   ClosingCta,
@@ -464,7 +465,7 @@ export function buildSite( data: SiteData ): SiteContent {
             { copy.about.story.show && (
               <StoryProse
                 kicker={ copy.about.story.kicker }
-                photos={ copy.about.story.photos.filter( Boolean ).map( photoOf ) }
+                photos={ copy.about.story.photos.filter( Boolean ).map( ( photo ) => photoOf( photo ) ) }
                 signature={ copy.about.story.signature }
               >
                 <Paras lines={ copy.about.story.body } />
@@ -516,7 +517,7 @@ export function buildSite( data: SiteData ): SiteContent {
             { copy.research.story.show && (
               <StoryProse
                 kicker={ copy.research.story.kicker }
-                photos={ copy.research.story.photos.filter( Boolean ).map( photoOf ) }
+                photos={ copy.research.story.photos.filter( Boolean ).map( ( photo ) => photoOf( photo ) ) }
                 signature={ copy.research.story.signature }
               >
                 <Paras lines={ copy.research.story.body } />
@@ -905,7 +906,7 @@ export function buildSite( data: SiteData ): SiteContent {
                 lede={ <Paras lines={ [ post.excerpt ] } /> }
                 photo={ post.photo }
               />
-              <ProseSection ground="paper"><Paras lines={ post.body } /></ProseSection>
+              <ProseSection ground="paper"><ArticleBody blocks={ post.blocks } lines={ post.body } /></ProseSection>
               <ClosingCta
                 kicker={ copy.article.closing.kicker }
                 title={ <Rich text={ copy.article.closing.title } /> }

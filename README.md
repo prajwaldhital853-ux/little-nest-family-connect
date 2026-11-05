@@ -30,15 +30,20 @@ The panel needs more, and the next section is the whole of it.
 
 ## Deploying, with the panel beside the site
 
-The panel (`../admin`) is a second single-page app mounted at `/admin` on the same address as this
+The panel (`admin/`) is a second single-page app mounted at `/admin` on the same address as this
 site, because its sign-in cookie is trusted by matching that address. A deployment therefore
 publishes one folder that holds both:
 
 ```
+npm run build --prefix admin         # the panel into admin/dist
+npm run panel:vendor                 # carries that build into panel-dist, which is committed
 npm run build                        # the site into dist
-npm run build --prefix ../admin      # the panel into ../admin/dist
-npm run build:panel                  # copies that build into dist/admin
+npm run build:panel                  # copies panel-dist into dist/admin
 ```
+
+`vercel.json` runs the last two on the host. That host installs only this folder's dependencies, so
+it does not build `admin` itself: `panel-dist` is how the panel travels. After any change to the
+panel, run the first two commands here and commit `panel-dist` with the rest.
 
 `vercel.json` sends `/admin/*` to `dist/admin/index.html`, ahead of the site's own catch-all, and
 `robots.txt` keeps `/admin` out of search results.
