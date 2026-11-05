@@ -1,5 +1,7 @@
 import re
 from datetime import timedelta
+from smtplib import SMTPAuthenticationError
+from unittest import mock
 from urllib.parse import unquote
 
 from django.core import mail
@@ -451,3 +453,49 @@ class StaffAccountTests( APITestCase ):
     def test_searching_accounts_by_email( self ):
         response = self.client.get( "/api/auth/users/?search=helper", HTTP_AUTHORIZATION = self.header )
         self.assertEqual( response.data[ "count" ], 1 )
+
+
+@override_settings(
+    ADMIN_LOGIN_EMAILS = [ "desk@example.com" ],
+    PANEL_ORIGIN = "http://localhost:8080",
+    PANEL_PATH = "/admin",
+    AUTH_COOKIE_SECURE = False,
+    AUTH_COOKIE_SAMESITE = "Lax",
+)
+class MailAvailabilityTests( APITestCase ):
+    """A server that cannot send a letter says so, instead of leaving the panel waiting for one."""
+
+    @classmethod
+    def setUpTestData( cls ):
+        User.objects.create_user( email = "desk@example.com", password = "consultation-room-7", is_staff = True )
+
+    def setUp( self ):
+        self.client.cookies.clear()
+        cache.clear()
+        mail.outbox.clear()
+
+    def sign_in( self ):
+        return self.client.post( reverse( "login" ), { "email": "desk@example.com", "password": "consultation-room-7" }, format = "json" )
+
+    def test_a_server_with_no_mail_account_says_so_instead_of_starting_a_code( self ):
+        with override_settings( DEBUG = False, EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend" ):
+            response = self.sign_in()
+        self.assertEqual( response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data )
+        self.assertIn( "no mail account", response.data[ "detail" ] )
+        self.assertNotIn( "access", response.data )
+        self.assertEqual( OtpChallenge.objects.count(), 0 )
+
+    def test_a_mail_server_that_refuses_the_letter_is_reported_not_crashed( self ):
+        with mock.patch( "apps.accounts.emails.send_mail", side_effect = SMTPAuthenticationError( 454, "username and password not accepted" ) ):
+            response = self.sign_in()
+        self.assertEqual( response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data )
+        self.assertIn( "refused", response.data[ "detail" ] )
+        self.assertNotIn( "access", response.data )
+
+    def test_a_forgotten_password_is_answered_the_same_whether_or_not_the_address_exists( self ):
+        with override_settings( DEBUG = False, EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend" ):
+            known = self.client.post( reverse( "password-forgot" ), { "email": "desk@example.com" }, format = "json", **ORIGIN )
+            unknown = self.client.post( reverse( "password-forgot" ), { "email": "nobody@example.com" }, format = "json", **ORIGIN )
+        self.assertEqual( known.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, known.data )
+        self.assertEqual( unknown.status_code, known.status_code )
+        self.assertEqual( PasswordResetRequest.objects.count(), 0 )

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import DatabaseError, connection
+from django.db.migrations.executor import MigrationExecutor
 from django.http import JsonResponse
 from django.urls import include, path
 
@@ -11,6 +12,33 @@ if settings.DJANGO_ADMIN_ENABLED:
     admin.site.index_title = "Content and appointments"
 
 
+def schema_state():
+    """Whether the tables the site needs are actually in the database.
+
+    A deploy that skipped its migrations answers every page with a 500 that names a missing table,
+    which is impossible to see from the panel. This is the same question, asked without a shell.
+    """
+
+    try:
+        executor = MigrationExecutor( connection )
+        pending = executor.migration_plan( executor.loader.graph.leaf_nodes() )
+    except DatabaseError:
+        return "unreadable"
+    return "current" if not pending else "not migrated yet"
+
+
+def mail_state():
+    """Whether a one time code can reach anyone.
+
+    Without a mail account the codes are written into a folder inside the container, and a host that
+    gives no shell cannot read that folder, so signing in from a new device stops with no explanation.
+    """
+
+    if settings.EMAIL_BACKEND.endswith( "smtp.EmailBackend" ) and settings.EMAIL_HOST and settings.EMAIL_HOST_USER:
+        return "configured"
+    return "not configured"
+
+
 def health( request ):
     """Small probe for the panel and for hosting health checks."""
 
@@ -19,7 +47,9 @@ def health( request ):
         database = "ok"
     except DatabaseError:
         database = "unavailable"
-    return JsonResponse( { "status": "ok", "database": database } )
+    return JsonResponse(
+        { "status": "ok", "database": database, "schema": schema_state(), "mail": mail_state() }
+    )
 
 
 urlpatterns = [

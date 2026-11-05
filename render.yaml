@@ -29,20 +29,13 @@ services:
     buildCommand: >-
       pip install -r requirements.txt &&
       python manage.py collectstatic --noinput
-    # Migrations run after the build and before the new container takes traffic, so a half deployed
-    # version never serves the site. The account step is idempotent: it makes the first panel account
-    # on an empty database and leaves an existing one alone.
-    releaseCommand: >-
-      python manage.py migrate --noinput &&
-      python manage.py ensure_first_account
-    # One process, because the sign in lockouts and the throttles are counted in memory: two workers
-    # would each hold their own idea of how many wrong passwords this browser has tried.
-    startCommand: >-
-      gunicorn config.wsgi:application
-      --bind 0.0.0.0:$PORT
-      --workers 1
-      --threads 4
-      --timeout 60
+    # The free plan's dashboard has no release command field and no shell, so the schema and the
+    # first panel account are brought up inside render.sh, which runs on every boot. Both steps are
+    # idempotent: migrate does nothing to a current database, and ensure_first_account only writes
+    # an account where there is none and never touches a password that is already set.
+    # One worker on purpose. The wrong password count and the throttles are counted in memory: two
+    # workers would each hold their own idea of how many wrong passwords this browser has tried.
+    startCommand: bash render.sh
     healthCheckPath: /api/health/
     envVars:
       - key: DJANGO_SECRET_KEY
@@ -59,12 +52,15 @@ services:
         value: Asia/Kathmandu
       - key: DJANGO_ALLOWED_HOSTS
         # Both names the API is reached by: the site's, because Vercel forwards /api here, and the
-        # service's own, for Render's health check and any direct call.
-        value: "drkandel.vercel.app,little-nest-family-connect.onrender.com"
+        # service's own, for Render's health check and any direct call. The leading dot entry covers
+        # Vercel's preview addresses, which forward /api the same way and would otherwise be refused
+        # as an invalid host. Public content and the submission form are all they can reach; a
+        # stranger's preview cannot sign in, because the session cookie never leaves the main site.
+        value: "drkandel.vercel.app,little-nest-family-connect.onrender.com,.vercel.app"
       - key: ADMIN_LOGIN_EMAILS
         sync: false
-      # The release command makes this account on a database that has none, and leaves it alone
-      # afterwards. Type them once, then change the password on the panel's own account screen.
+      # render.sh makes this account on a database that has none, and leaves it alone afterwards.
+      # Type them once, then change the password on the panel's own account screen.
       - key: DJANGO_SUPERUSER_EMAIL
         sync: false
       - key: DJANGO_SUPERUSER_PASSWORD

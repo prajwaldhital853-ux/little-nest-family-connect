@@ -94,7 +94,7 @@ Everything else:
 | `POST /api/analytics/collect/` | the site's own visit beacon |
 | `GET /api/analytics/summary/` | the numbers behind the Analytics screen |
 | `GET /api/audit/entries/` | read only history, filter by `action`, `actor`, `target`, `search`, `days` |
-| `GET /api/health/` | is the API up, and is the database reachable |
+| `GET /api/health/` | is the API up, is the database reachable, are its tables there yet, and is there a mail account that can send a code |
 
 ## What the rate limits are
 
@@ -104,7 +104,9 @@ Three rules the doctor asked for, all enforced server side:
   with a `Retry-After` header. `LOGIN_MAX_ATTEMPTS` and `LOGIN_LOCK_MINUTES` set both numbers.
 - Signing in from a device that has not been seen before mails a code first, whatever the password.
   The tokens are only issued after `otp/verify/` accepts it, and the code expires in
-  `OTP_TTL_MINUTES` with `OTP_MAX_ATTEMPTS` tries.
+  `OTP_TTL_MINUTES` with `OTP_MAX_ATTEMPTS` tries. A server with no mail account, or one the mail
+  server refuses, answers `503` with the reason in the panel's own notice, rather than starting a
+  code that nobody will ever read.
 - The appointment form accepts one request per IP, device and wording for `SUBMISSION_DEDUPE_HOURS`
   (24 by default). A repeat is refused with a line that says the enquiry is already on file.
 
@@ -156,12 +158,30 @@ database, both from this repository. Made by hand instead, the service settings 
 
 | | |
 | --- | --- |
-| Root directory | `backend`. Left at the repository root, every command below needs `cd backend &&` in front of it. |
+| Root directory | `backend`. Left at the repository top, the build command needs `cd backend &&` in front of it and the start command becomes `bash backend/render.sh`. |
 | Build command | `pip install -r requirements.txt && python manage.py collectstatic --noinput` |
-| Release command | `python manage.py migrate --noinput && python manage.py ensure_first_account` |
-| Start command | `gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 60` |
+| Start command | `bash render.sh` |
 | Health check path | `/api/health/` |
 | Python | `3.12`, read from `backend\.python-version` |
+
+There is no Release command on this plan, and no shell to run one-off commands in, so `render.sh`
+does both of the things that would have been done by hand, on every boot, before it hands over to
+gunicorn: `migrate --noinput`, then `ensure_first_account`. Neither can damage what is already
+there, which is what makes running them at start safe: a current database migrates in a second and
+an existing account is left exactly as it is. The script also starts gunicorn with one worker, so
+the start command is only ever `bash render.sh`. If a migrate fails the service still comes up and
+the log says why in a line starting `!!`, because a crash loop hides the reason and a live service
+with one clear error in its log does not.
+
+In order, for a service made by hand:
+
+1. Set the start command to `bash render.sh`.
+2. Add the variables below. `DATABASE_URL`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`
+   and `ADMIN_LOGIN_EMAILS` are the ones the site needs to answer at all; `DJANGO_SUPERUSER_PASSWORD`
+   is the one that makes his account; the `EMAIL_*` names are the one that lets him sign in.
+3. Deploy, then open `/api/health/` in a browser. `"schema": "current"` says the tables exist and
+   `"mail": "configured"` says a code can reach his mailbox. Anything else now fails with a sentence
+   in the panel, not a `500`.
 
 One worker on purpose. The wrong password count and the throttles are held in the process's own
 memory, so two workers would each keep their own idea of how many tries this browser has had.
@@ -174,9 +194,9 @@ The variables to add, and what goes in each:
 | `DJANGO_SECRET_KEY` | generate one. Changing it signs everyone out, because it is what the session rests on. |
 | `JWT_SIGNING_KEY` | generate one, or leave it out and `DJANGO_SECRET_KEY` signs the tokens. |
 | `DJANGO_DEBUG` | `false` |
-| `DJANGO_ALLOWED_HOSTS` | the site's domain and the service's own `*.onrender.com` name, comma separated. The site forwards `/api` here, so the calls arrive naming the site's domain. |
+| `DJANGO_ALLOWED_HOSTS` | the site's domain and the service's own `*.onrender.com` name, comma separated. The site forwards `/api` here, so the calls arrive naming the site's domain. Add `.vercel.app` with a leading dot if the preview builds should reach it too. |
 | `ADMIN_LOGIN_EMAILS` | the doctor's address. Nothing else can sign in with a password. |
-| `DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_PASSWORD` | the account the release command makes on a database that has no accounts yet. It never changes a password that is already set, so once the panel works, change it there and these two can be cleared. |
+| `DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_PASSWORD` | the account `render.sh` makes on a database that has no accounts yet; the address is taken from `ADMIN_LOGIN_EMAILS` when the email one is left out, so a password alone is enough. It never changes a password that is already set, so once the panel works, change it there and these two can be cleared. |
 | `PANEL_ORIGIN` | `https://` and the site's domain. The reset link mailed out is built from this, so the development default would mail him a link to his own laptop. |
 | `PANEL_PATH` | `/admin` |
 | `CORS_ALLOWED_ORIGINS` | the same site origin. Only needed when a call really does cross origins; a forwarded `/api` is the same origin. |
@@ -200,9 +220,9 @@ JWT_SIGNING_KEY=<generated, same>
 DATABASE_URL=<From Database picker, Internal key>
 DJANGO_DEBUG=false
 DJANGO_TIME_ZONE=Asia/Kathmandu
-DJANGO_ALLOWED_HOSTS=drkandel.vercel.app,little-nest-family-connect.onrender.com
+DJANGO_ALLOWED_HOSTS=drkandel.vercel.app,little-nest-family-connect.onrender.com,.vercel.app
 ADMIN_LOGIN_EMAILS=<the doctor's address>
-DJANGO_SUPERUSER_EMAIL=<the same address, for the account the release command makes>
+DJANGO_SUPERUSER_EMAIL=<the same address, for the account render.sh makes>
 DJANGO_SUPERUSER_PASSWORD=<a passphrase of at least 10 characters, changed later on the account screen>
 PANEL_ORIGIN=https://drkandel.vercel.app
 PANEL_PATH=/admin

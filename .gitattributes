@@ -1,0 +1,6 @@
+# Line endings are decided by these files, not by whoever has the repository checked out. A shell
+# script with Windows endings runs as `bash: /bin/bash^M: bad interpreter` on Render's Linux image,
+# so the ones the deploy depends on are pinned to LF.
+*.sh text eol=lf
+render.yaml text eol=lf
+vercel.json text eol=lf

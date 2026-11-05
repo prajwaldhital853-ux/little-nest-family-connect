@@ -16,7 +16,14 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from apps.audit.services import record
 from config.hashing import client_ip, hash_identity
 
-from .emails import send_otp, send_password_reset
+from .emails import (
+    MAIL_REFUSED,
+    NO_MAIL_ACCOUNT,
+    MailNotSent,
+    can_send_mail,
+    send_otp,
+    send_password_reset,
+)
 from .models import Lockout, OtpChallenge, PasswordResetRequest, TrustedDevice, User
 from .security import (
     blacklist,
@@ -53,6 +60,12 @@ from .services import (
 
 BAD_CREDENTIALS = { "detail": "Email or password is not correct." }
 RESET_EXPIRED = { "detail": "That reset link is not valid, or it has expired." }
+
+
+def undeliverable( detail ):
+    """A mail problem answered as 503, so the panel shows the reason instead of a server crash."""
+
+    return Response( { "detail": detail }, status = status.HTTP_503_SERVICE_UNAVAILABLE )
 
 
 def session_keys( request, response ):
@@ -126,8 +139,15 @@ class LoginView( APIView ):
         Lockout.clear( Lockout.LOGIN, identities )
         known = find_device( user, device )
         if known is None:
+            if not can_send_mail():
+                record( "login.mail_unavailable", actor = user )
+                return undeliverable( NO_MAIL_ACCOUNT )
             challenge, code = create_otp( user, device = device )
-            send_otp( user, challenge, code )
+            try:
+                send_otp( user, challenge, code )
+            except MailNotSent:
+                record( "login.mail_refused", actor = user )
+                return undeliverable( MAIL_REFUSED )
             set_otp_cookie( response, challenge.ref )
             record( "login.otp_sent", actor = user, detail = { "device": describe_device( request ) } )
             response.data = {
@@ -301,10 +321,20 @@ class ForgotPasswordView( APIView ):
         if retry:
             return apply_lock( response, retry )
 
+        # Asked before the account is looked up: answering only for addresses that exist would
+        # tell a stranger which ones do.
+        if not can_send_mail():
+            record( "password.reset_mail_unavailable", request = request, detail = { "email": email } )
+            return undeliverable( NO_MAIL_ACCOUNT )
+
         user = User.objects.filter( email = email, is_staff = True, is_active = True ).first()
         if user:
             reset, link_token = create_reset_request( email )
-            send_password_reset( email, reset, link_token )
+            try:
+                send_password_reset( email, reset, link_token )
+            except MailNotSent:
+                record( "password.reset_mail_refused", actor = user, target = user )
+                return undeliverable( MAIL_REFUSED )
             record( "password.reset_requested", actor = user, target = user )
         return response
 
