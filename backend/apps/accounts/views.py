@@ -138,7 +138,7 @@ class LoginView( APIView ):
 
         Lockout.clear( Lockout.LOGIN, identities )
         known = find_device( user, device )
-        if known is None:
+        if known is None and settings.OTP_REQUIRED:
             if not can_send_mail():
                 record( "login.mail_unavailable", actor = user )
                 return undeliverable( NO_MAIL_ACCOUNT )
@@ -156,6 +156,12 @@ class LoginView( APIView ):
                 "expires_in": settings.OTP_TTL_MINUTES * 60,
             }
             return response
+
+        if known is None:
+            # The code step switched off on purpose: the password carried this browser in, so it is
+            # remembered as trusted and a later switch back to codes does not lock him out.
+            known = trust_device( user, device, label = describe_device( request ), ip_hash = hash_identity( client_ip( request ) ) )
+            record( "login.device_trusted_without_a_code", actor = user, target = known, target_label = known.label )
 
         touch_device( known )
         refresh, access = issue_tokens( user )

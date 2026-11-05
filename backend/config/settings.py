@@ -257,6 +257,11 @@ LOGIN_MAX_ATTEMPTS = int( env( "LOGIN_MAX_ATTEMPTS", "3" ) )
 LOGIN_LOCK_MINUTES = int( env( "LOGIN_LOCK_MINUTES", "5" ) )
 OTP_MAX_ATTEMPTS = int( env( "OTP_MAX_ATTEMPTS", "5" ) )
 OTP_TTL_MINUTES = int( env( "OTP_TTL_MINUTES", "10" ) )
+# On by default, because a code he cannot read is a door that stays shut. Set to false to let the
+# allowlisted address in on its password alone while the server has no mail account: the lockout,
+# the allowlist and the password check all still apply, and one browser that got in that way stays
+# remembered, so switching the codes back on later does not lock the doctor out of his own panel.
+OTP_REQUIRED = env_bool( "OTP_REQUIRED", True )
 # A known code on a development machine, where the mail backend does not deliver anywhere.
 # Production always sends a random six digits.
 OTP_FIXED_CODE = env( "OTP_FIXED_CODE", "123456" if DEBUG else "" )

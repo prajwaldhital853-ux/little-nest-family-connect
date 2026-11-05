@@ -173,6 +173,24 @@ class SignInTests( APITestCase ):
         self.sign_in()
         self.assertNotEqual( self.code_from_email(), "123456" )
 
+    @override_settings( OTP_REQUIRED = False )
+    def test_an_unseen_browser_signs_in_on_its_password_when_codes_are_switched_off( self ):
+        response = self.sign_in()
+        self.assertEqual( response.status_code, status.HTTP_200_OK, response.data )
+        self.assertIn( "access", response.data )
+        self.assertFalse( response.data[ "otp_required" ] )
+        self.assertEqual( OtpChallenge.objects.count(), 0 )
+        self.assertEqual( len( mail.outbox ), 0 )
+        self.assertEqual( TrustedDevice.objects.filter( user = self.staff ).count(), 1 )
+
+    def test_a_browser_let_in_without_a_code_is_still_remembered_when_codes_go_back_on( self ):
+        with override_settings( OTP_REQUIRED = False ):
+            self.assertEqual( self.sign_in().status_code, status.HTTP_200_OK )
+        with override_settings( OTP_REQUIRED = True ):
+            response = self.sign_in()
+        self.assertIn( "access", response.data )
+        self.assertEqual( len( mail.outbox ), 0 )
+
 
 @override_settings(
     ADMIN_LOGIN_EMAILS = [ "desk@example.com" ],

@@ -59,6 +59,12 @@ services:
         value: "drkandel.vercel.app,little-nest-family-connect.onrender.com,.vercel.app"
       - key: ADMIN_LOGIN_EMAILS
         sync: false
+      # The emailed code is the second step for a browser the panel has not seen. It needs a working
+      # mail account, so while there is none this is false and the allowlisted address gets in on its
+      # password alone. Set it back to true as soon as mail works: a browser that already signed in
+      # stays remembered either way, so the switch cannot lock the doctor out of his own panel.
+      - key: OTP_REQUIRED
+        value: "false"
       # render.sh makes this account on a database that has none, and leaves it alone afterwards.
       # Type them once, then change the password on the panel's own account screen.
       - key: DJANGO_SUPERUSER_EMAIL

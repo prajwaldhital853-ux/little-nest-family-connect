@@ -48,7 +48,13 @@ def health( request ):
     except DatabaseError:
         database = "unavailable"
     return JsonResponse(
-        { "status": "ok", "database": database, "schema": schema_state(), "mail": mail_state() }
+        {
+            "status": "ok",
+            "database": database,
+            "schema": schema_state(),
+            "mail": mail_state(),
+            "otp": "required" if settings.OTP_REQUIRED else "off",
+        }
     )
 
 

@@ -106,7 +106,11 @@ Three rules the doctor asked for, all enforced server side:
   The tokens are only issued after `otp/verify/` accepts it, and the code expires in
   `OTP_TTL_MINUTES` with `OTP_MAX_ATTEMPTS` tries. A server with no mail account, or one the mail
   server refuses, answers `503` with the reason in the panel's own notice, rather than starting a
-  code that nobody will ever read.
+  code that nobody will ever read. That step is `OTP_REQUIRED`: left `true` it is the rule, and set
+  `false` on a server with no mail account the allowlisted address signs in on its password alone,
+  which is the only step that can work there. It is written in the audit trail as
+  `login.device_trusted_without_a_code`, and the browser is remembered, so switching back to `true`
+  later does not lock the doctor out of his own panel.
 - The appointment form accepts one request per IP, device and wording for `SUBMISSION_DEDUPE_HOURS`
   (24 by default). A repeat is refused with a line that says the enquiry is already on file.
 
@@ -196,6 +200,7 @@ The variables to add, and what goes in each:
 | `DJANGO_DEBUG` | `false` |
 | `DJANGO_ALLOWED_HOSTS` | the site's domain and the service's own `*.onrender.com` name, comma separated. The site forwards `/api` here, so the calls arrive naming the site's domain. Add `.vercel.app` with a leading dot if the preview builds should reach it too. |
 | `ADMIN_LOGIN_EMAILS` | the doctor's address. Nothing else can sign in with a password. |
+| `OTP_REQUIRED` | `true` normally. `false` lets the allowlisted address in on its password alone, which is the only way in while the server has no mail account: the allowlist, the password check and the three tries and five minute block all still apply. A browser that got in that way is remembered, so setting it back to `true` later does not lock him out of his own panel. `/api/health/` answers `otp: off` so the choice stays visible. |
 | `DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_PASSWORD` | the account `render.sh` makes on a database that has no accounts yet; the address is taken from `ADMIN_LOGIN_EMAILS` when the email one is left out, so a password alone is enough. It never changes a password that is already set, so once the panel works, change it there and these two can be cleared. |
 | `PANEL_ORIGIN` | `https://` and the site's domain. The reset link mailed out is built from this, so the development default would mail him a link to his own laptop. |
 | `PANEL_PATH` | `/admin` |
@@ -228,6 +233,7 @@ DJANGO_DEBUG=false
 DJANGO_TIME_ZONE=Asia/Kathmandu
 DJANGO_ALLOWED_HOSTS=drkandel.vercel.app,little-nest-family-connect.onrender.com,.vercel.app
 ADMIN_LOGIN_EMAILS=<the doctor's address>
+OTP_REQUIRED=false
 DJANGO_SUPERUSER_EMAIL=<the same address, for the account render.sh makes>
 DJANGO_SUPERUSER_PASSWORD=<a passphrase of at least 10 characters, changed later on the account screen>
 PANEL_ORIGIN=https://drkandel.vercel.app
