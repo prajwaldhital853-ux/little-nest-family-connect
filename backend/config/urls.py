@@ -23,6 +23,9 @@ def health( request ):
 
 
 urlpatterns = [
+    # A host that health checks the bare root gets the same answer as /api/health/ rather than a 404,
+    # which would read as a broken deploy.
+    path( "", health ),
     path( "api/health/", health ),
     path( "api/auth/", include( "apps.accounts.urls" ) ),
     path( "api/appointments/", include( "apps.appointments.urls" ) ),
