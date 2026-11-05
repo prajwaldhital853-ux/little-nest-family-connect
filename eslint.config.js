@@ -5,7 +5,8 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "storybook-static"] },
+  /* The panel has its own lint-free build and the API is Python, so neither is read here. */
+  { ignores: ["dist", "storybook-static", "admin", "backend", "panel-dist"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
