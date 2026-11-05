@@ -6,11 +6,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://kandel-api.onrender.com/:path*"
+      "destination": "https://little-nest-family-connect.onrender.com/:path*"
     },
     {
       "source": "/media/:path*",
-      "destination": "https://kandel-api.onrender.com/:path*"
+      "destination": "https://little-nest-family-connect.onrender.com/:path*"
     },
     {
       "source": "/admin/:path*",

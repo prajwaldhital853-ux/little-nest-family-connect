@@ -57,7 +57,7 @@ services:
       - key: DJANGO_ALLOWED_HOSTS
         # Both names the API is reached by: the site's, because Vercel forwards /api here, and the
         # service's own, for Render's health check and any direct call.
-        value: "drkandel.vercel.app,kandel-api.onrender.com"
+        value: "drkandel.vercel.app,little-nest-family-connect.onrender.com"
       - key: ADMIN_LOGIN_EMAILS
         sync: false
       # The panel is mounted at /admin on the site, so this is the site's own address with scheme.
