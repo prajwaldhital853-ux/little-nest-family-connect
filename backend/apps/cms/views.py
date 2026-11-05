@@ -1,7 +1,13 @@
+import mimetypes
+import os
 import re
 
+from django.conf import settings
+from django.core.exceptions import SuspiciousFileOperation
 from django.db import IntegrityError, transaction
+from django.http import FileResponse, Http404
 from django.utils import timezone
+from django.utils._os import safe_join
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -322,3 +328,25 @@ class SiteContentView( APIView ):
             "publications": publications,
             "copy": copy,
         } )
+
+
+def serve_upload( request, path ):
+    """Hand one uploaded picture back.
+
+    In development the dev server serves MEDIA_ROOT on its own. A deployed API has no web server in
+    front of it, so without this every /media/ address the doctor picked in the panel would 404 on
+    the live site and a hero would come up empty.
+    """
+    try:
+        full = safe_join( str( settings.MEDIA_ROOT ), path.lstrip( "/" ) )
+    except SuspiciousFileOperation:
+        raise Http404( "That is not a file inside the uploads." ) from None
+    if not os.path.isfile( full ):
+        raise Http404( "No such upload." )
+
+    guessed, _ = mimetypes.guess_type( full )
+    response = FileResponse( open( full, "rb" ), content_type = guessed or "application/octet-stream" )
+    # A second upload of the same name is stored under a different file, so a picture never changes
+    # underneath a browser that already has it.
+    response[ "Cache-Control" ] = "public, max-age=31536000, immutable"
+    return response

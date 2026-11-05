@@ -39,6 +39,21 @@ def mail_state():
     return "configured" if can_send_mail() else "not configured"
 
 
+def content_state():
+    """Whether the panel has anything to edit.
+
+    A database that was created by this deploy has tables and no rows, and a panel that opens on empty
+    lists reads as a broken install even though the site still shows the wording it ships with.
+    """
+
+    from apps.cms.models import PageCopy, Post
+
+    try:
+        return f"{ PageCopy.objects.count() } pages, { Post.objects.count() } posts"
+    except DatabaseError:
+        return "unreadable"
+
+
 def health( request ):
     """Small probe for the panel and for hosting health checks."""
 
@@ -52,6 +67,7 @@ def health( request ):
             "status": "ok",
             "database": database,
             "schema": schema_state(),
+            "content": content_state(),
             "mail": mail_state(),
             "otp": "required" if settings.OTP_REQUIRED else "off",
         }
@@ -79,3 +95,12 @@ if settings.DEBUG:
     # Uploaded pictures, served by the dev server. A deployed host serves them itself or
     # forwards /media here; production never reaches this line.
     urlpatterns += static( settings.MEDIA_URL, document_root = settings.MEDIA_ROOT )
+else:
+    from django.urls import re_path
+
+    from apps.cms.views import serve_upload
+
+    # On Render nothing but this process stands between a browser and MEDIA_ROOT, so the pictures the
+    # panel uploads have to be answered here. Without the line every /media/ address picked in the
+    # panel shows as a broken image on the live site.
+    urlpatterns += [ re_path( rf"^{ settings.MEDIA_URL.strip( '/' ) }/(?P<path>.*)$", serve_upload ) ]

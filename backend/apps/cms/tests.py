@@ -660,6 +660,22 @@ class SeedPageCopyTests( APITestCase ):
             call_command( "seed_page_copy", file = str( path ) )
         self.assertFalse( PageCopy.objects.filter( key = "broken" ).exists() )
 
+    def test_the_command_finds_the_bundle_the_site_ships_without_being_told_where_it_is( self ):
+        """Render runs this with no --file, and the path went stale once when backend moved inside the
+        repository. A boot that cannot find the bundle is a panel with no wording, so pin it here."""
+        from pathlib import Path
+
+        from django.conf import settings
+        from django.core.management import call_command
+
+        from .management.commands.seed_page_copy import BUNDLE
+
+        self.assertEqual( BUNDLE, Path( settings.BASE_DIR ).parent / "src" / "pages" / "site" / "copy.json" )
+        self.assertTrue( BUNDLE.is_file(), f"The site's copy bundle is not where the command looks: { BUNDLE }" )
+
+        call_command( "seed_page_copy" )
+        self.assertTrue( PageCopy.objects.filter( key = "home" ).exists() )
+
 
 class FeedTests( APITestCase ):
     @classmethod
@@ -1443,3 +1459,101 @@ class SiteImageTests( APITestCase ):
         )
         self.assertEqual( self.client.delete( detail, HTTP_AUTHORIZATION = self.header ).status_code, status.HTTP_204_NO_CONTENT )
         self.assertEqual( SiteImage.objects.count(), 0 )
+
+
+class UploadedPictureTests( APITestCase ):
+    """A deployed API is the only thing that can answer a /media/ address, so the pictures the panel
+    uploads depend on that route existing. Django tests run with DEBUG off, which is that branch."""
+
+    def setUp( self ):
+        self.media_root = tempfile.mkdtemp()
+        self.stored = override_settings( MEDIA_ROOT = self.media_root )
+        self.stored.enable()
+        self.clerk = User.objects.create_user( email = "clerk@example.com", password = "consultation-room-7", is_staff = True )
+
+    def tearDown( self ):
+        self.stored.disable()
+        shutil.rmtree( self.media_root, ignore_errors = True )
+
+    def upload( self, name = "clinic.png" ):
+        return self.client.post(
+            "/api/cms/images/", { "file": SimpleUploadedFile( name, PNG_PIXEL, content_type = "image/png" ) },
+            HTTP_AUTHORIZATION = token_for( self.clerk ),
+        )
+
+    def test_a_picture_uploaded_from_the_panel_is_readable_at_its_own_address( self ):
+        url = self.upload().data[ "url" ]
+        fetched = self.client.get( url )
+        self.assertEqual( fetched.status_code, status.HTTP_200_OK )
+        self.assertEqual( fetched[ "Content-Type" ], "image/png" )
+        self.assertEqual( b"".join( fetched.streaming_content ), PNG_PIXEL )
+        self.assertIn( "immutable", fetched[ "Cache-Control" ] )
+
+    def test_an_address_that_climbs_out_of_the_uploads_folder_is_refused( self ):
+        self.upload()
+        for attempt in ( "/media/../settings.py", "/media/%2e%2e%2fmanage.py", "/media/site-images/", "/media/site-images/nothing.png" ):
+            self.assertEqual( self.client.get( attempt ).status_code, status.HTTP_404_NOT_FOUND, attempt )
+
+
+class EnsureFirstContentTests( APITestCase ):
+    """A fresh production database arrives with tables and no rows, so the panel shows nothing while
+    the site still renders from what it ships. The boot step fills that hole and then must never
+    touch a database that has content in it, because that content is the doctor's own editing."""
+
+    ROW_MODELS = [ Post, MediaItem, PressArticle, Publication, Faq ]
+
+    def run_boot_seed( self ):
+        from django.core.management import call_command
+
+        call_command( "ensure_first_content" )
+
+    def rows_are_untouched( self ):
+        return [ list( model.objects.order_by( "id" ).values_list( "id", flat = True ) ) for model in self.ROW_MODELS ]
+
+    def test_the_files_it_loads_are_the_ones_that_ship_in_this_repository( self ):
+        """Render clones the repository and runs the boot seed with no arguments, so both sources have
+        to be exactly where the two commands look for them."""
+        from pathlib import Path
+
+        from django.conf import settings
+
+        from .management.commands.seed_page_copy import BUNDLE
+
+        self.assertTrue( BUNDLE.is_file(), f"The copy bundle is not where the command looks: { BUNDLE }" )
+        self.assertTrue( ( Path( settings.BASE_DIR ) / "db" / "site-content.json" ).is_file() )
+
+    def test_an_empty_database_comes_up_with_the_whole_site( self ):
+        self.run_boot_seed()
+
+        self.assertTrue( PageCopy.objects.filter( key = "home" ).exists() )
+        self.assertTrue( PageCopy.objects.filter( key = "global" ).exists() )
+        for model in self.ROW_MODELS:
+            self.assertTrue( model.objects.exists(), f"{ model.__name__ } stayed empty." )
+        self.assertEqual( list( PageCopy.objects.filter( published = False ).values_list( "key", flat = True ) ), [] )
+
+        response = self.client.get( reverse( "site-content" ) )
+        self.assertIn( "home", response.data[ "copy" ] )
+        self.assertTrue( response.data[ "posts" ] )
+
+    def test_a_second_boot_leaves_his_own_words_alone( self ):
+        self.run_boot_seed()
+        home = PageCopy.objects.get( key = "home" )
+        home.data[ "hero" ][ "title" ] = "Words he typed in the panel"
+        home.save()
+        before = self.rows_are_untouched()
+
+        self.run_boot_seed()
+
+        self.assertEqual( PageCopy.objects.get( key = "home" ).data[ "hero" ][ "title" ], "Words he typed in the panel" )
+        self.assertEqual( self.rows_are_untouched(), before )
+
+    def test_a_database_with_rows_but_no_wording_only_gets_the_wording( self ):
+        from django.core.management import call_command
+
+        call_command( "import_site_content" )
+        before = self.rows_are_untouched()
+
+        self.run_boot_seed()
+
+        self.assertTrue( PageCopy.objects.filter( key = "home" ).exists() )
+        self.assertEqual( self.rows_are_untouched(), before )

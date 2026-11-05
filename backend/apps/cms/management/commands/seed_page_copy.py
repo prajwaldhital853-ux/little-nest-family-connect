@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand, CommandError
 from apps.cms.models import PageCopy
 
 # The bundle the site renders is the seed. Keeping one copy avoids two sources drifting apart.
-BUNDLE = Path( settings.BASE_DIR ).parent / "little-nest-family-connect" / "src" / "pages" / "site" / "copy.json"
+BUNDLE = Path( settings.BASE_DIR ).parent / "src" / "pages" / "site" / "copy.json"
 
 
 class Command( BaseCommand ):

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Render's free plan offers no release command and no shell, so the two steps that cannot be done by
-# hand happen here, just before gunicorn takes traffic: bring the database schema up to date, then
-# make the panel account on a database that has none. Both are safe to repeat on every boot.
+# Render's free plan offers no release command and no shell, so the three steps that cannot be done by
+# hand happen here, just before gunicorn takes traffic: bring the database schema up to date, make the
+# panel account on a database that has none, and load the first content into a database that has none.
+# All three are safe to repeat on every boot.
 #
 # Set the service's start command to `bash render.sh`. With the root directory left at the repository
 # root it is `bash backend/render.sh`; the cd below means either one works.
@@ -24,6 +25,14 @@ if python manage.py ensure_first_account; then
 else
 	echo "!! render.sh: no panel account was made. Set DJANGO_SUPERUSER_EMAIL and"
 	echo "!! DJANGO_SUPERUSER_PASSWORD in the service's environment and deploy again."
+fi
+
+echo "==> render.sh: checking for content"
+if python manage.py ensure_first_content; then
+	echo "==> render.sh: the panel has content to edit"
+else
+	echo "!! render.sh: content was not loaded, so the panel lists will be empty. The site still"
+	echo "!! renders from the wording it ships with, so this is not visible to patients."
 fi
 
 echo "==> render.sh: starting gunicorn on port ${PORT:-10000}"

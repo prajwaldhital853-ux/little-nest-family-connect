@@ -94,7 +94,7 @@ Everything else:
 | `POST /api/analytics/collect/` | the site's own visit beacon |
 | `GET /api/analytics/summary/` | the numbers behind the Analytics screen |
 | `GET /api/audit/entries/` | read only history, filter by `action`, `actor`, `target`, `search`, `days` |
-| `GET /api/health/` | is the API up, is the database reachable, are its tables there yet, and is there a mail account that can send a code |
+| `GET /api/health/` | is the API up, is the database reachable, are its tables there yet, does the database hold any content, and is there a mail account that can send a code |
 
 ## What the rate limits are
 
@@ -169,13 +169,21 @@ database, both from this repository. Made by hand instead, the service settings 
 | Python | `3.12`, read from `backend\.python-version` |
 
 There is no Release command on this plan, and no shell to run one-off commands in, so `render.sh`
-does both of the things that would have been done by hand, on every boot, before it hands over to
-gunicorn: `migrate --noinput`, then `ensure_first_account`. Neither can damage what is already
-there, which is what makes running them at start safe: a current database migrates in a second and
-an existing account is left exactly as it is. The script also starts gunicorn with one worker, so
-the start command is only ever `bash render.sh`. If a migrate fails the service still comes up and
-the log says why in a line starting `!!`, because a crash loop hides the reason and a live service
-with one clear error in its log does not.
+does the three things that would have been done by hand, on every boot, before it hands over to
+gunicorn: `migrate --noinput`, then `ensure_first_account`, then `ensure_first_content`. None of them
+can damage what is already there, which is what makes running them at start safe: a current database
+migrates in a second, an existing account is left exactly as it is, and a database that already holds
+content is not re-seeded, so the doctor's own edits outlive every deploy. The script also starts
+gunicorn with one worker, so the start command is only ever `bash render.sh`. If a step fails the
+service still comes up and the log says why in a line starting `!!`, because a crash loop hides the
+reason and a live service with one clear error in its log does not.
+
+`ensure_first_content` exists because a brand new database arrives with tables and no rows: the panel
+opens on empty lists and the site keeps showing its bundled wording, which looks like the content was
+lost. It loads the same two files the site ships with, `src/pages/site/copy.json` for the wording and
+`db/site-content.json` for posts, media, press, publications and FAQs. A picture uploaded in a panel
+is not in either file, so a hero pointed at an upload comes up empty until that picture is uploaded
+again on the deployed panel.
 
 In order, for a service made by hand:
 
@@ -183,9 +191,10 @@ In order, for a service made by hand:
 2. Add the variables below. `DATABASE_URL`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`
    and `ADMIN_LOGIN_EMAILS` are the ones the site needs to answer at all; `DJANGO_SUPERUSER_PASSWORD`
    is the one that makes his account; the `EMAIL_*` names are the one that lets him sign in.
-3. Deploy, then open `/api/health/` in a browser. `"schema": "current"` says the tables exist and
-   `"mail": "configured"` says a code can reach his mailbox. Anything else now fails with a sentence
-   in the panel, not a `500`.
+3. Deploy, then open `/api/health/` in a browser. `"schema": "current"` says the tables exist,
+   `"content": "11 pages, 13 posts"` says the panel has something to edit, and `"mail": "configured"`
+   says a code can reach his mailbox. Anything else now fails with a sentence in the panel, not a
+   `500`.
 
 One worker on purpose. The wrong password count and the throttles are held in the process's own
 memory, so two workers would each keep their own idea of how many tries this browser has had.
@@ -269,19 +278,23 @@ Two things the API cannot settle by itself, and both are about where a request c
 - Uploaded pictures are written to the container's own disk, and Render wipes that on every deploy.
   Attach a Disk to the service (Resources, Add Disk) and point `MEDIA_ROOT` at a folder inside its
   mount path, or the gallery empties itself the first time the site is rebuilt. A Disk needs a paid
-  instance type.
+  instance type. Until there is one, a picture chosen in the deployed panel shows live only until the
+  next deploy, so the page that uses it has to be pointed at it again.
 
-A new database holds no words and no account, so after the first deploy, from the service's Shell:
+Both halves of the first deploy happen on their own, from `render.sh`: `ensure_first_account` makes
+the panel account and `ensure_first_content` loads the wording and the rows. Anywhere with a shell,
+the same steps by hand:
 
 ```
+python manage.py migrate --noinput
 python manage.py createsuperuser      # the doctor's address, which must be in ADMIN_LOGIN_EMAILS
-python manage.py import_site_content  # posts, media, press, publications, faqs
-python manage.py seed_page_copy       # the wording of every page
+python manage.py ensure_first_content # or the two commands below, one at a time
 ```
 
-Both of those read files that ship in this repository, so they run anywhere. `seed_page_copy`
+All of those read files that ship in this repository, so they run anywhere. `seed_page_copy`
 writes the file's wording over whatever the panel holds, which on a new database is nothing; never
-run it against a database the doctor has been working in.
+run it against a database the doctor has been working in. `ensure_first_content` is the safe form of
+the same loading: it refuses to touch a database that already has content.
 
 The free instance sleeps when nothing has asked it anything for a quarter of an hour, so the first
 visitor after a quiet stretch waits a few seconds while it wakes. The free database is deleted
@@ -306,6 +319,9 @@ page appears in the panel through:
 ```
 .\.venv\Scripts\python.exe manage.py seed_page_copy
 ```
+
+That file is also what a boot on a fresh database seeds from, through `ensure_first_content`, so the
+panel and the site start from the same words.
 
 Read that before running it again: it writes the file's wording over whatever the panel holds for
 those pages, so every edit the doctor has made is lost. Run it when seeding a new database, or when
