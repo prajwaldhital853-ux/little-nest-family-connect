@@ -62,7 +62,6 @@ export default function Layout() {
   const [ menuOpen, setMenuOpen ] = useState(false);
   const [ theme, setTheme ] = useState<Theme>( storedTheme );
   const [ waiting, setWaiting ] = useState(0);
-  const [ knocking, setKnocking ] = useState(0);
   const small = useSmallScreen();
 
   function flipTheme() {
@@ -95,20 +94,6 @@ export default function Layout() {
       .catch( () => setWaiting( 0 ) );
   }, [] );
 
-  /* The account page says when it has allowed or removed a device, so the rail never shows a number
-     the doctor has already dealt with. */
-  useEffect(() => {
-    const look = () => {
-      api
-        .get<unknown[]>( "/api/auth/access/requests/?status=pending" )
-        .then( rows => setKnocking( rows.length ) )
-        .catch( () => setKnocking( 0 ) );
-    };
-    look();
-    window.addEventListener( "panel:knocking", look );
-    return () => window.removeEventListener( "panel:knocking", look );
-  }, [] );
-
   async function onSignOut() {
     try {
       await signOut();
@@ -138,12 +123,12 @@ export default function Layout() {
             <div key={ group.label }>
               <p className="side-group">{ group.label }</p>
               { group.items.map( item => {
-                const count = item.to === "/appointments" ? waiting : item.to === "/account" ? knocking : 0;
+                const count = item.to === "/appointments" ? waiting : 0;
                 return (
                   <NavLink key={ item.to } to={ item.to } end={ item.end } title={ item.label } className={ `t${ item.tone }` }>
                     <Icon name={ item.icon } />
                     <span>{ item.label }</span>
-                    { count > 0 ? <span className="side-badge" title={ item.to === "/account" ? "Devices waiting to be allowed" : "Appointments waiting for you" }>{ count }</span> : null }
+                    { count > 0 ? <span className="side-badge" title="Appointments waiting for you">{ count }</span> : null }
                   </NavLink>
                 );
               } ) }

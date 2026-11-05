@@ -1819,53 +1819,6 @@ select {
   text-decoration: underline;
 }
 
-/* What the browser says about itself, on the screen it waits at. */
-.device-facts {
-  display: grid;
-  gap: 2px;
-  margin: 14px 0 4px;
-  padding: 13px 16px;
-  background: var(--sunk);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-}
-
-.device-fact {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  font-size: 0.82rem;
-}
-
-.device-fact dt {
-  color: var(--quiet);
-}
-
-.device-fact dd {
-  margin: 0;
-  color: var(--ink);
-  text-align: right;
-  word-break: break-word;
-}
-
-/* The second line under a device row: the facts that help recognise it. */
-.device-sub {
-  display: block;
-  margin-top: 3px;
-  font-size: 0.78rem;
-  color: var(--quiet);
-}
-
-/* The name the doctor gives a waiting device, written where the decision is made. */
-.device-note {
-  display: block;
-  min-height: 0;
-  height: 32px;
-  max-width: 210px;
-  margin-top: 8px;
-  font-size: 0.8rem;
-}
-
 /* ── home page editor ──────────────────────────────── */
 
 .sec.card {
@@ -2670,8 +2623,8 @@ select {
     margin-bottom: 16px;
   }
 
-  /* Approving a device usually happens on the phone that is waiting, so this table stops being a
-     table there: one block per device, its buttons under it, nothing to scroll sideways. */
+  /* A phone screen is too narrow for four columns, so this table stops being a table there:
+     one block per device, its button under it, nothing to scroll sideways. */
   .device-table,
   .device-table tbody,
   .device-table tr,
@@ -2705,10 +2658,6 @@ select {
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--quiet);
-  }
-
-  .device-table .device-note {
-    max-width: none;
   }
 
   .device-table .row-actions {

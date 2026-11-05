@@ -144,68 +144,6 @@ class TrustedDevice( models.Model ):
         return self.label or self.device_hash[: 12 ]
 
 
-BROWSERS = [ ( "Edg/", "Edge" ), ( "OPR/", "Opera" ), ( "Firefox", "Firefox" ), ( "Chrome", "Chrome" ), ( "Safari", "Safari" ) ]
-MACHINES = [ ( "iPhone", "iPhone" ), ( "iPad", "iPad" ), ( "Android", "Android" ), ( "Windows", "Windows" ), ( "Mac OS X", "macOS" ), ( "Macintosh", "macOS" ), ( "Linux", "Linux" ) ]
-
-
-def first_match( value, table ):
-    """The first label whose token appears in the string, in the order the table is written."""
-
-    for token, label in table:
-        if token in value:
-            return label
-    return ""
-
-
-class DeviceRequest( models.Model ):
-    """A browser that opened the panel, kept as a request until the doctor says it may try to sign in."""
-
-    class Status( models.TextChoices ):
-        PENDING = "pending", "Waiting"
-        ALLOWED = "allowed", "Allowed"
-        BLOCKED = "blocked", "Blocked"
-
-    device_hash = models.CharField( max_length = 64, unique = True )
-    status = models.CharField( max_length = 12, choices = Status.choices, default = Status.PENDING )
-    browser = models.CharField( max_length = 160, blank = True )
-    platform = models.CharField( max_length = 80, blank = True )
-    screen = models.CharField( max_length = 40, blank = True )
-    language = models.CharField( max_length = 40, blank = True )
-    timezone_name = models.CharField( max_length = 64, blank = True )
-    touch = models.BooleanField( default = False )
-    ip_hash = models.CharField( max_length = 64, blank = True )
-    note = models.CharField( max_length = 200, blank = True, help_text = "A word to remember this device by." )
-    created_at = models.DateTimeField( auto_now_add = True )
-    last_seen_at = models.DateTimeField( default = timezone.now )
-    decided_at = models.DateTimeField( null = True, blank = True )
-    decided_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null = True,
-        blank = True,
-        on_delete = models.SET_NULL,
-        related_name = "device_decisions",
-    )
-
-    class Meta:
-        ordering = [ "-last_seen_at" ]
-        verbose_name = "device request"
-        verbose_name_plural = "device requests"
-
-    def __str__( self ):
-        return f"{ self.name } { self.get_status_display().lower() }"
-
-    @property
-    def name( self ):
-        """What to call this thing in a list. A raw user agent is 160 characters of noise, so the
-        two words the doctor reads are pulled out of it and the rest stays in the details."""
-
-        browser = first_match( self.browser, BROWSERS )
-        where = first_match( self.browser, MACHINES ) or self.platform or "a device"
-        if not browser:
-            return where
-        return f"{ browser } on { where }"
-
-
 class OtpChallenge( models.Model ):
     """The six digits sent to the doctor's email when a new device signs in."""
 

@@ -209,9 +209,6 @@ REST_FRAMEWORK = {
         "appointment": env( "THROTTLE_APPOINTMENT", "20/day" ),
         "login": env( "THROTTLE_LOGIN", "10/min" ),
         "otp": env( "THROTTLE_OTP", "6/min" ),
-        # A browser asks about its own standing every so often while the doctor decides, so this is
-        # generous enough for a wait screen and still stops a script filling the list.
-        "device": env( "THROTTLE_DEVICE", "40/min" ),
         "reset": env( "THROTTLE_RESET", "6/min" ),
         "public_feed": env( "THROTTLE_PUBLIC_FEED", "2000/hour" ),
         "collect": env( "THROTTLE_COLLECT", "60/min" ),

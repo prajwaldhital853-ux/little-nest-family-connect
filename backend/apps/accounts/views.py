@@ -16,8 +16,8 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from apps.audit.services import record
 from config.hashing import client_ip, hash_identity
 
-from .emails import send_device_request_mail, send_otp, send_password_reset
-from .models import DeviceRequest, Lockout, OtpChallenge, PasswordResetRequest, TrustedDevice, User
+from .emails import send_otp, send_password_reset
+from .models import Lockout, OtpChallenge, PasswordResetRequest, TrustedDevice, User
 from .security import (
     blacklist,
     clear_otp_cookie,
@@ -43,10 +43,8 @@ from .serializers import (
     UserSerializer,
 )
 from .services import (
-    announce_device,
     create_otp,
     create_reset_request,
-    decide_device,
     find_device,
     mask_email,
     touch_device,
@@ -93,112 +91,6 @@ class DeviceSerializer( serializers.ModelSerializer ):
         read_only_fields = fields
 
 
-class DeviceDetailsSerializer( serializers.Serializer ):
-    """What a browser is asked to say about itself. Every part is optional and none is trusted."""
-
-    platform = serializers.CharField( required = False, allow_blank = True, max_length = 80 )
-    screen = serializers.CharField( required = False, allow_blank = True, max_length = 40 )
-    language = serializers.CharField( required = False, allow_blank = True, max_length = 40 )
-    timezone = serializers.CharField( required = False, allow_blank = True, max_length = 64 )
-    touch = serializers.BooleanField( required = False, default = False )
-
-
-class DeviceRequestSerializer( serializers.ModelSerializer ):
-    name = serializers.CharField( read_only = True )
-
-    class Meta:
-        model = DeviceRequest
-        fields = [
-            "id", "status", "name", "browser", "platform", "screen", "language",
-            "timezone_name", "touch", "note", "created_at", "last_seen_at", "decided_at",
-        ]
-        read_only_fields = fields
-
-
-class DeviceAccessView( APIView ):
-    """A browser opening the panel says so here, before anyone types a password."""
-
-    permission_classes = [ AllowAny ]
-    authentication_classes = []
-    throttle_classes = [ ScopedRateThrottle ]
-    throttle_scope = "device"
-
-    def post( self, request ):
-        require_trusted_origin( request )
-        details = DeviceDetailsSerializer( data = request.data if isinstance( request.data, dict ) else {} )
-        details.is_valid( raise_exception = True )
-
-        response = Response()
-        raw = device_token( request, response )
-        row, created = announce_device( request, hash_identity( raw ), details.validated_data )
-        if created:
-            record( "device.announced", request = request, target = row, detail = { "status": row.status } )
-            if row.status == DeviceRequest.Status.PENDING:
-                send_device_request_mail( row )
-        response.data = { "status": row.status, "name": row.name, "asked_at": row.created_at }
-        return response
-
-    def get( self, request ):
-        """The wait screen asks this every so often, so an approval lands without a reload."""
-
-        response = Response()
-        raw = presented_device( request )
-        if len( raw ) != 40:
-            response.data = { "status": DeviceRequest.Status.PENDING, "known": False }
-            return response
-        row = DeviceRequest.objects.filter( device_hash = hash_identity( raw ) ).first()
-        if row is None:
-            response.data = { "status": DeviceRequest.Status.PENDING, "known": False }
-            return response
-        row.last_seen_at = timezone.now()
-        row.save( update_fields = [ "last_seen_at" ] )
-        response.data = { "status": row.status, "name": row.name, "asked_at": row.created_at, "known": True }
-        return response
-
-
-class DeviceRequestListView( APIView ):
-    """Everything that has opened the panel, newest first, so a strange browser is easy to spot."""
-
-    permission_classes = [ IsAuthenticated ]
-
-    def get( self, request ):
-        rows = DeviceRequest.objects.all()
-        status_wanted = request.query_params.get( "status", "" )
-        if status_wanted in DeviceRequest.Status.values:
-            rows = rows.filter( status = status_wanted )
-        return Response( DeviceRequestSerializer( rows[: 100 ], many = True ).data )
-
-
-class DeviceRequestDecisionView( APIView ):
-    """Allow, block or forget one browser from the list on the account page."""
-
-    permission_classes = [ IsAuthenticated ]
-
-    def post( self, request, pk ):
-        row = DeviceRequest.objects.filter( pk = pk ).first()
-        if row is None:
-            raise ValidationError( { "detail": [ "That device request is no longer here." ] } )
-        action = ( request.data.get( "action" ) or "" ).strip().lower()
-        if action not in { DeviceRequest.Status.ALLOWED, DeviceRequest.Status.BLOCKED }:
-            raise ValidationError( { "action": [ "Choose allow or block." ] } )
-        note = str( request.data.get( "note" ) or "" ).strip()[: 200 ]
-        if note:
-            row.note = note
-            row.save( update_fields = [ "note" ] )
-        row = decide_device( row, request.user, action )
-        record( f"device.{ action }", request = request, target_label = row.name, detail = { "device": row.pk } )
-        return Response( DeviceRequestSerializer( row ).data )
-
-    def delete( self, request, pk ):
-        row = DeviceRequest.objects.filter( pk = pk ).first()
-        if row is None:
-            raise ValidationError( { "detail": [ "That device request is no longer here." ] } )
-        name = row.name
-        row.delete()
-        record( "device.forgotten", request = request, target_label = name, detail = { "device": pk } )
-        return Response( { "detail": "Removed from the list. If it opens the panel again it asks once more." } )
-
-
 class LoginView( APIView ):
     """Password check first, then an emailed code the first time a device is seen."""
 
@@ -220,14 +112,6 @@ class LoginView( APIView ):
         if blocked:
             record( "login.locked", request = request, detail = { "email": email } )
             return apply_lock( response, blocked )
-
-        # A device the doctor turned down is refused before the password is even looked at.
-        asked = DeviceRequest.objects.filter( device_hash = device ).first()
-        if asked is not None and asked.status == DeviceRequest.Status.BLOCKED:
-            record( "login.blocked_device", request = request, detail = { "email": email } )
-            response.data = { "detail": "This device is not allowed on the panel. Allow it from a device you already use." }
-            response.status_code = status.HTTP_403_FORBIDDEN
-            return response
 
         user = authenticate( request = request, username = email, password = password )
         if user is None or not user.is_staff or not user.is_active or email not in settings.ADMIN_LOGIN_EMAILS:
@@ -276,12 +160,6 @@ class OtpVerifyView( APIView ):
         response = Response()
         _, device = session_keys( request, response )
         challenge = OtpChallenge.objects.filter( ref = otp_ref_from_request( request ) ).select_related( "user" ).first()
-
-        if DeviceRequest.objects.filter( device_hash = device, status = DeviceRequest.Status.BLOCKED ).exists():
-            clear_otp_cookie( response )
-            response.data = { "detail": "This device is not allowed on the panel. Allow it from a device you already use." }
-            response.status_code = status.HTTP_403_FORBIDDEN
-            return response
 
         if challenge is None or challenge.device_hash != device or not challenge.is_open:
             clear_otp_cookie( response )

@@ -31,29 +31,6 @@ export interface TrustedDevice {
   last_seen_at: string | null;
 }
 
-/** One browser that has opened the panel, and where the doctor left it. */
-export interface DeviceAccess {
-  id: number;
-  status: "pending" | "allowed" | "blocked" | string;
-  name: string;
-  browser: string;
-  platform: string;
-  screen: string;
-  language: string;
-  timezone_name: string;
-  touch: boolean;
-  note: string;
-  created_at: string;
-  last_seen_at: string;
-  decided_at: string | null;
-}
-
-export interface DeviceStanding {
-  status: DeviceAccess["status"];
-  name?: string;
-  known?: boolean;
-}
-
 export interface PageCopy {
   id: number;
   key: string;

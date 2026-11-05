@@ -1,18 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, api } from "../api/client";
-import type { DeviceAccess, StaffUser, TrustedDevice } from "../api/types";
+import type { StaffUser, TrustedDevice } from "../api/types";
 import { useAuth } from "../auth/AuthProvider";
 import SectionHead from "../components/SectionHead";
 import { useToast } from "../components/Toast";
-import { Button, Field, Notice, Pill, TextInput, formatDate } from "../components/ui";
-
-const TABS: [string, string][] = [ [ "pending", "Waiting" ], [ "allowed", "Allowed" ], [ "blocked", "Blocked" ] ];
-const STATUS_LABELS: Record<string, string> = { pending: "Waiting", allowed: "Allowed", blocked: "Blocked" };
-
-/** The one line that tells the doctor which browser this is. */
-function about( row: DeviceAccess ): string {
-  return [ row.screen, row.language, row.timezone_name, row.touch ? "touch screen" : "" ].filter( Boolean ).join( " · " );
-}
+import { Button, Field, Notice, TextInput, formatDate } from "../components/ui";
 
 export default function AccountPage() {
   const { user, setUser } = useAuth();
@@ -24,63 +16,23 @@ export default function AccountPage() {
   const [ next, setNext ] = useState("");
   const [ passwordError, setPasswordError ] = useState("");
   const [ devices, setDevices ] = useState<TrustedDevice[]>( [] );
-  const [ requests, setRequests ] = useState<DeviceAccess[]>( [] );
-  const [ tab, setTab ] = useState( "pending" );
-  const [ notes, setNotes ] = useState<Record<number, string>>( {} );
-  const [ deciding, setDeciding ] = useState( 0 );
   const [ deviceError, setDeviceError ] = useState("");
 
   const load = useCallback(() => {
     api.get<TrustedDevice[]>( "/api/auth/devices/" ).then( setDevices ).catch( () => undefined );
-    api.get<DeviceAccess[]>( "/api/auth/access/requests/" ).then( setRequests ).catch( () => undefined );
   }, [] );
 
   useEffect( load, [ load ] );
 
   async function revoke( device: TrustedDevice ) {
-    if ( !( await toast.confirm( `Make ${ device.label } ask for an emailed code again?`, { confirm: "Sign it out", cancel: "Keep it" } ) ) ) return;
+    if ( !( await toast.confirm( `Make ${ device.label } type the emailed code again?`, { confirm: "Sign it out", cancel: "Keep it" } ) ) ) return;
     setDeviceError( "" );
     try {
       await api.del( `/api/auth/devices/${ device.id }/` );
       setDevices( rows => rows.filter( row => row.id !== device.id ) );
-      toast.success( "That device has to be approved again before it can sign in." );
+      toast.success( "That device will be asked for a code the next time it signs in." );
     } catch ( reason ) {
       const message = reason instanceof ApiError ? reason.message : "Could not remove that device.";
-      setDeviceError( message );
-      toast.error( message );
-    }
-  }
-
-  async function decide( row: DeviceAccess, action: "allowed" | "blocked" ) {
-    setDeviceError( "" );
-    setDeciding( row.id );
-    try {
-      const updated = await api.post<DeviceAccess>( `/api/auth/access/requests/${ row.id }/`, { action, note: notes[ row.id ] ?? row.note } );
-      setRequests( rows => rows.map( one => ( one.id === updated.id ? updated : one ) ) );
-      toast.success( action === "allowed" ? `${ row.name } is allowed to sign in.` : `${ row.name } is blocked.` );
-      /* Allowing writes a remembered device, blocking takes the one that was there, and the rail
-         counts what is still waiting, so both get a fresh look. */
-      window.dispatchEvent( new Event( "panel:knocking" ) );
-      api.get<TrustedDevice[]>( "/api/auth/devices/" ).then( setDevices ).catch( () => undefined );
-    } catch ( reason ) {
-      const message = reason instanceof ApiError ? reason.message : "Could not change that device.";
-      setDeviceError( message );
-      toast.error( message );
-    } finally {
-      setDeciding( 0 );
-    }
-  }
-
-  async function forget( row: DeviceAccess ) {
-    if ( !( await toast.confirm( `Take ${ row.name } off the list? If it opens the panel again it asks once more.`, { confirm: "Remove", cancel: "Keep it" } ) ) ) return;
-    setDeviceError( "" );
-    try {
-      await api.del( `/api/auth/access/requests/${ row.id }/` );
-      setRequests( rows => rows.filter( one => one.id !== row.id ) );
-      toast.success( "Taken off the list." );
-      window.dispatchEvent( new Event( "panel:knocking" ) );
-    } catch ( reason ) {
-      const message = reason instanceof ApiError ? reason.message : "Could not remove that entry.";
       setDeviceError( message );
       toast.error( message );
     }
@@ -124,16 +76,9 @@ export default function AccountPage() {
     }
   }
 
-  const waiting = requests.filter( row => row.status === "pending" ).length;
-  const shown = requests.filter( row => row.status === tab );
-
   return (
     <section className="tone-page t7">
-      <SectionHead
-        icon="account"
-        title="My account"
-        note={ waiting ? `${ user?.email } · ${ waiting } device${ waiting === 1 ? "" : "s" } waiting to get in` : user?.email }
-      />
+      <SectionHead icon="account" title="My account" note={ user?.email } />
 
       <form className="inline-form" onSubmit={ saveProfile }>
         <Field label="Name shown in the panel">
@@ -166,84 +111,11 @@ export default function AccountPage() {
       </form>
 
       <div className="block">
-        <h2>Devices asking to get in</h2>
-        <p className="text-small quiet">
-          Every browser that opens the panel is written down here with what it says about itself. Allow one and it reaches the sign in screen.
-          Block it and the panel turns it away before a password is even typed.
-        </p>
-        { deviceError ? <Notice>{ deviceError }</Notice> : null }
-        <div className="tabs">
-          { TABS.map( ( [ value, label ] ) => (
-            <button key={ value } className={ tab === value ? "on" : "" } onClick={ () => setTab( value ) }>
-              { label } ({ requests.filter( row => row.status === value ).length })
-            </button>
-          ) ) }
-        </div>
-        { shown.length === 0 ? (
-          <p className="text-small quiet">
-            { tab === "pending"
-              ? "Nothing is waiting. A browser that has never opened the panel appears here the moment it does."
-              : `No device is marked ${ tab }.` }
-          </p>
-        ) : (
-          <table className="grid device-table">
-            <thead>
-              <tr>
-                <th>Device</th>
-                <th>First seen</th>
-                <th>Last seen</th>
-                <th aria-label="Actions" />
-              </tr>
-            </thead>
-            <tbody>
-              { shown.map( row => (
-                <tr key={ row.id }>
-                  <td>
-                    <strong>{ row.name }</strong> <Pill value={ row.status } label={ STATUS_LABELS[ row.status ] ?? row.status } />
-                    <span className="device-sub">{ about( row ) || row.browser }</span>
-                    { row.note ? <span className="device-sub">Called { row.note }</span> : null }
-                    { row.status === "pending" ? (
-                      <TextInput
-                        className="device-note"
-                        placeholder="Name it, for example Clinic phone"
-                        aria-label={ `What to call ${ row.name }` }
-                        value={ notes[ row.id ] ?? "" }
-                        onChange={ event => setNotes( names => ( { ...names, [ row.id ]: event.target.value } ) ) }
-                      />
-                    ) : null }
-                  </td>
-                  <td data-label="First seen">
-                    { formatDate( row.created_at ) }
-                    <span className="device-sub">{ formatDate( row.decided_at ) ? `Decided ${ formatDate( row.decided_at )}` : "Not decided yet" }</span>
-                  </td>
-                  <td data-label="Last seen">{ formatDate( row.last_seen_at ) }</td>
-                  <td className="row-actions">
-                    { row.status !== "allowed" ? (
-                      <Button disabled={ deciding === row.id } onClick={ () => decide( row, "allowed" ) }>
-                        Allow
-                      </Button>
-                    ) : null }
-                    { row.status !== "blocked" ? (
-                      <Button tone="quiet" disabled={ deciding === row.id } onClick={ () => decide( row, "blocked" ) }>
-                        Block
-                      </Button>
-                    ) : null }
-                    <Button tone="quiet" disabled={ deciding === row.id } onClick={ () => forget( row ) }>
-                      Remove
-                    </Button>
-                  </td>
-                </tr>
-              ) ) }
-            </tbody>
-          </table>
-        ) }
-      </div>
-
-      <div className="block">
         <h2>Devices that remember you</h2>
         <p className="text-small quiet">
           A new browser or machine has to type the emailed code before the panel opens. Remove one here and it needs a code again.
         </p>
+        { deviceError ? <Notice>{ deviceError }</Notice> : null }
         { devices.length === 0 ? (
           <p className="text-small quiet">Nothing is remembered yet, so the next sign in anywhere will ask for a code.</p>
         ) : (
