@@ -22,16 +22,19 @@ services:
     # Singapore is the region nearest to Kathmandu, so the round trip a patient waits on is shorter.
     region: singapore
     plan: free
-    # Everything below this line is read from the API folder inside the repository: manage.py,
-    # requirements.txt, config/settings.py and the five apps.
-    rootDir: little-nest-family-connect/backend
+    # Everything below this line is read from the API folder, which sits at the top of this
+    # repository next to the site and the panel: manage.py, requirements.txt, config/settings.py
+    # and the five apps.
+    rootDir: backend
     buildCommand: >-
       pip install -r requirements.txt &&
       python manage.py collectstatic --noinput
     # Migrations run after the build and before the new container takes traffic, so a half deployed
-    # version never serves the site.
+    # version never serves the site. The account step is idempotent: it makes the first panel account
+    # on an empty database and leaves an existing one alone.
     releaseCommand: >-
-      python manage.py migrate --noinput
+      python manage.py migrate --noinput &&
+      python manage.py ensure_first_account
     # One process, because the sign in lockouts and the throttles are counted in memory: two workers
     # would each hold their own idea of how many wrong passwords this browser has tried.
     startCommand: >-
@@ -59,6 +62,12 @@ services:
         # service's own, for Render's health check and any direct call.
         value: "drkandel.vercel.app,little-nest-family-connect.onrender.com"
       - key: ADMIN_LOGIN_EMAILS
+        sync: false
+      # The release command makes this account on a database that has none, and leaves it alone
+      # afterwards. Type them once, then change the password on the panel's own account screen.
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
         sync: false
       # The panel is mounted at /admin on the site, so this is the site's own address with scheme.
       # It also builds the reset link that goes out by mail, so leaving it at the development

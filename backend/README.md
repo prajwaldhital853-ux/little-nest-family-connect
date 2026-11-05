@@ -156,9 +156,9 @@ database, both from this repository. Made by hand instead, the service settings 
 
 | | |
 | --- | --- |
-| Root directory | `little-nest-family-connect/backend` |
+| Root directory | `backend`. Left at the repository root, every command below needs `cd backend &&` in front of it. |
 | Build command | `pip install -r requirements.txt && python manage.py collectstatic --noinput` |
-| Release command | `python manage.py migrate --noinput` |
+| Release command | `python manage.py migrate --noinput && python manage.py ensure_first_account` |
 | Start command | `gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 60` |
 | Health check path | `/api/health/` |
 | Python | `3.12`, read from `backend\.python-version` |
@@ -176,6 +176,7 @@ The variables to add, and what goes in each:
 | `DJANGO_DEBUG` | `false` |
 | `DJANGO_ALLOWED_HOSTS` | the site's domain and the service's own `*.onrender.com` name, comma separated. The site forwards `/api` here, so the calls arrive naming the site's domain. |
 | `ADMIN_LOGIN_EMAILS` | the doctor's address. Nothing else can sign in with a password. |
+| `DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_PASSWORD` | the account the release command makes on a database that has no accounts yet. It never changes a password that is already set, so once the panel works, change it there and these two can be cleared. |
 | `PANEL_ORIGIN` | `https://` and the site's domain. The reset link mailed out is built from this, so the development default would mail him a link to his own laptop. |
 | `PANEL_PATH` | `/admin` |
 | `CORS_ALLOWED_ORIGINS` | the same site origin. Only needed when a call really does cross origins; a forwarded `/api` is the same origin. |
@@ -201,6 +202,8 @@ DJANGO_DEBUG=false
 DJANGO_TIME_ZONE=Asia/Kathmandu
 DJANGO_ALLOWED_HOSTS=drkandel.vercel.app,little-nest-family-connect.onrender.com
 ADMIN_LOGIN_EMAILS=<the doctor's address>
+DJANGO_SUPERUSER_EMAIL=<the same address, for the account the release command makes>
+DJANGO_SUPERUSER_PASSWORD=<a passphrase of at least 10 characters, changed later on the account screen>
 PANEL_ORIGIN=https://drkandel.vercel.app
 PANEL_PATH=/admin
 CORS_ALLOWED_ORIGINS=https://drkandel.vercel.app
