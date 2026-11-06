@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models.functions import Lower
 
 
 class AuditEntry( models.Model ):
@@ -24,7 +25,15 @@ class AuditEntry( models.Model ):
 
     class Meta:
         ordering = [ "-created_at", "-id" ]
-        indexes = [ models.Index( fields = [ "actor", "created_at" ] ), models.Index( fields = [ "action", "created_at" ] ) ]
+        indexes = [
+            models.Index( fields = [ "actor", "created_at" ], name = "audit_actor_recent_idx" ),
+            models.Index( fields = [ "action", "created_at" ], name = "audit_action_recent_idx" ),
+            models.Index( fields = [ "-created_at", "-id" ], name = "audit_recent_idx" ),
+            # The history page filters by who and by what kind of thing, both by name rather
+            # than by id, because an account or a row can be gone while its line stays readable.
+            models.Index( Lower( "actor_label" ), name = "audit_actor_label_idx" ),
+            models.Index( fields = [ "target_type", "created_at" ], name = "audit_target_recent_idx" ),
+        ]
 
     def __str__( self ):
         return f"{ self.created_at:%Y-%m-%d %H:%M } { self.actor_label or 'anonymous' } { self.action }"

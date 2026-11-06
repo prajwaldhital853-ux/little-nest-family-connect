@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError, api } from "../api/client";
-import type { Appointment, StaffUser } from "../api/types";
+import type { Appointment, PageCopy, StaffUser } from "../api/types";
+import { SHIPPED_FORM, labelsOf } from "../cms/bookingForm";
 import { Button, Field, Notice, Pill, Select, TextArea, TextInput, formatDate, toLocalInput } from "../components/ui";
 import { useToast } from "../components/Toast";
 import { Icon } from "../components/icons";
@@ -15,6 +16,22 @@ const STATUS_LABELS: Record<string, string> = {
   no_show: "Did not attend",
 };
 
+/* The words the form shipped with, for a database that holds no wording row of its own. */
+const SHIPPED_LABELS: Record<string, string> = Object.fromEntries( SHIPPED_FORM.questions.map( question => [ question.id, question.label ] ) );
+
+/* An outcome other than Confirmed is final, so the question says so before he answers it. */
+function askWords( next: string, hasEmail: boolean ): string {
+  if ( next === "confirmed" ) {
+    return hasEmail
+      ? "Confirm this appointment and email the patient their details?"
+      : "Confirm this appointment? This request has no email address, so nothing can be sent to the patient.";
+  }
+  if ( next === "completed" ) return "Mark this appointment as attended? Nothing can be changed after it.";
+  if ( next === "cancelled" ) return "Cancel this appointment? The patient keeps the reference they were given, and nothing can be changed after it.";
+  if ( next === "no_show" ) return "Mark this patient as not having attended? Nothing can be changed after it.";
+  return `Mark this appointment as ${ STATUS_LABELS[ next ] ?? next }?`;
+}
+
 export default function AppointmentDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
@@ -25,6 +42,9 @@ export default function AppointmentDetailPage() {
   const [ assigned, setAssigned ] = useState("");
   const [ when, setWhen ] = useState("");
   const [ error, setError ] = useState("");
+  const [ labels, setLabels ] = useState<Record<string, string>>( {} );
+  /** Which button is waiting on the server, so only that one shows the spinner. */
+  const [ busy, setBusy ] = useState("");
 
   const load = useCallback(() => {
     api
@@ -47,6 +67,17 @@ export default function AppointmentDetailPage() {
       .catch( () => setStaff( [] ) );
   }, [] );
 
+  /* An answer reads under the question as the booking form words it today, so renaming a question
+     in the panel renames it here too instead of leaving the old wording beside the new answer. */
+  useEffect(() => {
+    api
+      .get<PageCopy>( "/api/cms/pages/contact/" )
+      .then( page => setLabels( labelsOf( page.data ) ) )
+      .catch( () => setLabels( {} ) );
+  }, [] );
+
+  const said = ( id: string ) => ( labels[ id ] || SHIPPED_LABELS[ id ] || id ).replace( /_/g, " " ).trim();
+
   if ( error && !row ) return <Notice>{ error }</Notice>;
   if ( !row ) return <p className="text-small">Loading</p>;
 
@@ -60,22 +91,34 @@ export default function AppointmentDetailPage() {
     return mailed ? `Marked as ${ label }, and a confirmation goes to the patient.` : `Marked as ${ label }.`;
   }
 
-  async function patch( body: Record<string, unknown> ) {
+  async function patch( body: Record<string, unknown>, tag: string, then?: () => void ) {
     setError( "" );
     const words = doneWords( body );
+    setBusy( tag );
     try {
       setRow( await api.patch<Appointment>( `/api/appointments/${ row!.id }/`, body ) );
       toast.success( words );
+      if ( then ) then();
     } catch ( reason ) {
       const message = reason instanceof ApiError ? reason.message : "Could not save this request.";
       setError( message );
       toast.error( message );
+    } finally {
+      setBusy( "" );
     }
+  }
+
+  /* Asked first, because three of the four outcomes cannot be taken back. */
+  async function moveTo( next: string ) {
+    const label = STATUS_LABELS[ next ] ?? next;
+    if ( !( await toast.confirm( askWords( next, Boolean( row!.patient_email ) ), { confirm: label, cancel: "Leave it" } ) ) ) return;
+    await patch( { status: next }, `status:${ next }` );
   }
 
   async function remove() {
     if ( !( await toast.confirm( "Delete this request for good? The patient keeps the reference they were given.", { confirm: "Delete", cancel: "Keep it" } ) ) ) return;
     setError( "" );
+    setBusy( "delete" );
     try {
       await api.del( `/api/appointments/${ row!.id }/` );
       toast.success( "Request deleted." );
@@ -84,6 +127,8 @@ export default function AppointmentDetailPage() {
       const message = reason instanceof ApiError ? reason.message : "Could not delete this request.";
       setError( message );
       toast.error( message );
+    } finally {
+      setBusy( "" );
     }
   }
 
@@ -106,13 +151,13 @@ export default function AppointmentDetailPage() {
       { error ? <Notice>{ error }</Notice> : null }
 
       <div className="answers">
-        <p className="question">What are the health concerns or goals?</p>
-        <p>{ row.concerns }</p>
-        <p className="question">What are you hoping to achieve from the consultation?</p>
-        <p>{ row.aim }</p>
+        <p className="question">{ said( "concerns" ) }</p>
+        <p>{ row.concerns || "Nothing was written." }</p>
+        <p className="question">{ said( "aim" ) }</p>
+        <p>{ row.aim || "Nothing was written." }</p>
         { row.message ? (
           <>
-            <p className="question">Anything else</p>
+            <p className="question">{ said( "message" ) }</p>
             <p>{ row.message }</p>
           </>
         ) : null }
@@ -125,7 +170,13 @@ export default function AppointmentDetailPage() {
           <p className="text-small quiet">This appointment has reached its final outcome.</p>
         ) : (
           row.next_statuses.map( next => (
-            <Button key={ next } tone={ next === "cancelled" || next === "no_show" ? "quiet" : "primary" } onClick={ () => patch( { status: next } ) }>
+            <Button
+              key={ next }
+              tone={ next === "cancelled" || next === "no_show" ? "quiet" : "primary" }
+              busy={ busy === `status:${ next }` }
+              disabled={ busy !== "" }
+              onClick={ () => moveTo( next ) }
+            >
               { STATUS_LABELS[ next ] ?? next }
             </Button>
           ) ) ) }
@@ -150,19 +201,24 @@ export default function AppointmentDetailPage() {
 
         <footer className="form-actions span-2">
           <Button
-            disabled={ assigned === String( row.assigned_to ?? "" ) && note === row.admin_note && when === toLocalInput( row.scheduled_at ) }
-            onClick={ () => patch( {
-              admin_note: note,
-              assigned_to: assigned ? Number( assigned ) : null,
-              scheduled_at: when ? new Date( when ).toISOString() : null,
-            } ) }
+            busy={ busy === "save" }
+            disabled={ busy !== "" || ( assigned === String( row.assigned_to ?? "" ) && note === row.admin_note && when === toLocalInput( row.scheduled_at ) ) }
+            onClick={ () => patch(
+              {
+                admin_note: note,
+                assigned_to: assigned ? Number( assigned ) : null,
+                scheduled_at: when ? new Date( when ).toISOString() : null,
+              },
+              "save",
+              () => navigate( "/appointments" ),
+            ) }
           >
-            Save time, note and assignment
+            { busy === "save" ? "Sending" : "Save time, note and assignment" }
           </Button>
           <Button tone="quiet" onClick={ () => navigate( "/appointments" ) }>
             Back
           </Button>
-          <Button tone="danger" onClick={ remove }>
+          <Button tone="danger" busy={ busy === "delete" } disabled={ busy !== "" } onClick={ remove }>
             Delete
           </Button>
         </footer>

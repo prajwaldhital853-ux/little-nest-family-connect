@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework.routers import SimpleRouter
 
 from .views import (
+    DraftCountsView,
     FaqViewSet,
     MediaFeedView,
     MediaItemViewSet,
@@ -26,6 +27,7 @@ router.register( "images", SiteImageViewSet, basename = "site-image" )
 
 urlpatterns = [
     path( "site/", SiteContentView.as_view(), name = "site-content" ),
+    path( "counts/drafts/", DraftCountsView.as_view(), name = "draft-counts" ),
     path( "feed/posts/", PostFeedView.as_view(), name = "feed-posts" ),
     path( "feed/posts/<slug:slug>/", PostDetailFeedView.as_view(), name = "feed-post-detail" ),
     path( "feed/media/", MediaFeedView.as_view(), name = "feed-media" ),

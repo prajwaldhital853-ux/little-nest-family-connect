@@ -1,7 +1,7 @@
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import timedelta
 
-from django.db.models import Count, Min
+from django.db.models import Avg, Count, Min
 from django.utils import timezone
 from rest_framework import serializers, status
 from rest_framework.permissions import AllowAny, IsAdminUser
@@ -10,6 +10,7 @@ from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from apps.appointments.models import Appointment
+from config.dates import day_start
 
 from .models import PageView, Performance
 from .services import classify_browser, classify_device, clean_path, hash_for_today, referrer_host, tracking_is_refused
@@ -104,27 +105,30 @@ class SummaryView( APIView ):
         days = min( 90, max( 1, int( request.query_params.get( "days", "30" ) or 30 ) ) )
         since = timezone.localdate() - timedelta( days = days - 1 )
         views = PageView.objects.filter( day__gte = since )
-        enquiry_rows = (
-            Appointment.objects.filter( created_at__date__gte = since )
-            .values_list( "created_at__date", "pk" )
-        )
 
-        per_day_views = { row[ "day" ]: row for row in views.values( "day" ).annotate( total = Count( "id" ) ) }
-        per_day_people = defaultdict( set )
-        for day, visitor in views.values_list( "day", "visitor_hash" ):
-            per_day_people[ day ].add( visitor )
-        per_day_enquiries = Counter( day for day, _ in enquiry_rows )
+        # Each figure is counted where the rows are, because a month of traffic is tens of
+        # thousands of rows and this page used to carry them all into Python to count them there.
+        per_day = {
+            row[ "day" ]: row
+            for row in views.values( "day" ).annotate( total = Count( "id" ), people = Count( "visitor_hash", distinct = True ) )
+        }
+        per_day_enquiries = {
+            row[ "created_at__date" ]: row[ "total" ]
+            for row in Appointment.objects.filter( created_at__gte = day_start( since ) )
+            .values( "created_at__date" )
+            .annotate( total = Count( "pk" ) )
+        }
 
         series = []
         cursor = since
         today = timezone.localdate()
         while cursor <= today:
-            row = per_day_views.get( cursor, { "total": 0 } )
+            row = per_day.get( cursor, { "total": 0, "people": 0 } )
             series.append(
                 {
                     "day": cursor.isoformat(),
                     "pageviews": row[ "total" ],
-                    "visitors": len( per_day_people.get( cursor, () ) ),
+                    "visitors": row[ "people" ],
                     "enquiries": per_day_enquiries.get( cursor, 0 ),
                 }
             )
@@ -144,16 +148,18 @@ class SummaryView( APIView ):
         )
 
         first_seen = views.aggregate( oldest = Min( "created_at" ) )
+        people = views.aggregate( people = Count( "visitor_hash", distinct = True ) )[ "people" ]
+        held = views.exclude( duration_ms__isnull = True ).aggregate( held = Avg( "duration_ms" ) )[ "held" ]
 
         return Response(
             {
                 "range": { "days": days, "from": since.isoformat(), "to": today.isoformat() },
                 "totals": {
                     "pageviews": sum( row[ "pageviews" ] for row in series ),
-                    "visitors": len( set().union( *per_day_people.values() ) ) if per_day_people else 0,
+                    "visitors": people,
                     "sessions": views.values( "session_hash" ).distinct().count(),
                     "enquiries": sum( row[ "enquiries" ] for row in series ),
-                    "average_seconds": round( self._average_seconds( views ), 1 ),
+                    "average_seconds": round( ( held or 0 ) / 1000, 1 ),
                     "since": first_seen[ "oldest" ].isoformat() if first_seen[ "oldest" ] else None,
                 },
                 "series": series,
@@ -165,13 +171,6 @@ class SummaryView( APIView ):
                 "vitals": self._vitals( since ),
             }
         )
-
-    @staticmethod
-    def _average_seconds( views ):
-        durations = [ value for value in views.exclude( duration_ms__isnull = True ).values_list( "duration_ms", flat = True ) ]
-        if not durations:
-            return 0
-        return sum( durations ) / len( durations ) / 1000
 
     @staticmethod
     def _vitals( since ):

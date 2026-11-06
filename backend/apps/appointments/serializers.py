@@ -4,15 +4,27 @@ from django.core.validators import RegexValidator
 from django.utils import timezone
 from rest_framework import serializers
 
+from . import form as enquiry
 from .models import Appointment
 
 phone_validator = RegexValidator( regex = r"^[0-9+\-\s()]{7,20}$", message = "Enter a phone number that can be dialled." )
 
 
 class AppointmentCreateSerializer( serializers.ModelSerializer ):
+    """What the public form sends.
+
+    Nothing here decides for itself which answer is compulsory: the booking form does, and the
+    doctor edits that in the panel. Every column question is taken as optional by the field and
+    demanded or excused by ``validate``, so unchecking a question in the panel is enough to let an
+    answer stay empty.
+    """
+
+    patient_name = serializers.CharField( max_length = 120, required = False, allow_blank = True )
     patient_email = serializers.EmailField( required = False, allow_blank = True )
+    phone = serializers.CharField( max_length = 20, required = False, allow_blank = True )
+    concerns = serializers.CharField( required = False, allow_blank = True )
+    aim = serializers.CharField( required = False, allow_blank = True )
     message = serializers.CharField( required = False, allow_blank = True, max_length = 4000 )
-    phone = serializers.CharField( max_length = 20, validators = [ phone_validator ] )
     scheduled_at = serializers.DateTimeField( required = False, allow_null = True )
 
     class Meta:
@@ -29,15 +41,24 @@ class AppointmentCreateSerializer( serializers.ModelSerializer ):
             raise serializers.ValidationError( "Choose a time within the next year." )
         return value
 
-    def validate_concerns( self, value ):
-        if len( value.strip() ) < 10:
-            raise serializers.ValidationError( "Say a little more about the health concerns or goals." )
+    def validate_phone( self, value ):
+        if value.strip():
+            phone_validator( value.strip() )
         return value.strip()
 
-    def validate_aim( self, value ):
-        if len( value.strip() ) < 10:
-            raise serializers.ValidationError( "Say what you are hoping to achieve from the consultation." )
-        return value.strip()
+    def validate( self, attrs ):
+        missing = {}
+        for column, asked in enquiry.answers().items():
+            answer = str( attrs.get( column ) or "" ).strip()
+            if not answer:
+                if asked[ "required" ]:
+                    missing[ column ] = [ f"Please answer this question: { asked[ 'label' ] }" ]
+                continue
+            if asked[ "min" ] and len( answer ) < asked[ "min" ]:
+                missing[ column ] = [ f"Please say a little more: { asked[ 'label' ] }" ]
+        if missing:
+            raise serializers.ValidationError( missing )
+        return attrs
 
 
 class AppointmentSerializer( serializers.ModelSerializer ):
@@ -45,7 +66,11 @@ class AppointmentSerializer( serializers.ModelSerializer ):
     kind_display = serializers.CharField( source = "get_kind_display", read_only = True )
     assigned_to_name = serializers.CharField( source = "assigned_to.email", read_only = True, default = "" )
     next_statuses = serializers.SerializerMethodField()
-    phone = serializers.CharField( validators = [ phone_validator ], max_length = 20 )
+    # a question the form no longer asks leaves its answer empty, and an empty answer is still a
+    # row the panel has to be able to save
+    phone = serializers.CharField( validators = [ phone_validator ], max_length = 20, allow_blank = True )
+    concerns = serializers.CharField( allow_blank = True, required = False )
+    aim = serializers.CharField( allow_blank = True, required = False )
 
     class Meta:
         model = Appointment

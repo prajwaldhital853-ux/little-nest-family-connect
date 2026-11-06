@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ApiError, api } from "../api/client";
+import { prefetchPage } from "../api/warm";
 import type { Appointment, AppointmentStatus, Page } from "../api/types";
 import SectionHead from "../components/SectionHead";
 import { Notice, Pager, Pill, TextInput, formatDate } from "../components/ui";
 
 const PAGE_SIZE = 20;
 
-const STATUSES: [AppointmentStatus | "", string][] = [
+const TABS: [ AppointmentStatus | "", string ][] = [
   [ "", "All" ],
   [ "pending", "New" ],
   [ "confirmed", "Confirmed" ],
@@ -16,9 +17,13 @@ const STATUSES: [AppointmentStatus | "", string][] = [
   [ "no_show", "Did not attend" ],
 ];
 
+/* Nothing is chosen until he chooses it. An empty selection is not a filter, so the inbox opens on
+   every request rather than on a view that says something about them that is not yet true. */
+type Filter = AppointmentStatus | "" | null;
+
 export default function AppointmentsPage() {
   const [ rows, setRows ] = useState<Page<Appointment> | null>( null );
-  const [ status, setStatus ] = useState<AppointmentStatus | "">("");
+  const [ status, setStatus ] = useState<Filter>( null );
   const [ draft, setDraft ] = useState("");
   const [ search, setSearch ] = useState("");
   const [ unassigned, setUnassigned ] = useState(false);
@@ -27,7 +32,7 @@ export default function AppointmentsPage() {
 
   const load = useCallback(() => {
     api
-      .page<Appointment>( "/api/appointments/", { page, page_size: PAGE_SIZE, status, search, unassigned: unassigned ? "1" : "" } )
+      .page<Appointment>( "/api/appointments/", { page, page_size: PAGE_SIZE, status: status ?? "", search, unassigned: unassigned ? "1" : "" } )
       .then( setRows )
       .catch( ( reason: ApiError ) => setError( reason.message ) );
   }, [ page, status, search, unassigned ] );
@@ -47,16 +52,23 @@ export default function AppointmentsPage() {
       <SectionHead
         icon="appointments"
         title="Appointments"
-        note={ rows ? `${ rows.count } request${ rows.count === 1 ? "" : "s" } in this view` : "Loading" }
+        note={
+          rows
+            ? `${ rows.count } request${ rows.count === 1 ? "" : "s" }${ status === null ? " in the inbox, unfiltered" : " in this view" }`
+            : "Loading"
+        }
+        actions={ <Link className="btn btn-quiet" to="/booking-form">Booking form</Link> }
       />
 
       <div className="toolbar">
         <TextInput placeholder="Name, phone or reference" value={ draft } onChange={ event => setDraft( event.target.value ) } />
-        <div className="tabs">
-          { STATUSES.map( ( [ value, label ] ) => (
+        <div className="tabs" role="group" aria-label="Which requests to show">
+          { TABS.map( ( [ value, label ] ) => (
             <button
               key={ value || "all" }
               className={ status === value ? "on" : "" }
+              aria-pressed={ status === value }
+              onMouseEnter={ () => prefetchPage( "/api/appointments/", { page: 1, page_size: PAGE_SIZE, status: value } ) }
               onClick={ () => {
                 setStatus( value );
                 setPage( 1 );

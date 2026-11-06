@@ -236,7 +236,6 @@ class PanelTokenRefreshView( TokenRefreshView ):
             end_session_cookies( response )
             return response
 
-        response = Response( { "access": serializer.validated_data[ "access" ] } )
         # Removing a device has to stop that browser for real, so an unremembered one cannot refresh.
         user_id = AccessToken( serializer.validated_data[ "access" ] ).get( "user_id" )
         if user_id is None or find_device( user_id, hash_identity( presented_device( request ) ) ) is None:
@@ -244,6 +243,20 @@ class PanelTokenRefreshView( TokenRefreshView ):
             end_session_cookies( ended )
             return ended
 
+        # The name, the email and whether this is a staff account travel with the new token, so
+        # opening the panel is one round trip rather than a refresh and then a question about who
+        # the refresh belongs to.
+        account = User.objects.filter( pk = user_id ).first()
+        if account is None:
+            ended = Response( { "detail": "Your session has ended. Please sign in again." }, status = status.HTTP_401_UNAUTHORIZED )
+            end_session_cookies( ended )
+            return ended
+
+        response = Response( {
+            "access": serializer.validated_data[ "access" ],
+            "expires_in": int( settings.SIMPLE_JWT[ "ACCESS_TOKEN_LIFETIME" ].total_seconds() ),
+            "user": UserSerializer( account ).data,
+        } )
         rotated = serializer.validated_data.get( "refresh" )
         if rotated:
             set_refresh_cookie( response, rotated )

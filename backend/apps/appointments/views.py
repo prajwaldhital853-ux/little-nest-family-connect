@@ -11,9 +11,10 @@ from rest_framework.response import Response
 from rest_framework.throttling import SimpleRateThrottle
 
 from apps.audit.services import pair, record
+from config.dates import day_start
 from config.hashing import client_ip, hash_identity
 
-from .emails import send_approval_email
+from .emails import queue_approval_email
 from .models import Appointment, SubmissionTrace, fingerprint
 from .serializers import AppointmentCreateSerializer, AppointmentSerializer
 
@@ -63,11 +64,11 @@ class AppointmentViewSet( viewsets.ModelViewSet ):
 
         date_from = parse_date( params.get( "date_from", "" ) )
         if date_from:
-            queryset = queryset.filter( scheduled_at__date__gte = date_from )
+            queryset = queryset.filter( scheduled_at__gte = day_start( date_from ) )
 
         date_to = parse_date( params.get( "date_to", "" ) )
         if date_to:
-            queryset = queryset.filter( scheduled_at__date__lte = date_to )
+            queryset = queryset.filter( scheduled_at__lt = day_start( date_to ) + timedelta( days = 1 ) )
 
         if params.get( "unassigned" ) == "1":
             queryset = queryset.filter( assigned_to__isnull = True )
@@ -128,7 +129,7 @@ class AppointmentViewSet( viewsets.ModelViewSet ):
 
         # the email belongs to the transition into confirmed, not to every save of a confirmed row
         if before[ "status" ] != Appointment.Status.CONFIRMED and appointment.status == Appointment.Status.CONFIRMED:
-            send_approval_email( appointment )
+            queue_approval_email( appointment, request = self.request )
 
     def perform_destroy( self, instance ):
         reference = instance.reference

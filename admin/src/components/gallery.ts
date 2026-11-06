@@ -1,31 +1,45 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, api } from "../api/client";
 import type { Page, SiteImage } from "../api/types";
+import { shrink } from "./shrink";
 import { useToast } from "./Toast";
 
 /* Every picker and the gallery page read the same list, so a photo uploaded in one place is
-   offered in all the others without a reload. */
+   offered in all the others without a reload. The list itself is cached by the api client, and
+   every reader asks for the same address, so opening three pickers is one request, not three. */
 export function useGallery() {
   const [ images, setImages ] = useState<SiteImage[] | null>( null );
   const [ error, setError ] = useState("");
-  const [ busy, setBusy ] = useState(false);
+  /** How far a picture on its way has got, from 0 to 1, or null while nothing is moving. */
+  const [ fraction, setFraction ] = useState<number | null>( null );
   const toast = useToast();
 
   useEffect(() => {
+    let open = true;
     api
       .page<SiteImage>( "/api/cms/images/", { page_size: 100 } )
-      .then( ( page: Page<SiteImage> ) => setImages( page.results ) )
-      .catch( ( reason: ApiError ) => setError( reason.message ) );
+      .then( ( page: Page<SiteImage> ) => {
+        if ( open ) setImages( page.results );
+      } )
+      .catch( ( reason: ApiError ) => {
+        if ( open ) setError( reason.message );
+      } );
+    return () => {
+      open = false;
+    };
   }, [] );
 
   const upload = useCallback( async ( file: File ) => {
     setError( "" );
-    setBusy( true );
+    setFraction( 0 );
     try {
+      /* Resized in this browser first: the wait he is feeling is the megabytes on the wire, and
+         the site never shows a picture wider than 1600 pixels anyway. */
+      const light = await shrink( file );
       const form = new FormData();
-      form.set( "file", file );
+      form.set( "file", light );
       form.set( "label", file.name.replace( /\.[a-z]+$/i, "" ).slice( 0, 80 ) );
-      const created = await api.upload<SiteImage>( "/api/cms/images/", form );
+      const created = await api.upload<SiteImage>( "/api/cms/images/", form, done => setFraction( done ) );
       setImages( current => [ created, ...( current ?? [] ) ] );
       toast.success( "Photo uploaded and added to the gallery." );
       return created;
@@ -35,7 +49,7 @@ export function useGallery() {
       toast.error( message );
       return null;
     } finally {
-      setBusy( false );
+      setFraction( null );
     }
   }, [ toast ] );
 
@@ -54,7 +68,7 @@ export function useGallery() {
     }
   }, [ toast ] );
 
-  return { images, error, busy, upload, remove };
+  return { images, error, busy: fraction !== null, fraction, upload, remove };
 }
 
 export type Gallery = ReturnType<typeof useGallery>;

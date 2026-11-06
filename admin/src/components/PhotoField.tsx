@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { mediaUrl } from "../api/client";
 import { PHOTO_OPTIONS } from "../cms/resources";
 import GalleryPicker from "./GalleryPicker";
@@ -28,12 +28,22 @@ export default function PhotoField( {
 } ) {
   const picker = useRef<HTMLInputElement>( null );
   const [ choosing, setChoosing ] = useState(false);
-  const { images, error, busy, upload } = useGallery();
+  /* The picture he picked is drawn from this computer while it is still on its way, so the box
+     under the button changes the moment he chooses a file rather than a minute later. */
+  const [ preview, setPreview ] = useState("");
+  const { images, error, busy, fraction, upload } = useGallery();
+
+  useEffect(() => () => {
+    if ( preview ) URL.revokeObjectURL( preview );
+  }, [ preview ] );
 
   async function take( file: File ) {
+    setPreview( URL.createObjectURL( file ) );
     const created = await upload( file );
     if ( created ) onChange( { photo: "", url: created.url, alt: created.alt } );
   }
+
+  const shown = busy && preview ? preview : value.url ? mediaUrl( value.url ) : "";
 
   return (
     <div className="photo span-2">
@@ -41,8 +51,8 @@ export default function PhotoField( {
       { help ? <p className="field-help">{ help }</p> : null }
 
       <div className="photo-now">
-        { value.url ? (
-          <img src={ mediaUrl( value.url ) } alt={ value.alt } />
+        { shown ? (
+          <img src={ shown } alt={ value.alt } />
         ) : (
           <span className="photo-name">
             <Icon name="image" size={ 18 } />
@@ -50,6 +60,16 @@ export default function PhotoField( {
           </span>
         ) }
       </div>
+
+      { busy ? (
+        <div className="bar-row">
+          <span className="bar-label">Sending the photo</span>
+          <span className="bar-track">
+            <span className="bar-fill" style={ { width: `${ Math.round( ( fraction ?? 0 ) * 100 ) }%` } } />
+          </span>
+          <span className="bar-value">{ Math.round( ( fraction ?? 0 ) * 100 ) }%</span>
+        </div>
+      ) : null }
 
       { error ? <Notice>{ error }</Notice> : null }
 

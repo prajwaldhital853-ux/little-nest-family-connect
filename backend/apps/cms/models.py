@@ -77,6 +77,11 @@ class Post( Content ):
     class Meta:
         ordering = [ "order", "-published_at" ]
         verbose_name_plural = "blog posts"
+        indexes = [
+            # Every list the panel and the site ask for filters by state and then sorts by the
+            # editorial order, so that pair is the one index worth keeping here.
+            models.Index( fields = [ "status", "order", "-published_at" ], name = "post_list_idx" ),
+        ]
         constraints = [
             # The slug is built from the title, so two articles named alike would be the same article
             # twice on the blog page. A double click on Save is the usual cause.
@@ -116,6 +121,7 @@ class MediaItem( Content ):
 
     class Meta:
         ordering = [ "order", "title" ]
+        indexes = [ models.Index( fields = [ "status", "order", "title" ], name = "mediaitem_list_idx" ) ]
 
     def __str__( self ):
         return self.title
@@ -143,6 +149,7 @@ class PressArticle( Content ):
 
     class Meta:
         ordering = [ "order", "-published_at" ]
+        indexes = [ models.Index( fields = [ "status", "order", "-published_at" ], name = "pressarticle_list_idx" ) ]
 
     def __str__( self ):
         return self.title
@@ -173,6 +180,12 @@ class Publication( Content ):
 
     class Meta:
         ordering = [ "-year", "order", "title" ]
+        indexes = [
+            models.Index( fields = [ "status", "-year", "order" ], name = "publication_list_idx" ),
+            # The research page splits the list by type and by theme, both inside a year.
+            models.Index( fields = [ "kind", "-year" ], name = "publication_kind_year_idx" ),
+            models.Index( fields = [ "tag", "-year" ], name = "publication_tag_year_idx" ),
+        ]
         constraints = [
             # Listing the same paper twice is a mistake the doctor should not be able to save.
             models.UniqueConstraint( Lower( "title" ), "year", name = "unique_publication_per_year" ),
@@ -208,6 +221,10 @@ class Faq( Content ):
         ordering = [ "group", "order", "question" ]
         verbose_name = "FAQ item"
         verbose_name_plural = "FAQ items"
+        indexes = [
+            # The site asks for one heading's questions at a time, in the order they read.
+            models.Index( fields = [ "status", "group", "order", "question" ], name = "faq_group_idx" ),
+        ]
         constraints = [
             # Case is not a reason to answer the same question twice.
             models.UniqueConstraint( Lower( "question" ), Lower( "group" ), name = "unique_question_per_group" ),
@@ -260,6 +277,9 @@ class SiteImage( models.Model ):
     )
     label = models.CharField( max_length = 80, blank = True, help_text = "A short name to recognise it by in the panel." )
     alt = models.CharField( max_length = 200, blank = True, help_text = "What the picture shows, for people who cannot see it." )
+    # The size is written once, at upload. Reading it back off the disk for every row of the
+    # picture list is what made the gallery slow, and on a redeploy the disk may not even have it.
+    byte_size = models.BigIntegerField( default = 0, help_text = "How big the file is, recorded when it arrives." )
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null = True,
@@ -273,6 +293,7 @@ class SiteImage( models.Model ):
         ordering = [ "-created_at" ]
         verbose_name = "site image"
         verbose_name_plural = "site images"
+        indexes = [ models.Index( fields = [ "-created_at" ], name = "siteimage_recent_idx" ) ]
 
     def __str__( self ):
         return self.label or self.file.name.rsplit( "/", 1 )[ -1 ]

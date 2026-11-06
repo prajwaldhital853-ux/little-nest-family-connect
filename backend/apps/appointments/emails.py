@@ -1,11 +1,18 @@
 """The confirmation a patient receives when the clinic approves their request."""
 
 import logging
+import threading
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db import connections
 from django.utils import timezone
 from django.utils.html import escape
+
+from apps.audit.services import record
+
+from . import form as enquiry
+from .models import Appointment
 
 logger = logging.getLogger( __name__ )
 
@@ -40,17 +47,23 @@ def _when( appointment ):
 
 
 def _details( appointment ):
+    """Every answer the patient gave, under the question as the form words it, so a renamed or
+    added question reads the same in the email as it did on the page they filled in."""
+
     rows = [
         ( "Reference", appointment.reference ),
         ( "Patient", appointment.patient_name ),
         ( "Consultation", appointment.get_kind_display() ),
         ( "Time", _when( appointment ) ),
-        ( "Your phone number", appointment.phone ),
-        ( "Concerns or goals", appointment.concerns ),
-        ( "What you hope to achieve", appointment.aim ),
     ]
-    if appointment.message:
-        rows.append( ( "Anything else you told us", appointment.message ) )
+    for question in enquiry.questions():
+        column = enquiry.COLUMNS.get( question[ "id" ] )
+        # their name greets them and their address carries the mail, so neither needs a line
+        if not column or column == "patient_name" or question[ "id" ] == "email":
+            continue
+        answer = str( getattr( appointment, column ) or "" ).strip()
+        if answer:
+            rows.append( ( question[ "label" ] or question[ "id" ].replace( "_", " " ).capitalize(), answer ) )
     return rows
 
 
@@ -102,11 +115,47 @@ def _html_body( appointment, doctor ):
     )
 
 
-def send_approval_email( appointment ):
-    """Never raises: a failed email is logged and must not undo the approval itself."""
+def queue_approval_email( appointment, request = None ):
+    """Send the confirmation after the panel has its answer.
+
+    The round trip to the mail provider is the slowest thing pressing Confirm does, and the row is
+    already saved by the time we get here, so the doctor should not sit waiting on it. The thread
+    re-reads the appointment rather than carrying the object over, and closes the database
+    connection it opened for itself. EMAIL_INLINE is for a process that must finish what it started
+    before it answers, which is what the test suite does.
+    """
+
+    if settings.EMAIL_INLINE:
+        send_approval_email( appointment, request = request )
+        return None
+
+    worker = threading.Thread( target = _deliver_later, args = ( appointment.pk, request ), daemon = True )
+    worker.start()
+    return worker
+
+
+def _deliver_later( appointment_pk, request ):
+    try:
+        appointment = Appointment.objects.get( pk = appointment_pk )
+    except Appointment.DoesNotExist:
+        return
+    try:
+        send_approval_email( appointment, request = request )
+    finally:
+        connections.close_all()
+
+
+def send_approval_email( appointment, request = None ):
+    """Never raises: a failed email is logged and must not undo the approval itself.
+
+    What happened to it goes into the history the panel reads, because the one question after a
+    confirmation is whether the patient was told.
+    """
 
     if not appointment.patient_email:
         logger.warning( "Appointment %s was confirmed but has no email address, so no confirmation was sent.", appointment.reference )
+        record( "enquiry.email_skipped", request = request, target = appointment, target_label = appointment.reference,
+                detail = { "reason": "the request has no email address" } )
         return
     try:
         doctor = doctor_contact()
@@ -117,5 +166,9 @@ def send_approval_email( appointment ):
             recipient_list = [ appointment.patient_email ],
             html_message = _html_body( appointment, doctor ),
         )
+        record( "enquiry.emailed", request = request, target = appointment, target_label = appointment.reference,
+                detail = { "subject": SUBJECT } )
     except Exception:
         logger.warning( "Confirmation email for appointment %s failed to send.", appointment.reference, exc_info = True )
+        record( "enquiry.email_failed", request = request, target = appointment, target_label = appointment.reference,
+                detail = { "to": appointment.patient_email } )

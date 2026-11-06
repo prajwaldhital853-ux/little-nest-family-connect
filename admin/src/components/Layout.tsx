@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api/client";
+import { warmWhenIdle, prefetch } from "../api/warm";
 import { resources } from "../cms/resources";
 import { useAuth } from "../auth/AuthProvider";
 import { applyTheme, storedTheme, type Theme } from "../theme";
@@ -27,6 +28,7 @@ const GROUPS: { label: string; items: { to: string; label: string; icon: string;
     items: [
       { to: "/", label: "Today", icon: "today", tone: 0, end: true },
       { to: "/appointments", label: "Appointments", icon: "appointments", tone: 3 },
+      { to: "/booking-form", label: "Booking form", icon: "faqs", tone: 4 },
     ],
   },
   {
@@ -86,12 +88,14 @@ export default function Layout() {
     setMenuOpen(false);
   }, [ place.pathname ] );
 
-  /* The badge counts the same inbox number the Today screen shows, so it is never a decoration. */
+  /* The badge counts the same inbox number the Today screen shows, so it asks the Today screen's
+     question rather than a near copy of it: two addresses that differ by one number are two trips. */
   useEffect(() => {
     api
-      .page( "/api/appointments/", { status: "pending", page_size: 1 } )
+      .page( "/api/appointments/", { status: "pending", page_size: 5 } )
       .then( page => setWaiting( page.count ) )
       .catch( () => setWaiting( 0 ) );
+    warmWhenIdle();
   }, [] );
 
   async function onSignOut() {
@@ -125,7 +129,15 @@ export default function Layout() {
               { group.items.map( item => {
                 const count = item.to === "/appointments" ? waiting : 0;
                 return (
-                  <NavLink key={ item.to } to={ item.to } end={ item.end } title={ item.label } className={ `t${ item.tone }` }>
+                  <NavLink
+                    key={ item.to }
+                    to={ item.to }
+                    end={ item.end }
+                    title={ item.label }
+                    className={ `t${ item.tone }` }
+                    onMouseEnter={ () => prefetch( item.to ) }
+                    onFocus={ () => prefetch( item.to ) }
+                  >
                     <Icon name={ item.icon } />
                     <span>{ item.label }</span>
                     { count > 0 ? <span className="side-badge" title="Appointments waiting for you">{ count }</span> : null }

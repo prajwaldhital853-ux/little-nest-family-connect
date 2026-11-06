@@ -539,6 +539,38 @@ class PageCopyTests( APITestCase ):
         self.assertEqual( response.status_code, status.HTTP_400_BAD_REQUEST )
         self.assertIn( "data", response.data )
 
+    def test_saving_a_page_that_has_no_row_yet_opens_one( self ):
+        """The booking form is edited through the contact page's wording, and a database that was
+        never seeded has no contact row to edit; the first save has to be enough."""
+        response = self.client.put(
+            reverse( "page-copy-detail", args = [ "contact" ] ),
+            {
+                "label": "Contact page",
+                "data": { "rows": [ { "id": "enquiry", "label": "Professional enquiry",
+                                      "form": { "fields": [ { "id": "name", "kind": "text", "label": "Your name", "required": True } ] } } ] },
+            },
+            HTTP_AUTHORIZATION = self.header,
+            format = "json",
+        )
+        self.assertEqual( response.status_code, status.HTTP_200_OK, response.data )
+        page = PageCopy.objects.get( key = "contact" )
+        self.assertEqual( page.label, "Contact page" )
+        self.assertEqual( response.data[ "key" ], "contact" )
+        self.assertTrue( page.data[ "rows" ][ 0 ][ "form" ][ "fields" ][ 0 ][ "required" ] )
+        self.assertEqual( page.updated_by, self.admin )
+        entry = AuditEntry.objects.get( action = "copy.updated" )
+        self.assertEqual( entry.target_id, str( page.id ) )
+
+    def test_a_wording_row_is_not_invented_by_a_partial_change( self ):
+        response = self.client.patch(
+            reverse( "page-copy-detail", args = [ "ghostpage" ] ),
+            { "published": False },
+            HTTP_AUTHORIZATION = self.header,
+            format = "json",
+        )
+        self.assertEqual( response.status_code, status.HTTP_404_NOT_FOUND )
+        self.assertFalse( PageCopy.objects.filter( key = "ghostpage" ).exists() )
+
 
 class SanitisingTests( APITestCase ):
     @classmethod
@@ -1464,14 +1496,22 @@ class SiteImageTests( APITestCase ):
         self.assertEqual( self.client.post( "/api/cms/images/", { "file": self.picture() } ).status_code, status.HTTP_401_UNAUTHORIZED )
 
     def test_a_picture_the_server_lost_does_not_take_the_list_down( self ):
-        """Render rebuilds throw the folder away; a row pointing at nothing must still list."""
-        self.client.post( "/api/cms/images/", { "file": self.picture() }, HTTP_AUTHORIZATION = self.header )
+        """Render rebuilds throw the folder away; a row pointing at nothing must still list.
+
+        Its size now comes from what was written down when it arrived, so the list answers without
+        asking the disk anything at all, and a file that has gone reports the size it had.
+        """
+        self.client.post(
+            "/api/cms/images/", { "file": self.picture(), "label": "Kept name" }, HTTP_AUTHORIZATION = self.header
+        )
         SiteImage.objects.create( file = self.picture( "gone.png" ), label = "Lost" )
         for name in SiteImage.objects.values_list( "file", flat = True ):
             os.remove( os.path.join( self.media_root, str( name ) ) )
         response = self.client.get( "/api/cms/images/", HTTP_AUTHORIZATION = self.header )
         self.assertEqual( response.status_code, status.HTTP_200_OK, response.data )
-        self.assertEqual( [ row[ "bytes" ] for row in response.data[ "results" ] ], [ 0, 0 ] )
+        sizes = { row[ "label" ]: row[ "bytes" ] for row in response.data[ "results" ] }
+        self.assertEqual( sizes[ "Kept name" ], len( PNG_PIXEL ) )
+        self.assertEqual( sizes[ "Lost" ], 0, "a row made without the upload form has no recorded size" )
 
     def test_a_file_that_is_not_a_picture_is_refused( self ):
         response = self.client.post(
@@ -1595,3 +1635,26 @@ class EnsureFirstContentTests( APITestCase ):
 
         self.assertTrue( PageCopy.objects.filter( key = "home" ).exists() )
         self.assertEqual( self.rows_are_untouched(), before )
+
+
+class DraftCountTests( APITestCase ):
+    """The Today screen wants one number per section, and used to ask five times for them."""
+
+    @classmethod
+    def setUpTestData( cls ):
+        cls.admin = User.objects.create_user( email = "admin@example.com", password = "consultation-room-7", is_staff = True )
+        Post.objects.create( **a_post( title = "A draft worth counting" ) )
+        Post.objects.create( **a_post( title = "A published one", status = PublishStatus.PUBLISHED ) )
+        Faq.objects.create( question = "Is a draft counted?", answer = "Yes, and only drafts are.", group = "home" )
+        Publication.objects.create( title = "A draft study", authors = "Kandel R", venue = "A journal", year = 2026 )
+
+    def test_each_section_answers_for_itself( self ):
+        response = self.client.get( "/api/cms/counts/drafts/", HTTP_AUTHORIZATION = token_for( self.admin ) )
+        self.assertEqual( response.status_code, status.HTTP_200_OK, response.data )
+        self.assertEqual(
+            response.data,
+            { "posts": 1, "media": 0, "press": 0, "publications": 1, "faqs": 1 },
+        )
+
+    def test_a_visitor_is_not_told_what_is_unpublished( self ):
+        self.assertEqual( self.client.get( "/api/cms/counts/drafts/" ).status_code, status.HTTP_401_UNAUTHORIZED )

@@ -1,8 +1,9 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest import mock
 
 from django.core import mail
 from django.core.cache import cache
+from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
@@ -11,7 +12,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.accounts.models import User
 from apps.audit.models import AuditEntry
+from apps.cms.models import PageCopy
 
+from . import emails
 from .models import Appointment, SubmissionTrace
 from .views import AppointmentSubmitThrottle
 
@@ -246,6 +249,62 @@ class ApprovalEmailTests( APITestCase ):
         self.assertEqual( len( mail.outbox ), 1 )
 
 
+class ScheduledDayFilterTests( APITestCase ):
+    """A day in the inbox means a local calendar day, and the answer must not change when the
+    filter stops wrapping the column in a function."""
+
+    @classmethod
+    def setUpTestData( cls ):
+        cls.admin = User.objects.create_user( email = "admin@example.com", password = "consultation-room-7", is_staff = True )
+        day_after = timezone.make_aware( datetime( 2026, 11, 12, 0, 0 ) )
+        cls.two_days_back = Appointment.objects.create( **payload( scheduled_at = day_after - timedelta( days = 2 ), patient_name = "A" ) )
+        cls.last_minute = Appointment.objects.create( **payload( scheduled_at = day_after - timedelta( minutes = 1 ), patient_name = "B" ) )
+        cls.first_minute = Appointment.objects.create( **payload( scheduled_at = day_after, patient_name = "C" ) )
+        cls.header = { "HTTP_AUTHORIZATION": f"Bearer { RefreshToken.for_user( cls.admin ).access_token }" }
+
+    def listed( self, **query ):
+        response = self.client.get( reverse( "appointment-list" ), query, **self.header )
+        self.assertEqual( response.status_code, status.HTTP_200_OK, response.data )
+        return { row[ "id" ] for row in response.data[ "results" ] }
+
+    def test_a_day_goes_up_to_its_last_minute( self ):
+        self.assertEqual( self.listed( date_from = "2026-11-11", date_to = "2026-11-11" ), { self.last_minute.pk } )
+
+    def test_from_a_day_includes_everything_after_it( self ):
+        self.assertEqual( self.listed( date_from = "2026-11-11" ), { self.last_minute.pk, self.first_minute.pk } )
+
+    def test_to_a_day_includes_everything_before_it( self ):
+        self.assertEqual( self.listed( date_to = "2026-11-11" ), { self.two_days_back.pk, self.last_minute.pk } )
+
+    def test_an_undated_request_is_not_in_any_day( self ):
+        unscheduled = Appointment.objects.create( **payload( scheduled_at = None, patient_name = "No time yet" ) )
+        self.assertNotIn( unscheduled.pk, self.listed( date_from = "2026-11-10" ) )
+
+
+class DeferredMailTests( SimpleTestCase ):
+    """The confirmation may leave on its own, but only when the server says it may."""
+
+    @override_settings( EMAIL_INLINE = False )
+    def test_pressing_confirm_hands_the_mail_to_a_worker( self ):
+        started = []
+
+        class Worker:
+            def start( self ):
+                started.append( "sent" )
+
+        with mock.patch.object( emails.threading, "Thread", return_value = Worker() ) as thread:
+            emails.queue_approval_email( Appointment( pk = 7 ) )
+
+        self.assertTrue( thread.called, "the mail should not be sent inside the request" )
+        self.assertEqual( started, [ "sent" ] )
+
+    @override_settings( EMAIL_INLINE = True )
+    def test_inline_mode_sends_on_the_spot( self ):
+        with mock.patch.object( emails, "send_approval_email" ) as sent:
+            emails.queue_approval_email( Appointment( pk = 7 ) )
+        sent.assert_called_once()
+
+
 @mock.patch.object( AppointmentSubmitThrottle, "THROTTLE_RATES", { "appointment": "2/day" } )
 class SubmissionRateTests( APITestCase ):
     """The rate is read when the throttle is built, so patch the class rather than settings."""
@@ -308,3 +367,143 @@ class DuplicateEnquiryTests( APITestCase ):
         self.submit( HTTP_X_DEVICE_ID = "device-one" )
         entry = AuditEntry.objects.get( action = "enquiry.received" )
         self.assertEqual( entry.target_type, "appointments.Appointment" )
+
+
+def booking_form( *questions ):
+    """The contact page's wording, as the panel writes it, with only the questions named here."""
+
+    PageCopy.objects.create(
+        key = "contact",
+        label = "Contact page",
+        published = True,
+        data = {
+            "title": "Contact",
+            "rows": [
+                {
+                    "id": "enquiry",
+                    "label": "Ask for a consultation",
+                    "text": "Tell me what you need, and I reply from this address.",
+                    "form": {
+                        "submitLabel": "Send enquiry",
+                        "thanks": "Filed as {reference}.",
+                        "fields": [
+                            { "id": field_id, "kind": kind, "label": label, "required": required }
+                            for field_id, kind, label, required in questions
+                        ],
+                    },
+                }
+            ],
+        },
+    )
+
+
+class EditedFormTests( APITestCase ):
+    """The questions the panel words, and marks compulsory or not, are the ones the API enforces."""
+
+    def setUp( self ):
+        cache.clear()
+
+    def submit( self, **overrides ):
+        return self.client.post( reverse( "appointment-list" ), payload( **overrides ), format = "json" )
+
+    def test_a_question_marked_optional_is_not_demanded( self ):
+        booking_form(
+            ( "name", "text", "Your name", True ),
+            ( "phone", "tel", "Your phone number", True ),
+            ( "concerns", "textarea", "What shall we talk about?", False ),
+            ( "aim", "textarea", "What are you hoping for?", False ),
+        )
+        response = self.submit( concerns = "", aim = "" )
+        self.assertEqual( response.status_code, status.HTTP_201_CREATED, response.data )
+        appointment = Appointment.objects.get()
+        self.assertEqual( appointment.concerns, "" )
+
+    def test_a_question_the_form_dropped_is_not_demanded( self ):
+        booking_form( ( "name", "text", "Your name", True ), ( "phone", "tel", "Your phone number", True ) )
+        response = self.submit( concerns = "", aim = "", message = "" )
+        self.assertEqual( response.status_code, status.HTTP_201_CREATED, response.data )
+
+    def test_a_question_marked_required_is_demanded_in_its_own_words( self ):
+        booking_form(
+            ( "name", "text", "Your name", True ),
+            ( "concerns", "textarea", "What shall we talk about?", True ),
+        )
+        response = self.submit( concerns = "", aim = "" )
+        self.assertEqual( response.status_code, status.HTTP_400_BAD_REQUEST )
+        self.assertIn( "What shall we talk about?", str( response.data[ "concerns" ] ) )
+        # a thin answer is only worth refusing in a question that asks for one
+        self.assertEqual( self.submit( concerns = "Falling at night, twice this month" ).status_code, status.HTTP_201_CREATED )
+
+    def test_the_name_is_demanded_whatever_the_form_says( self ):
+        booking_form( ( "name", "text", "Your name", False ) )
+        response = self.submit( patient_name = "" )
+        self.assertEqual( response.status_code, status.HTTP_400_BAD_REQUEST )
+        self.assertIn( "patient_name", response.data )
+
+    def test_a_phone_left_out_of_the_form_may_stay_out( self ):
+        booking_form( ( "name", "text", "Your name", True ) )
+        response = self.submit( phone = "" )
+        self.assertEqual( response.status_code, status.HTTP_201_CREATED, response.data )
+
+
+class ConfirmationEmailContentTests( APITestCase ):
+    """The patient is sent what they asked about, in the words the form used."""
+
+    @classmethod
+    def setUpTestData( cls ):
+        cls.admin = User.objects.create_user( email = "admin@example.com", password = "consultation-room-7", is_staff = True )
+
+    def setUp( self ):
+        self.header = { "HTTP_AUTHORIZATION": f"Bearer { RefreshToken.for_user( self.admin ).access_token }" }
+        self.appointment = Appointment.objects.create(
+            **payload(
+                concerns = "Falling twice in a month",
+                aim = "Keep mum at home safely",
+                message = "Who lives with her: Daughter\nDoes she use a walking frame: Not yet",
+            )
+        )
+
+    def move( self, to_status ):
+        return self.client.patch(
+            reverse( "appointment-detail", args = [ self.appointment.pk ] ),
+            { "status": to_status },
+            format = "json",
+            **self.header,
+        )
+
+    def test_the_confirmation_answers_the_questions_as_the_form_words_them( self ):
+        booking_form(
+            ( "name", "text", "Your name", True ),
+            ( "email", "email", "Your email", True ),
+            ( "phone", "tel", "Your phone number", True ),
+            ( "concerns", "textarea", "What worries you most about her ageing?", True ),
+            ( "aim", "textarea", "What would a good visit look like?", True ),
+            ( "message", "textarea", "Your message", True ),
+        )
+        self.move( Appointment.Status.CONFIRMED )
+        body = mail.outbox[ 0 ].body
+        self.assertIn( "What worries you most about her ageing?", body )
+        self.assertIn( "What would a good visit look like?", body )
+        self.assertIn( "Falling twice in a month", body )
+        self.assertIn( "Keep mum at home safely", body )
+        self.assertIn( "Does she use a walking frame: Not yet", body )
+        self.assertIn( self.appointment.reference, body )
+
+    def test_answering_a_question_left_out_of_the_form_is_not_invented( self ):
+        booking_form( ( "name", "text", "Your name", True ), ( "concerns", "textarea", "Concerns", True ) )
+        self.move( Appointment.Status.CONFIRMED )
+        body = mail.outbox[ 0 ].body
+        self.assertNotIn( "What are you hoping to achieve", body )
+
+    def test_sending_the_confirmation_is_written_into_the_history( self ):
+        self.move( Appointment.Status.CONFIRMED )
+        entry = AuditEntry.objects.get( action = "enquiry.emailed" )
+        self.assertEqual( entry.target_label, self.appointment.reference )
+        self.assertEqual( entry.actor_label, "admin@example.com" )
+
+    def test_a_request_with_no_address_is_recorded_as_not_emailed( self ):
+        self.appointment.patient_email = ""
+        self.appointment.save()
+        self.move( Appointment.Status.CONFIRMED )
+        self.assertEqual( len( mail.outbox ), 0 )
+        self.assertTrue( AuditEntry.objects.filter( action = "enquiry.email_skipped" ).exists() )

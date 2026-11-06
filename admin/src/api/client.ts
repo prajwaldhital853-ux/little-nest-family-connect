@@ -1,8 +1,19 @@
-import type { Page } from "./types";
+import type { Page, StaffUser } from "./types";
 
 const BASE = ( import.meta.env.VITE_API_URL ?? "" ).replace( /\/$/, "" );
 
 export const SIGNED_OUT = "Your session has ended. Please sign in again.";
+
+/* One round trip to the deployed API is about half a second, and the panel used to pay it again
+   for every screen the doctor had already looked at once. A read is answered from memory the
+   second time round; if the memory has aged, the copy on screen stays while the new one arrives
+   behind it. Any save clears the reads of the part of the site it touched, so what he sees after
+   pressing Save is the answer about the row he just changed, never the one from before. */
+const FRESH_SECONDS = 15;
+const KEEP_SECONDS = 300;
+
+const readCache = new Map<string, { value: unknown; at: number }>();
+const readPending = new Map<string, Promise<unknown>>();
 
 /* An uploaded picture is a path on the API's host. Both dev servers forward /media to the
    backend, so the plain path works here; a deployed host serves it beside the site. */
@@ -35,16 +46,24 @@ export class ApiError extends Error {
    nothing worth stealing. Reloading trades that cookie for a fresh access token, which is also
    how the panel finds out whether somebody is still signed in. */
 let access: string | null = null;
-let inflight: Promise<string | null> | null = null;
+let inflight: Promise<Renewed | null> | null = null;
 
-async function renew(): Promise<string | null> {
+/** What a live session hands back: the token to make calls with, and whose calls they are. */
+export type Renewed = { access: string; user: StaffUser | null };
+
+export async function renew(): Promise<Renewed | null> {
   inflight =
     inflight ??
     fetch( `${ BASE }/api/auth/refresh/`, { method: "POST", credentials: "include", headers: { Accept: "application/json" } } )
       .then( response => ( response.ok ? response.json() : null ) )
-      .then( ( data: { access?: unknown } | null ) => {
-        access = typeof data?.access === "string" ? data.access : null;
-        return access;
+      .then( ( data: ( { access?: unknown; user?: unknown; expires_in?: unknown } | null ) ) => {
+        if ( typeof data?.access !== "string" ) {
+          access = null;
+          return null;
+        }
+        access = data.access;
+        expiresAt = Date.now() + Number( data.expires_in ?? 15 * 60 ) * 1000;
+        return { access: data.access, user: ( data.user as StaffUser ) ?? null };
       } )
       .catch( () => {
         access = null;
@@ -56,15 +75,36 @@ async function renew(): Promise<string | null> {
   return inflight;
 }
 
+/** When the current token stops working, in seconds, so the panel can trade it before it dies. */
+let expiresAt = 0;
+
 export const session = {
-  /** True when this browser still holds a live session. */
-  resume: () => renew().then( token => token !== null ),
+  /** The account this browser is already allowed to be, or null when it has to sign in again. */
+  async resume(): Promise<StaffUser | null> {
+    const renewed = await renew();
+    if ( !renewed ) return null;
+    if ( renewed.user ) return renewed.user;
+    /* An API that predates the user travelling with the token still knows who it belongs to. */
+    return request<StaffUser>( "/api/auth/me/" ).catch( () => {
+      session.end();
+      return null;
+    } );
+  },
   /** After a password check, and after a code, the body carries the token in person. */
-  open( token: string ) {
+  open( token: string, lifetimeSeconds = 0 ) {
     access = token;
+    expiresAt = Date.now() + lifetimeSeconds * 1000;
+    readCache.clear();
   },
   end() {
     access = null;
+    expiresAt = 0;
+    readCache.clear();
+  },
+  /** How long before the token dies, in seconds, or null when nothing is signed in. */
+  timeLeft(): number | null {
+    if ( !access ) return null;
+    return Math.max( 0, Math.round( ( expiresAt - Date.now() ) / 1000 ) );
   },
 };
 
@@ -114,7 +154,7 @@ export async function request<T>( path: string, init: RequestInit = {}, auth = t
   if ( response.status === 401 && auth ) {
     const fresh = await renew();
     if ( !fresh ) throw new ApiError( 401, SIGNED_OUT );
-    response = await send( path, init, fresh );
+    response = await send( path, init, fresh.access );
   }
 
   if ( response.status === 204 ) return undefined as T;
@@ -148,16 +188,118 @@ function safeJson( text: string ): unknown {
   }
 }
 
+/** The part of the site a path belongs to: /api/cms/images/3/ and /api/cms/posts/ are both cms. */
+function section( path: string ): string {
+  const parts = path.split( "?" )[ 0 ].split( "/" ).slice( 0, 3 );
+  return `${ parts.join( "/" ) }/`;
+}
+
+function forget( path: string ) {
+  const prefix = section( path );
+  for ( const key of readCache.keys() ) {
+    if ( key.startsWith( prefix ) ) readCache.delete( key );
+  }
+}
+
+function refresh( path: string ): Promise<unknown> {
+  const running = readPending.get( path );
+  if ( running ) return running;
+
+  const work = request<unknown>( path ).then(
+    value => {
+      readCache.set( path, { value, at: Date.now() } );
+      readPending.delete( path );
+      return value;
+    },
+    error => {
+      readPending.delete( path );
+      throw error;
+    }
+  );
+  readPending.set( path, work );
+  return work;
+}
+
+async function read<T>( path: string ): Promise<T> {
+  const stored = readCache.get( path );
+  if ( stored ) {
+    const age = ( Date.now() - stored.at ) / 1000;
+    if ( age < FRESH_SECONDS ) return stored.value as T;
+    if ( age < KEEP_SECONDS ) {
+      /* He is looking at real content from a second ago. Let it stay on screen and quietly
+         replace it, rather than blanking the page while a number is fetched. */
+      refresh( path ).catch( () => undefined );
+      return stored.value as T;
+    }
+    readCache.delete( path );
+  }
+  return refresh( path ) as Promise<T>;
+}
+
+async function write<T>( path: string, init: RequestInit ): Promise<T> {
+  const saved = await request<T>( path, init );
+  forget( path );
+  return saved;
+}
+
+/** Only means "this browser has to trade its cookie for a new token"; the caller never shows it. */
+class Expired extends Error {}
+
+/** A file travels over XHR because fetch cannot say how much of it has landed, and a picture that
+ *  takes eight seconds with no word about it reads as a panel that has stopped answering. */
+async function sendFile<T>( path: string, form: FormData, onProgress?: ( fraction: number ) => void ): Promise<T> {
+  const attempt = ( token: string | null ) =>
+    new Promise<T>( ( resolve, reject ) => {
+      const file = new XMLHttpRequest();
+      file.open( "POST", `${ BASE }${ path }` );
+      file.withCredentials = true;
+      if ( token ) file.setRequestHeader( "Authorization", `Bearer ${ token }` );
+      file.upload.onprogress = ( event ) => {
+        if ( onProgress && event.lengthComputable ) onProgress( event.loaded / event.total );
+      };
+      file.onload = () => {
+        const payload = file.responseText ? safeJson( file.responseText ) : null;
+        if ( file.status >= 200 && file.status < 300 ) {
+          resolve( ( payload ?? undefined ) as T );
+          return;
+        }
+        if ( file.status === 401 ) {
+          reject( new Expired() );
+          return;
+        }
+        const fields = flatten( payload );
+        const message = fields.fields?.[ 0 ] ?? firstMessage( fields ) ?? `Request failed (${ file.status }).`;
+        reject( new ApiError( file.status, message, fields, seconds( file.getResponseHeader( "Retry-After" ) ) ) );
+      };
+      file.onerror = () => reject( new ApiError( 0, "The upload did not reach the server." ) );
+      file.send( form );
+    } );
+
+  let token = access ?? ( await renew() )?.access ?? null;
+  let saved: T;
+  try {
+    saved = await attempt( token );
+  } catch ( reason ) {
+    if ( ! ( reason instanceof Expired ) ) throw reason;
+    token = ( await renew() )?.access ?? null;
+    if ( !token ) throw new ApiError( 401, SIGNED_OUT );
+    saved = await attempt( token );
+  }
+  forget( path );
+  return saved;
+}
+
 export const api = {
-  get: <T, >( path: string ) => request<T>( path ),
+  get: <T, >( path: string ) => read<T>( path ),
   post: <T, >( path: string, body?: unknown ) =>
-    request<T>( path, { method: "POST", body: body === undefined ? undefined : JSON.stringify( body ) } ),
-  patch: <T, >( path: string, body: unknown ) => request<T>( path, { method: "PATCH", body: JSON.stringify( body ) } ),
-  put: <T, >( path: string, body: unknown ) => request<T>( path, { method: "PUT", body: JSON.stringify( body ) } ),
+    write<T>( path, { method: "POST", body: body === undefined ? undefined : JSON.stringify( body ) } ),
+  patch: <T, >( path: string, body: unknown ) => write<T>( path, { method: "PATCH", body: JSON.stringify( body ) } ),
+  put: <T, >( path: string, body: unknown ) => write<T>( path, { method: "PUT", body: JSON.stringify( body ) } ),
   /** A file, sent as multipart so the browser can set the boundary itself. */
-  upload: <T, >( path: string, form: FormData ) => request<T>( path, { method: "POST", body: form } ),
-  del: ( path: string ) => request<void>( path, { method: "DELETE" } ),
-  page: <T, >( path: string, params: Query = {} ) => request<Page<T>>( `${ path }${ qs( params ) }` ),
+  upload: <T, >( path: string, form: FormData, onProgress?: ( fraction: number ) => void ) =>
+    sendFile<T>( path, form, onProgress ),
+  del: ( path: string ) => write<void>( path, { method: "DELETE" } ),
+  page: <T, >( path: string, params: Query = {} ) => read<Page<T>>( `${ path }${ qs( params ) }` ),
   /** Sign in, codes and resets: cookies travel, no bearer token is attached. */
   unauthenticated: <T, >( path: string, body?: unknown ) =>
     request<T>( path, { method: "POST", body: body === undefined ? undefined : JSON.stringify( body ) }, false ),

@@ -7,6 +7,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DashboardPage from "./pages/DashboardPage";
 import AppointmentsPage from "./pages/AppointmentsPage";
 import AppointmentDetailPage from "./pages/AppointmentDetailPage";
+import BookingFormPage from "./pages/BookingFormPage";
 import { CmsEditPage, CmsListPage } from "./pages/CmsPages";
 import { PageCopyEditPage, PagesListPage } from "./pages/PageCopyPages";
 import HomePageEditor from "./pages/HomePageEditor";
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/" element={ <DashboardPage /> } />
             <Route path="/appointments" element={ <AppointmentsPage /> } />
             <Route path="/appointments/:id" element={ <AppointmentDetailPage /> } />
+            <Route path="/booking-form" element={ <BookingFormPage /> } />
             <Route path="/content" element={ <Navigate to="/content/posts" replace /> } />
             <Route path="/content/:resource" element={ <CmsListPage /> } />
             <Route path="/content/:resource/new" element={ <CmsEditPage /> } />

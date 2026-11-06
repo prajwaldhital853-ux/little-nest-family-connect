@@ -219,15 +219,13 @@ class SiteImageSerializer( serializers.ModelSerializer ):
         return instance.file.url if instance.file else ""
 
     def get_bytes( self, instance ):
-        if not instance.file:
-            return 0
-        try:
-            return instance.file.size
-        except OSError:
-            # A redeploy can empty the folder the rows point at, and asking a missing file its
-            # size raises. The picture list has to open anyway, and a row without a file on it
-            # is the honest answer there.
-            return 0
+        return instance.byte_size or 0
+
+    def create( self, validated_data ):
+        # The size is written down here, once, while the file is still open in memory, so a
+        # picture list never has to visit the disk to answer how big a picture is.
+        upload = validated_data.get( "file" )
+        return super().create( { **validated_data, "byte_size": getattr( upload, "size", 0 ) or 0 } )
 
     def validate_file( self, value ):
         limit = settings.UPLOAD_MAX_BYTES

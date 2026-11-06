@@ -130,6 +130,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
+TEST_RUNNER = "config.test_runner.EmailInlineRunner"
 
 if env( "DB_ENGINE", "postgresql" ).strip().lower() == "sqlite":
     DATABASES = {
@@ -187,6 +188,10 @@ STORAGES = {
 MEDIA_URL = env( "MEDIA_URL", "/media/" )
 MEDIA_ROOT = Path( env( "MEDIA_ROOT", str( BASE_DIR / "media" ) ) )
 UPLOAD_MAX_BYTES = int( env( "UPLOAD_MAX_BYTES", str( 6 * 1024 * 1024 ) ) )
+
+# A picture at the allowed size is kept whole in memory instead of being written to a temporary
+# file and read back, which is the difference between one disk trip and two on every upload.
+FILE_UPLOAD_MAX_MEMORY_SIZE = int( env( "FILE_UPLOAD_MAX_MEMORY_SIZE", str( 8 * 1024 * 1024 ) ) )
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -311,6 +316,11 @@ EMAIL_HOST_PASSWORD = env( "EMAIL_HOST_PASSWORD" )
 EMAIL_USE_TLS = env_bool( "EMAIL_USE_TLS", True )
 DEFAULT_FROM_EMAIL = env( "DEFAULT_FROM_EMAIL", "Dr. Ramesh Kandel <replies@localhost>" )
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# A confirmation the patient gets a second later than the click is still on time, so the mail that
+# follows a Confirm leaves after the panel has its answer rather than inside the request. Set
+# EMAIL_INLINE=true only where a process has to finish what it started before it answers.
+EMAIL_INLINE = env_bool( "EMAIL_INLINE", False )
 
 LOGGING = {
     "version": 1,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ApiError, api } from "../api/client";
+import { prefetchPage } from "../api/warm";
 import type { CmsRow, Page } from "../api/types";
 import type { ResourceDef } from "../cms/resources";
 import { keyFor } from "../cms/resources";
@@ -111,6 +112,7 @@ export default function ResourceList( { resource }: { resource: ResourceDef } ) 
             <button
               key={ value || "all" }
               className={ status === value ? "on" : "" }
+              onMouseEnter={ () => prefetchPage( resource.endpoint, { page: 1, page_size: PAGE_SIZE, status: value } ) }
               onClick={ () => showStatus( value ) }
             >
               { label }

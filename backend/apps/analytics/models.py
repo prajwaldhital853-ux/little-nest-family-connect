@@ -25,7 +25,14 @@ class PageView( models.Model ):
     class Meta:
         ordering = [ "-created_at" ]
         verbose_name_plural = "Page views"
-        indexes = [ models.Index( fields = [ "day", "path" ] ) ]
+        indexes = [
+            models.Index( fields = [ "day", "path" ] ),
+            # The analytics page breaks the same range down by device, browser and referrer,
+            # each inside the days it was asked for.
+            models.Index( fields = [ "day", "device" ], name = "pageview_day_device_idx" ),
+            models.Index( fields = [ "day", "browser" ], name = "pageview_day_browser_idx" ),
+            models.Index( fields = [ "day", "referrer_host" ], name = "pageview_day_referrer_idx" ),
+        ]
 
     def __str__( self ):
         return f"{ self.day } { self.path }"

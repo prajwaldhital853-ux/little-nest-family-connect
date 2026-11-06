@@ -16,22 +16,23 @@ export default function DashboardPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [ newRequests, upcoming, latest ] = await Promise.all([
+        /* Four questions at once, and the draft counts arrive as one answer instead of one
+           request per section of the site. */
+        const [ newRequests, upcoming, latest, counts ] = await Promise.all([
           api.page<Appointment>( "/api/appointments/", { status: "pending", page_size: 5 } ),
           api.page<Appointment>( "/api/appointments/", { status: "confirmed", date_from: today(), page_size: 5 } ),
           api.page<Appointment>( "/api/appointments/", { ordering: "-created_at", page_size: 5 } ),
+          api.get<Record<string, number>>( "/api/cms/counts/drafts/" ),
         ]);
         setPending( newRequests );
         setConfirmed( upcoming );
         setRecent( latest );
-        const counts = await Promise.all(
-          resources.map( async resource => ( {
-            slug: resource.slug,
-            name: resource.plural,
-            count: ( await api.page( resource.endpoint, { status: "draft", page_size: 1 } ) ).count,
-          } ) )
+        setDrafts(
+          Object.entries( counts )
+            .filter( ( [ , count ] ) => count > 0 )
+            .map( ( [ slug, count ] ) => ( { slug, name: resources.find( item => item.slug === slug )?.plural ?? slug, count } ) )
         );
-        setDrafts( counts.filter( item => item.count > 0 ) );      } catch ( reason ) {
+      } catch ( reason ) {
         setError( reason instanceof ApiError ? reason.message : "Could not reach the server." );
       }
     };

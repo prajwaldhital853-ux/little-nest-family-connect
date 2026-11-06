@@ -21,7 +21,10 @@ class AuditEntryViewSet( mixins.ListModelMixin, mixins.RetrieveModelMixin, views
 
     permission_classes = [ IsAdminUser ]
     serializer_class = AuditEntrySerializer
-    queryset = AuditEntry.objects.select_related( "actor" ).all()
+    # The name each line was written under travels in the row itself, so the account is never read
+    # alongside it: it can be deleted while its history stays, and joining it would only cost a
+    # lookup per line.
+    queryset = AuditEntry.objects.all()
     ordering_fields = [ "created_at" ]
     ordering = [ "-created_at", "-id" ]
 

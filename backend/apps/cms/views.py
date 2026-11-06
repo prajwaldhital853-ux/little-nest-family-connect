@@ -11,6 +11,7 @@ from django.utils._os import safe_join
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -197,7 +198,9 @@ class PageCopyViewSet( viewsets.ModelViewSet ):
 
     permission_classes = [ IsAdminOrReadOnly ]
     serializer_class = PageCopySerializer
-    queryset = PageCopy.objects.all()
+    # The list shows who last rewrote each page, and without the join the panel's wording screen
+    # asked for one more query per page than the page itself needed.
+    queryset = PageCopy.objects.select_related( "updated_by" ).all()
     lookup_field = "key"
     http_method_names = [ "get", "put", "patch", "head", "options" ]
 
@@ -206,6 +209,17 @@ class PageCopyViewSet( viewsets.ModelViewSet ):
         if not self.request.user.is_staff:
             rows = rows.filter( published = True )
         return rows
+
+    def update( self, request, *args, key = None, **kwargs ):
+        """Saving a page nobody has rewritten before creates its row.
+
+        The bundle the site ships already holds every word of the page, so the row only exists to
+        hold what the doctor changed; the site fills in the rest when it merges the two.
+        """
+        if key and not kwargs.get( "partial" ) and not self.get_queryset().filter( key = key ).exists():
+            label = str( request.data.get( "label", "" ) ).strip() or key.replace( "_", " " ).capitalize()
+            PageCopy.objects.create( key = key, label = label, data = {} )
+        return super().update( request, *args, **kwargs )
 
     def perform_update( self, serializer ):
         before = dict( serializer.instance.data or {} )
@@ -228,6 +242,26 @@ class SiteImageViewSet( viewsets.ModelViewSet ):
 
     def perform_create( self, serializer ):
         serializer.save( uploaded_by = self.request.user )
+
+
+DRAFT_COUNTS = [ ( "posts", Post ), ( "media", MediaItem ), ( "press", PressArticle ), ( "publications", Publication ), ( "faqs", Faq ) ]
+
+
+class DraftCountsView( APIView ):
+    """How many drafts sit in each part of the site, in one answer.
+
+    The Today screen used to ask five times, once per section, and each of those calls paid for a
+    full round trip to the API just to read one number.
+    """
+
+    permission_classes = [ IsAdminUser ]
+
+    def get( self, request ):
+        counts = {
+            slug: model.objects.filter( status = PublishStatus.DRAFT ).count()
+            for slug, model in DRAFT_COUNTS
+        }
+        return Response( counts )
 
 
 def published_rows( request, model, order ):

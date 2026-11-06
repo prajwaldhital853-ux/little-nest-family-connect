@@ -10,7 +10,7 @@ import { Button, Notice } from "../components/ui";
 /* Every picture the panel has been given, in one place, so a photo uploaded for one page can be
    used on another without uploading it twice. */
 export default function GalleryPage() {
-  const { images, error, busy, upload, remove } = useGallery();
+  const { images, error, busy, fraction, upload, remove } = useGallery();
   const toast = useToast();
   const picker = useRef<HTMLInputElement>( null );
 
@@ -48,6 +48,16 @@ export default function GalleryPage() {
       />
 
       { error ? <Notice>{ error }</Notice> : null }
+
+      { busy ? (
+        <div className="bar-row">
+          <span className="bar-label">Sending the photo</span>
+          <span className="bar-track">
+            <span className="bar-fill" style={ { width: `${ Math.round( ( fraction ?? 0 ) * 100 ) }%` } } />
+          </span>
+          <span className="bar-value">{ Math.round( ( fraction ?? 0 ) * 100 ) }%</span>
+        </div>
+      ) : null }
 
       { images === null ? (
         !error ? <p className="text-small loading">Loading the gallery.</p> : null

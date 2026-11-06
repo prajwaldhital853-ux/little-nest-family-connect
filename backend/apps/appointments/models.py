@@ -70,7 +70,12 @@ class Appointment( models.Model ):
     class Meta:
         # an unscheduled request has no time to sort by, so the inbox leads with recency
         ordering = [ "-created_at" ]
-        indexes = [ models.Index( fields = [ "status", "scheduled_at" ], name = "appointment_status_slot_idx" ) ]
+        indexes = [
+            models.Index( fields = [ "status", "scheduled_at" ], name = "appointment_status_slot_idx" ),
+            # The inbox opens newest first, and every tab is a state plus that same newest order.
+            models.Index( fields = [ "-created_at", "-id" ], name = "appointment_inbox_idx" ),
+            models.Index( fields = [ "status", "-created_at" ], name = "appointment_status_recent_idx" ),
+        ]
 
     def __str__( self ):
         return f"{ self.reference or 'draft' } { self.patient_name } { self.get_status_display() }"
