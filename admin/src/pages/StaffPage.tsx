@@ -16,6 +16,7 @@ export default function StaffPage() {
   const [ form, setForm ] = useState<Record<string, unknown>>( BLANK );
   const [ errors, setErrors ] = useState<Record<string, string[]>>( {} );
   const [ error, setError ] = useState("");
+  const [ saving, setSaving ] = useState(false);
 
   const load = useCallback(() => {
     api.page<StaffUser>( "/api/auth/users/", { page_size: 100, ordering: "email" } ).then( setRows ).catch( ( reason: ApiError ) => setError( reason.message ) );
@@ -37,6 +38,7 @@ export default function StaffPage() {
 
   async function save( event: React.FormEvent ) {
     event.preventDefault();
+    setSaving( true );
     setErrors( {} );
     setError( "" );
     const body: Record<string, unknown> = { ...form };
@@ -59,6 +61,8 @@ export default function StaffPage() {
         setError( message );
         toast.error( message );
       }
+    } finally {
+      setSaving( false );
     }
   }
 
@@ -105,8 +109,8 @@ export default function StaffPage() {
             <Checkbox label="Account active" checked={ Boolean( form.is_active ) } onChange={ next => setForm( { ...form, is_active: next } ) } />
           </div>
           <div className="form-actions">
-            <Button type="submit">Save</Button>
-            <Button tone="quiet" type="button" onClick={ () => { setEditing( null ); setForm( { ...BLANK } ); } }>
+            <Button type="submit" busy={ saving }>{ saving ? "Saving" : "Save" }</Button>
+            <Button tone="quiet" type="button" disabled={ saving } onClick={ () => { setEditing( null ); setForm( { ...BLANK } ); } }>
               Cancel
             </Button>
           </div>

@@ -592,6 +592,29 @@ a:hover {
   box-shadow: none;
 }
 
+/* The turn a button makes while the server is still deciding. */
+.btn-spin {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-spin {
+    animation-duration: 1.8s;
+  }
+}
+
 /* ── filters over a list ───────────────────────────── */
 
 .toolbar {
@@ -1222,6 +1245,13 @@ select {
   display: block;
   width: 100%;
   height: auto;
+  cursor: crosshair;
+  border-radius: 8px;
+}
+
+.trend:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .trend .axis {
@@ -1269,6 +1299,44 @@ select {
   fill: var(--paper);
   stroke: var(--accent);
   stroke-width: 1.6;
+}
+
+.dot-people {
+  fill: var(--paper);
+  stroke: var(--pink);
+  stroke-width: 1.6;
+}
+
+.dot-asks {
+  fill: var(--paper);
+  stroke: var(--purple);
+  stroke-width: 1.6;
+}
+
+/* The day the pointer, a tap or an arrow key stopped on. */
+.trend .held {
+  stroke-width: 2.4;
+}
+
+.trend .guide {
+  stroke: var(--line-strong);
+  stroke-dasharray: 2 4;
+}
+
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  min-height: 22px;
+  margin: 0 0 4px;
+  font-size: 0.83rem;
+  color: var(--ink-soft);
+}
+
+.readout strong {
+  color: var(--ink);
+  font-weight: 620;
 }
 
 .chart-key {

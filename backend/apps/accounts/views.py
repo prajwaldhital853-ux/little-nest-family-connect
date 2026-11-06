@@ -127,7 +127,10 @@ class LoginView( APIView ):
             return apply_lock( response, blocked )
 
         user = authenticate( request = request, username = email, password = password )
-        if user is None or not user.is_staff or not user.is_active or email not in settings.ADMIN_LOGIN_EMAILS:
+        # The staff accounts the panel lists are the door to the panel, so an account added there
+        # can sign in with its own password and its own emailed code. ADMIN_LOGIN_EMAILS names only
+        # the first account to create; it has never been a list of everyone allowed in.
+        if user is None or not user.is_staff or not user.is_active:
             retry = Lockout.register_failure( Lockout.LOGIN, identities, email )
             record( "login.failed", request = request, detail = { "email": email } )
             if retry:

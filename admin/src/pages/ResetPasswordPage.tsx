@@ -77,7 +77,7 @@ export default function ResetPasswordPage() {
             <Field label="Type it again">
               <TextInput type="password" autoComplete="new-password" value={ again } onChange={ event => setAgain( event.target.value ) } required />
             </Field>
-            <Button type="submit" disabled={ busy || !password || !again }>
+            <Button type="submit" busy={ busy } disabled={ busy || !password || !again }>
               { busy ? "Saving" : "Set the password" }
             </Button>
           </>

@@ -48,7 +48,8 @@ export default function ResourceForm( { resource }: { resource: ResourceDef } ) 
   const [ values, setValues ] = useState<Values | null>( null );
   const [ errors, setErrors ] = useState<Record<string, string[]>>( {} );
   const [ failed, setFailed ] = useState("");
-  const [ saving, setSaving ] = useState(false);
+  /* Which of the two save buttons is waiting on the server, so the one he did not press keeps its own word. */
+  const [ saving, setSaving ] = useState<"" | "save" | "publish">( "" );
   const [ meta, setMeta ] = useState<{ published_at: string | null; updated_at: string } | null>( null );
 
   useEffect(() => {
@@ -86,8 +87,8 @@ export default function ResourceForm( { resource }: { resource: ResourceDef } ) 
     setValues( current => ( { ...( current as Values ), ...next } ) );
   }
 
-  async function submit( nextStatus?: string ) {
-    setSaving( true );
+  async function submit( nextStatus?: string, action: "save" | "publish" = "save" ) {
+    setSaving( action );
     setFailed( "" );
     const shown = values as Values;
     /* Whatever the Status box says goes to the server, whether he pressed Save or Save and publish:
@@ -114,7 +115,7 @@ export default function ResourceForm( { resource }: { resource: ResourceDef } ) 
         toast.error( "Could not save. Check that the backend is running." );
       }
     } finally {
-      setSaving( false );
+      setSaving( "" );
     }
   }
 
@@ -166,13 +167,18 @@ export default function ResourceForm( { resource }: { resource: ResourceDef } ) 
         { meta?.updated_at ? <p className="text-small quiet span-2">Last saved { formatDate( meta.updated_at ) }</p> : null }
 
         <footer className="form-actions span-2">
-          <Button disabled={ saving } onClick={ () => submit() }>
-            Save
+          <Button busy={ saving === "save" } disabled={ saving !== "" } onClick={ () => submit( undefined, "save" ) }>
+            { saving === "save" ? "Saving" : "Save" }
           </Button>
-          <Button tone="quiet" disabled={ saving } onClick={ () => submit( published ? "draft" : "published" ) }>
-            { published ? "Save and unpublish" : "Save and publish" }
+          <Button
+            tone="quiet"
+            busy={ saving === "publish" }
+            disabled={ saving !== "" }
+            onClick={ () => submit( published ? "draft" : "published", "publish" ) }
+          >
+            { saving === "publish" ? "Saving" : published ? "Save and unpublish" : "Save and publish" }
           </Button>
-          <Button tone="quiet" disabled={ saving } onClick={ () => navigate( `/content/${ slug }` ) }>
+          <Button tone="quiet" disabled={ saving !== "" } onClick={ () => navigate( `/content/${ slug }` ) }>
             Back to list
           </Button>
         </footer>

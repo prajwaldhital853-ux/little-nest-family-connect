@@ -8,7 +8,10 @@ export function CmsListPage() {
   const { resource: slug } = useParams();
   const found = findResource( slug );
   if ( !found ) return <Notice>That content type does not exist.</Notice>;
-  return <ResourceList resource={ found } />;
+  /* One component serves every content type, so without a key React keeps the previous type's
+     rows and page number when he moves between them: the FAQs list used to open showing
+     publications on page two. */
+  return <ResourceList key={ found.slug } resource={ found } />;
 }
 
 export function CmsEditPage() {

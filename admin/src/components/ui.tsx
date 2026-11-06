@@ -11,10 +11,13 @@ import { Icon } from "./icons";
 export function Button( {
   children,
   tone = "primary",
+  busy = false,
+  disabled,
   ...rest
-}: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: "primary" | "quiet" | "danger" } ) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: "primary" | "quiet" | "danger"; busy?: boolean } ) {
   return (
-    <button className={ `btn btn-${ tone }` } { ...rest }>
+    <button className={ `btn btn-${ tone }` } aria-busy={ busy || undefined } disabled={ disabled || busy } { ...rest }>
+      { busy ? <span className="btn-spin" aria-hidden="true" /> : null }
       { children }
     </button>
   );

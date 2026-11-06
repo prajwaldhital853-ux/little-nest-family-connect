@@ -330,7 +330,7 @@ export default function SeoPage() {
         </div>
 
         <div className="form-actions">
-          <Button type="submit" disabled={ saving || !dirty }>
+          <Button type="submit" busy={ saving } disabled={ saving || !dirty }>
             { saving ? "Saving" : "Save search settings" }
           </Button>
           { dirty && !saving ? <span className="text-small quiet">Not saved yet.</span> : null }

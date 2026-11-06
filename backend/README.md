@@ -107,7 +107,7 @@ Three rules the doctor asked for, all enforced server side:
   `OTP_TTL_MINUTES` with `OTP_MAX_ATTEMPTS` tries. A server with no mail account, or one the mail
   server refuses, answers `503` with the reason in the panel's own notice, rather than starting a
   code that nobody will ever read. That step is `OTP_REQUIRED`: left `true` it is the rule, and set
-  `false` on a server with no mail account the allowlisted address signs in on its password alone,
+  `false` on a server with no mail account a staff account signs in on its password alone,
   which is the only step that can work there. It is written in the audit trail as
   `login.device_trusted_without_a_code`, and the browser is remembered, so switching back to `true`
   later does not lock the doctor out of his own panel.
@@ -117,9 +117,10 @@ Three rules the doctor asked for, all enforced server side:
 Scoped throttles sit on top: login 10/min, otp 6/min, reset 6/min, the analytics beacon 60/min,
 appointments 20/day, anonymous API 100/min and public feeds 300/hour.
 
-Only addresses in `ADMIN_LOGIN_EMAILS` can sign in with a password at all. Staff helpers get
-accounts, and the panel gives them a session only through that list, so a second mailbox can never
-open the inbox.
+Any active staff account can sign in: its own password, then a code at its own address. The panel's
+Staff accounts page is therefore the door, and unticking "Can use the panel" or removing the account
+is how access is taken back. `ADMIN_LOGIN_EMAILS` no longer decides who gets in; it names the first
+address to create on a database that has no accounts yet.
 
 An appointment arrives with no time: `scheduled_at` is empty until the clinic agrees one, so the
 inbox sorts on `created_at`, not on the slot.
@@ -134,7 +135,7 @@ Set in the server's environment (all read in `config/settings.py`, none of it co
 | `DJANGO_SECRET_KEY` | a long random string |
 | `DJANGO_DEBUG` | `false` |
 | `DJANGO_ALLOWED_HOSTS` | the API's own hostnames, comma separated |
-| `ADMIN_LOGIN_EMAILS` | the doctor's address, comma separated if there is a second one. Nothing else can sign in. |
+| `ADMIN_LOGIN_EMAILS` | the address `ensure_first_account` creates on a database that has no accounts yet. It no longer decides who may sign in. |
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT` | the database to use |
 | `PANEL_ORIGIN` | where the panel is served from, with scheme. Checked against the `Origin` header on every cookie-backed auth call. |
 | `CORS_ALLOWED_ORIGINS` | the site's origin, comma separated, with scheme |
@@ -208,8 +209,8 @@ The variables to add, and what goes in each:
 | `JWT_SIGNING_KEY` | generate one, or leave it out and `DJANGO_SECRET_KEY` signs the tokens. |
 | `DJANGO_DEBUG` | `false` |
 | `DJANGO_ALLOWED_HOSTS` | the site's domain and the service's own `*.onrender.com` name, comma separated. The site forwards `/api` here, so the calls arrive naming the site's domain. Add `.vercel.app` with a leading dot if the preview builds should reach it too. |
-| `ADMIN_LOGIN_EMAILS` | the doctor's address. Nothing else can sign in with a password. |
-| `OTP_REQUIRED` | `true` normally. `false` lets the allowlisted address in on its password alone, which is the only way in while the server has no mail account: the allowlist, the password check and the three tries and five minute block all still apply. A browser that got in that way is remembered, so setting it back to `true` later does not lock him out of his own panel. `/api/health/` answers `otp: off` so the choice stays visible. |
+| `ADMIN_LOGIN_EMAILS` | the doctor's address. It names the account `render.sh` makes on an empty database and nothing more: any active staff account can sign in. |
+| `OTP_REQUIRED` | `true` normally. `false` lets a staff account in on its password alone, which is the only way in while the server has no mail account: the staff check, the password check and the three tries and five minute block all still apply. A browser that got in that way is remembered, so setting it back to `true` later does not lock him out of his own panel. `/api/health/` answers `otp: off` so the choice stays visible. |
 | `DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_PASSWORD` | the account `render.sh` makes on a database that has no accounts yet; the address is taken from `ADMIN_LOGIN_EMAILS` when the email one is left out, so a password alone is enough. It never changes a password that is already set, so once the panel works, change it there and these two can be cleared. |
 | `PANEL_ORIGIN` | `https://` and the site's domain. The reset link mailed out is built from this, so the development default would mail him a link to his own laptop. |
 | `PANEL_PATH` | `/admin` |
@@ -225,10 +226,11 @@ The variables to add, and what goes in each:
 | `UPLOAD_MAX_BYTES` | the largest picture the panel will take, default 6 MB. |
 
 Every row has to be replaced, because a placeholder is not empty as far as the server is concerned.
-`ADMIN_LOGIN_EMAILS` is the one that misleads: only an address on that list can sign in with a
-password, so a leftover `FILL:` value answers a perfectly correct password with "Email or password is
-not correct". The mail names are honest about it, and `/api/health/` says `mail: not configured`
-until the host looks like a host and the account looks like an address.
+`ADMIN_LOGIN_EMAILS` used to be the one that misleads: while it gated the password check, a leftover
+`FILL:` value answered a perfectly correct password with "Email or password is not correct". It does
+not gate anything now, so a stale value there only means the boot-time account is named nonsense on
+a database that has no accounts yet. The mail names are honest about it, and `/api/health/` says
+`mail: not configured` until the host looks like a host and the account looks like an address.
 
 Filled in for the live site, everything except the three values marked below. `DATABASE_URL` is
 pasted from the database's own page (Internal key), and `ADMIN_LOGIN_EMAILS`, `EMAIL_HOST_USER`,
@@ -289,7 +291,7 @@ the same steps by hand:
 
 ```
 python manage.py migrate --noinput
-python manage.py createsuperuser      # the doctor's address, which must be in ADMIN_LOGIN_EMAILS
+python manage.py createsuperuser      # the doctor's address, staff so the panel will take it
 python manage.py ensure_first_content # or the two commands below, one at a time
 ```
 

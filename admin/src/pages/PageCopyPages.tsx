@@ -354,7 +354,7 @@ function PageCopyWords() {
         ) : null }
 
         <footer className="form-actions">
-          <Button type="submit" disabled={ saving || !dirty }>
+          <Button type="submit" busy={ saving } disabled={ saving || !dirty }>
             { saving ? "Saving" : dirty ? "Save words" : "Saved" }
           </Button>
           <Button tone="quiet" type="button" onClick={ () => navigate( "/pages" ) }>

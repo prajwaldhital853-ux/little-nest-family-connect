@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ApiError, api } from "../api/client";
 import type { AnalyticsSummary } from "../api/types";
 import SectionHead from "../components/SectionHead";
-import { Notice, Pill, StatCard } from "../components/ui";
+import { Notice, Pill, StatCard, formatDay } from "../components/ui";
 
 const RANGES = [ 7, 30, 90 ];
 
@@ -162,40 +162,100 @@ function Trend( { series }: { series: AnalyticsSummary["series"] } ) {
   const levels = [ 1, 0.75, 0.5, 0.25, 0 ];
   const views = points( row => row.pageviews );
 
+  /* The day under the pointer, and the one he stopped on. A touch device never hovers, so a tap
+     does both at once, and the arrow keys do it for anyone who would rather not chase a dot. */
+  const [ hover, setHover ] = useState<number | null>( null );
+  const [ pinned, setPinned ] = useState<number | null>( null );
+  const active = hover === null ? pinned : hover;
+  const day = active === null ? undefined : series[ active ];
+
+  function near( event: { currentTarget: SVGSVGElement; clientX: number } ): number {
+    const box = event.currentTarget.getBoundingClientRect();
+    const across = ( ( event.clientX - box.left ) / box.width ) * width;
+    const index = Math.round( ( ( across - pad.left ) * step ) / ( width - pad.left - pad.right ) );
+    return Math.min( series.length - 1, Math.max( 0, index ) );
+  }
+
+  function clamp( next: number ): number {
+    return Math.min( series.length - 1, Math.max( 0, next ) );
+  }
+
   return (
-    <svg className="trend" viewBox={ `0 0 ${ width } ${ height }` } role="img" aria-label="Page views, visitors and enquiries for each day">
-      { levels.map( part => (
-        <line
-          key={ part }
-          x1={ pad.left }
-          x2={ width - pad.right }
-          y1={ up( top * part ) }
-          y2={ up( top * part ) }
-          className={ part === 0 ? "axis" : "gridline" }
-        />
-      ) ) }
-      { levels.map( part => (
-        <text key={ part } x={ 6 } y={ up( top * part ) + 3 } className="tick">
-          { Math.round( top * part ) }
-        </text>
-      ) ) }
-      { views.length > 1 ? (
-        <path className="area area-views" d={ `${ curve( views ) } L${ views[ views.length - 1 ][ 0 ] },${ up( 0 ) } L${ views[ 0 ][ 0 ] },${ up( 0 ) } Z` } />
-      ) : null }
-      <path className="line line-views" d={ curve( views ) } />
-      <path className="line line-people" d={ curve( points( row => row.visitors ) ) } />
-      <path className="line line-asks" d={ curve( points( row => row.enquiries * 4 ) ) } />
-      { series.map( ( row, index ) => (
-        <circle key={ row.day } cx={ at( index ) } cy={ up( row.pageviews ) } r={ 2.6 } className="dot dot-views">
-          <title>{ `${ row.day }: ${ row.pageviews } views, ${ row.visitors } visitors, ${ row.enquiries } enquiries` }</title>
-        </circle>
-      ) ) }
-      { labels.map( row => (
-        <text key={ row.day } x={ at( series.indexOf( row ) ) } y={ height - 6 } className="tick" textAnchor="middle">
-          { row.day.slice( 5 ) }
-        </text>
-      ) ) }
-    </svg>
+    <>
+      <p className="readout" aria-live="polite">
+        { day ? (
+          <>
+            <strong>{ formatDay( day.day ) }</strong>
+            <span className="key key-views">{ day.pageviews } views</span>
+            <span className="key key-people">{ day.visitors } visitors</span>
+            <span className="key key-asks">{ day.enquiries } enquiries</span>
+            { pinned !== null && hover === null ? <span className="quiet">Kept. Click the chart again to let go.</span> : null }
+          </>
+        ) : (
+          <span className="quiet">Move over the line, tap it, or use the arrow keys to read one day.</span>
+        ) }
+      </p>
+      <svg
+        className="trend"
+        viewBox={ `0 0 ${ width } ${ height }` }
+        role="img"
+        tabIndex={ 0 }
+        aria-label="Page views, visitors and enquiries for each day. The arrow keys read one day at a time."
+        onPointerMove={ event => setHover( near( event ) ) }
+        onPointerLeave={ () => setHover( null ) }
+        onClick={ event => {
+          const index = near( event );
+          setPinned( current => ( current === index ? null : index ) );
+        } }
+        onKeyDown={ event => {
+          if ( event.key === "Escape" ) setPinned( null );
+          else if ( event.key === "ArrowLeft" ) setPinned( current => clamp( ( current ?? active ?? 0 ) - 1 ) );
+          else if ( event.key === "ArrowRight" ) setPinned( current => clamp( ( current ?? active ?? -1 ) + 1 ) );
+          else if ( event.key === "Home" ) setPinned( 0 );
+          else if ( event.key === "End" ) setPinned( series.length - 1 );
+          else return;
+          event.preventDefault();
+        } }
+      >
+        { levels.map( part => (
+          <line
+            key={ part }
+            x1={ pad.left }
+            x2={ width - pad.right }
+            y1={ up( top * part ) }
+            y2={ up( top * part ) }
+            className={ part === 0 ? "axis" : "gridline" }
+          />
+        ) ) }
+        { levels.map( part => (
+          <text key={ part } x={ 6 } y={ up( top * part ) + 3 } className="tick">
+            { Math.round( top * part ) }
+          </text>
+        ) ) }
+        { views.length > 1 ? (
+          <path className="area area-views" d={ `${ curve( views ) } L${ views[ views.length - 1 ][ 0 ] },${ up( 0 ) } L${ views[ 0 ][ 0 ] },${ up( 0 ) } Z` } />
+        ) : null }
+        <path className="line line-views" d={ curve( views ) } />
+        <path className="line line-people" d={ curve( points( row => row.visitors ) ) } />
+        <path className="line line-asks" d={ curve( points( row => row.enquiries * 4 ) ) } />
+        { active !== null && day ? (
+          <>
+            <line className="guide" x1={ at( active ) } x2={ at( active ) } y1={ pad.top } y2={ height - pad.bottom } />
+            <circle className="dot dot-views held" cx={ at( active ) } cy={ up( day.pageviews ) } r={ 4.4 } />
+            <circle className="dot dot-people held" cx={ at( active ) } cy={ up( day.visitors ) } r={ 4.4 } />
+            <circle className="dot dot-asks held" cx={ at( active ) } cy={ up( day.enquiries * 4 ) } r={ 4.4 } />
+          </>
+        ) : null }
+        { series.map( ( row, index ) => (
+          <circle key={ row.day } cx={ at( index ) } cy={ up( row.pageviews ) } r={ 2.6 } className="dot dot-views" />
+        ) ) }
+        { labels.map( row => (
+          <text key={ row.day } x={ at( series.indexOf( row ) ) } y={ height - 6 } className="tick" textAnchor="middle">
+            { row.day.slice( 5 ) }
+          </text>
+        ) ) }
+      </svg>
+    </>
   );
 }
 

@@ -63,9 +63,11 @@ that wider rule forwards the site's own `/media` page to the backend, and refres
 with the backend's "not found" instead of the page.
 
 On the backend, set that same public site address as `PANEL_ORIGIN`, list it in
-`DJANGO_ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`, and keep `ADMIN_LOGIN_EMAILS` to the doctor's own
-address. Pictures uploaded from the panel are files in the backend's `media/` folder, so the host
-has to keep that folder between deploys; an ephemeral one loses every picture he has added.
+`DJANGO_ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`, and put the doctor's own address in
+`ADMIN_LOGIN_EMAILS`, which names the account the first boot creates. Everyone else who needs the
+panel gets an account under Staff accounts, and the tick marked "Can use the panel" is what lets
+them sign in. Pictures uploaded from the panel are files in the backend's `media/` folder, so the
+host has to keep that folder between deploys; an ephemeral one loses every picture he has added.
 
 ## Every word of every page
 

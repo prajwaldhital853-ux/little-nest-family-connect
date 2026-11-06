@@ -73,7 +73,8 @@ DEBUG = env_bool( "DJANGO_DEBUG", False )
 # wifi opens the panel through the site's address and every call then carries that address.
 ALLOWED_HOSTS = env_list( "DJANGO_ALLOWED_HOSTS", "*" if DEBUG else "localhost,127.0.0.1" )
 
-# The panel only signs in as this address. Staff helpers get accounts but never a password login here.
+# The address to make first on a database that has no accounts yet. Who may sign in is decided by
+# the staff tick on the account, not by this list: the panel's Staff accounts page is the door.
 ADMIN_LOGIN_EMAILS = [ email.strip().lower() for email in env_list( "ADMIN_LOGIN_EMAILS", "drameshkandel@gmail.com" ) ]
 
 DJANGO_ADMIN_ENABLED = env_bool( "DJANGO_ADMIN_ENABLED", False )
@@ -257,9 +258,9 @@ LOGIN_MAX_ATTEMPTS = int( env( "LOGIN_MAX_ATTEMPTS", "3" ) )
 LOGIN_LOCK_MINUTES = int( env( "LOGIN_LOCK_MINUTES", "5" ) )
 OTP_MAX_ATTEMPTS = int( env( "OTP_MAX_ATTEMPTS", "5" ) )
 OTP_TTL_MINUTES = int( env( "OTP_TTL_MINUTES", "10" ) )
-# On by default, because a code he cannot read is a door that stays shut. Set to false to let the
-# allowlisted address in on its password alone while the server has no mail account: the lockout,
-# the allowlist and the password check all still apply, and one browser that got in that way stays
+# On by default, because a code he cannot read is a door that stays shut. Set to false to let a
+# staff account in on its password alone while the server has no mail account: the lockout,
+# the staff check and the password check all still apply, and one browser that got in that way stays
 # remembered, so switching the codes back on later does not lock the doctor out of his own panel.
 OTP_REQUIRED = env_bool( "OTP_REQUIRED", True )
 # A known code on a development machine, where the mail backend does not deliver anywhere.

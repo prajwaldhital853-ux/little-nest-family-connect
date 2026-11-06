@@ -1463,6 +1463,16 @@ class SiteImageTests( APITestCase ):
         )
         self.assertEqual( self.client.post( "/api/cms/images/", { "file": self.picture() } ).status_code, status.HTTP_401_UNAUTHORIZED )
 
+    def test_a_picture_the_server_lost_does_not_take_the_list_down( self ):
+        """Render rebuilds throw the folder away; a row pointing at nothing must still list."""
+        self.client.post( "/api/cms/images/", { "file": self.picture() }, HTTP_AUTHORIZATION = self.header )
+        SiteImage.objects.create( file = self.picture( "gone.png" ), label = "Lost" )
+        for name in SiteImage.objects.values_list( "file", flat = True ):
+            os.remove( os.path.join( self.media_root, str( name ) ) )
+        response = self.client.get( "/api/cms/images/", HTTP_AUTHORIZATION = self.header )
+        self.assertEqual( response.status_code, status.HTTP_200_OK, response.data )
+        self.assertEqual( [ row[ "bytes" ] for row in response.data[ "results" ] ], [ 0, 0 ] )
+
     def test_a_file_that_is_not_a_picture_is_refused( self ):
         response = self.client.post(
             "/api/cms/images/", { "file": self.picture( "notes.txt", b"not a picture at all" ) }, HTTP_AUTHORIZATION = self.header

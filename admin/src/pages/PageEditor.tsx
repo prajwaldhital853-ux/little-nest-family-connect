@@ -136,7 +136,7 @@ export default function PageEditor( {
             <a className="btn btn-quiet" href={ `${ siteOrigin() }${ sitePath }` } target="_blank" rel="noreferrer">
               See the site
             </a>
-            <Button disabled={ busy || !dirty } onClick={ save }>
+            <Button busy={ busy } disabled={ busy || !dirty } onClick={ save }>
               { busy ? "Saving" : dirty ? "Save changes" : "Saved" }
             </Button>
           </>

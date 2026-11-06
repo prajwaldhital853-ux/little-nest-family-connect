@@ -17,6 +17,8 @@ export default function AccountPage() {
   const [ passwordError, setPasswordError ] = useState("");
   const [ devices, setDevices ] = useState<TrustedDevice[]>( [] );
   const [ deviceError, setDeviceError ] = useState("");
+  /* Which of the two buttons is waiting on the server, so neither looks idle mid-request. */
+  const [ busy, setBusy ] = useState<"profile" | "password" | "">("");
 
   const load = useCallback(() => {
     api.get<TrustedDevice[]>( "/api/auth/devices/" ).then( setDevices ).catch( () => undefined );
@@ -50,6 +52,7 @@ export default function AccountPage() {
   async function saveProfile( event: React.FormEvent ) {
     event.preventDefault();
     setError( "" );
+    setBusy( "profile" );
     try {
       const updated = await api.patch<StaffUser>( "/api/auth/me/", { full_name, job_title } );
       setUser( updated );
@@ -58,12 +61,15 @@ export default function AccountPage() {
       const message = reason instanceof ApiError ? reason.message : "Could not save.";
       setError( message );
       toast.error( message );
+    } finally {
+      setBusy( "" );
     }
   }
 
   async function savePassword( event: React.FormEvent ) {
     event.preventDefault();
     setPasswordError( "" );
+    setBusy( "password" );
     try {
       const result = await api.post<{ detail: string }>( "/api/auth/password/", { current_password: current, new_password: next } );
       toast.success( result.detail );
@@ -73,6 +79,8 @@ export default function AccountPage() {
       const message = reason instanceof ApiError ? reason.message : "Could not change the password.";
       setPasswordError( message );
       toast.error( message );
+    } finally {
+      setBusy( "" );
     }
   }
 
@@ -89,7 +97,7 @@ export default function AccountPage() {
         </Field>
         { error ? <Notice>{ error }</Notice> : null }
         <div className="form-actions">
-          <Button type="submit">Save</Button>
+          <Button type="submit" busy={ busy === "profile" }>{ busy === "profile" ? "Saving" : "Save" }</Button>
         </div>
       </form>
 
@@ -104,8 +112,8 @@ export default function AccountPage() {
         </Field>
         { passwordError ? <Notice>{ passwordError }</Notice> : null }
         <div className="form-actions">
-          <Button type="submit" disabled={ !current || !next }>
-            Change password
+          <Button type="submit" busy={ busy === "password" } disabled={ !current || !next }>
+            { busy === "password" ? "Changing" : "Change password" }
           </Button>
         </div>
       </form>

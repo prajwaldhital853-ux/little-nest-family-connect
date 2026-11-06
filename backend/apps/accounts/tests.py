@@ -126,10 +126,11 @@ class SignInTests( APITestCase ):
         Lockout.objects.update( locked_until = timezone.now() - timedelta( seconds = 1 ) )
         self.assertEqual( self.sign_in().status_code, status.HTTP_200_OK )
 
-    def test_only_the_doctors_address_may_sign_in_even_with_a_staff_account( self ):
+    def test_a_staff_account_the_panel_added_signs_in_with_a_code_of_its_own( self ):
         response = self.sign_in( email = "helper@example.com", password = "another-passphrase-5" )
-        self.assertEqual( response.status_code, status.HTTP_400_BAD_REQUEST )
-        self.assertEqual( OtpChallenge.objects.count(), 0 )
+        self.assertEqual( response.status_code, status.HTTP_200_OK, response.data )
+        self.assertTrue( response.data[ "otp_required" ] )
+        self.assertEqual( [ message.to[ 0 ] for message in mail.outbox ], [ "helper@example.com" ] )
 
     def test_non_staff_and_deactivated_accounts_are_refused( self ):
         self.assertEqual( self.sign_in( email = "visitor@example.com", password = "some-passphrase-9" ).status_code, 400 )
