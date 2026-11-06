@@ -69,10 +69,12 @@ const SiteDataContext = createContext<SiteData>( bundledData );
 /* Whether the corpus is being asked for again, for a page written since the last copy arrived. */
 export interface SiteStatus {
   busy: boolean;
+  /* Nothing has come from the API yet in this visit, so every word on the screen is the bundle's. */
+  waiting: boolean;
   chase: () => void;
 }
 
-const SiteStatusContext = createContext<SiteStatus>( { busy: false, chase: () => undefined } );
+const SiteStatusContext = createContext<SiteStatus>( { busy: false, waiting: false, chase: () => undefined } );
 
 export function SiteDataProvider( { children }: { children: ReactNode } ) {
   const { data, isFetching, refetch } = useQuery( {
@@ -94,7 +96,7 @@ export function SiteDataProvider( { children }: { children: ReactNode } ) {
     void refetch();
   }, [ refetch ] );
 
-  const status = useMemo( () => ( { busy: isFetching, chase } ), [ isFetching, chase ] );
+  const status = useMemo( () => ( { busy: isFetching, waiting: data === undefined, chase } ), [ isFetching, data, chase ] );
 
   return (
     <SiteStatusContext.Provider value={ status }>

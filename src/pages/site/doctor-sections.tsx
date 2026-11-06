@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, Check, ChevronsLeft, MapPin, Menu, Phone, Play, Plus, X } from "lucide-react";
 
@@ -28,12 +28,17 @@ function useInView<T extends HTMLElement>( threshold = 0.25 ) {
       setInView( true );
       return;
     }
+    /* Waiting for a share of the band to show is the same as waiting for its top edge to rise that
+       many pixels up the screen. A band taller than four screens asked for more than a screen ever
+       shows, and a long article stayed invisible for good asking for it, so the rise a band can
+       never reach is cut to a quarter of the screen: the words come up as he scrolls to them. */
+    const rise = Math.min( node.getBoundingClientRect().height * threshold, window.innerHeight * 0.25 );
     const io = new IntersectionObserver( ( [ entry ] ) => {
       if ( entry.isIntersecting ) {
         setInView( true );
         io.disconnect();
       }
-    }, { threshold } );
+    }, { threshold: 0, rootMargin: `0px 0px ${ -Math.round( rise ) }px 0px` } );
     io.observe( node );
     return () => io.disconnect();
   }, [ threshold ] );
@@ -722,6 +727,12 @@ export interface ArticleBlock {
   items?: string[];
 }
 
+/* The same blank line the API splits on, so the site breaks the article where he did. */
+function splitParagraphs( text?: string ): string[] {
+  const lines = ( text ?? "" ).split( /\n\s*\n/ ).map( line => line.trim() ).filter( Boolean );
+  return lines.length ? lines : [ text ?? "" ];
+}
+
 /**
  * An article written as blocks keeps its headings, lists and its quote. An article written before
  * there were blocks has only the plain paragraphs, and those still read.
@@ -742,7 +753,14 @@ export function ArticleBody( { blocks, lines }: { blocks?: ArticleBlock[]; lines
           );
         }
         if ( block.type === "quote" ) return <blockquote key={ i } className="dr-prose-quote"><Rich text={ block.text } /></blockquote>;
-        return <p key={ i }><Rich text={ block.text } /></p>;
+        /* Pasting a whole article lands it in one paragraph block with a blank line between each
+           paragraph of it. Those blank lines say where the paragraphs are, so the block becomes
+           that many paragraphs instead of one run of words with line breaks inside it. */
+        return (
+          <Fragment key={ i }>
+            { splitParagraphs( block.text ).map( ( line, at ) => <p key={ at }><Rich text={ line } /></p> ) }
+          </Fragment>
+        );
       } ) }
     </>
   );
