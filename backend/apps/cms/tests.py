@@ -18,6 +18,7 @@ from apps.accounts.models import User
 
 from apps.audit.models import AuditEntry
 
+from .blocks import MAX_ITEMS, MAX_LENGTH
 from .models import PageCopy, PublishStatus, Faq, MediaItem, Post, PressArticle, Publication, SiteImage
 from .serializers import PostSerializer
 
@@ -275,6 +276,33 @@ class PostBlocksTests( PostTestsBase ):
         response = self.article( [ { "type": "p", "text": "A paragraph long enough to read on its own line." }, { "type": "ul", "items": [] } ] )
         self.assertEqual( response.status_code, status.HTTP_400_BAD_REQUEST )
         self.assertIn( "block 2", str( response.data[ "blocks" ] ) )
+
+    def test_a_long_article_keeps_every_word( self ):
+        """A long read is what the blog is for; a paragraph is not trimmed to fit a box on the way in."""
+
+        words = ( "Frailty is measured by what a person can still do, not by the number on the scale. " * 120 ).strip()
+        response = self.article( [ { "type": "h2", "text": "A long read" }, { "type": "p", "text": words } ] )
+        self.assertEqual( response.status_code, status.HTTP_201_CREATED, response.data )
+        self.assertEqual( response.data[ "blocks" ][ 1 ][ "text" ], words )
+        self.assertIn( words, Post.objects.get( slug = response.data[ "slug" ] ).body )
+
+    def test_a_block_past_the_limit_is_refused_rather_than_cut( self ):
+        """His words either reach the site whole or stop the save; they never arrive half written."""
+
+        over = "a" * ( MAX_LENGTH[ "p" ] + 500 )
+        response = self.article( [ { "type": "p", "text": "A paragraph long enough to read on its own line." }, { "type": "p", "text": over } ] )
+        self.assertEqual( response.status_code, status.HTTP_400_BAD_REQUEST )
+        self.assertIn( "block 2", str( response.data[ "blocks" ] ) )
+        self.assertIn( str( MAX_LENGTH[ "p" ] ), str( response.data[ "blocks" ] ) )
+        self.assertEqual( Post.objects.count(), 2, "a refused article stores nothing" )
+
+    def test_a_list_past_the_line_limit_is_refused( self ):
+        response = self.article(
+            [ { "type": "p", "text": "A paragraph long enough to read on its own line." },
+              { "type": "ul", "items": [ f"Line { n } of the checklist." for n in range( MAX_ITEMS + 1 ) ] } ]
+        )
+        self.assertEqual( response.status_code, status.HTTP_400_BAD_REQUEST )
+        self.assertIn( "lines", str( response.data[ "blocks" ] ) )
 
     def test_markup_typed_into_a_block_is_not_stored( self ):
         response = self.article(

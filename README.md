@@ -55,8 +55,12 @@ purpose. Once the backend has a public address, add these beside the rewrites ab
 
 ```
 { "source": "/api/:path*", "destination": "https://<backend>/api/:path*" },
-{ "source": "/media/:path*", "destination": "https://<backend>/media/:path*" }
+{ "source": "/media/site-images/:path*", "destination": "https://<backend>/media/site-images/:path*" }
 ```
+
+The picture rule is deliberately narrower than `/media/:path*`: `:path*` also matches nothing, so
+that wider rule forwards the site's own `/media` page to the backend, and refreshing it answers
+with the backend's "not found" instead of the page.
 
 On the backend, set that same public site address as `PANEL_ORIGIN`, list it in
 `DJANGO_ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`, and keep `ADMIN_LOGIN_EMAILS` to the doctor's own

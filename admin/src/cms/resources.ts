@@ -109,7 +109,7 @@ export const resources: ResourceDef[] = [
     fields: [
       { key: "title", label: "Title", type: "text", max: 200, wide: true },
       { key: "topic", label: "Topic", type: "text", max: 80 },
-      { key: "minutes", label: "Reading time (minutes)", type: "number" },
+      { key: "minutes", label: "Reading time (minutes)", type: "number", initial: "5", help: "Left empty it is refused, so a new post starts at what the site keeps." },
       { key: "excerpt", label: "Excerpt", type: "textarea", max: 300, rows: 3, wide: true, help: "The one or two lines shown under the title in the list." },
       { key: "blocks", label: "Article", type: "blocks", wide: true, help: "Headings, paragraphs, lists and a pull quote, in the order the article reads on the site." },
       ...PHOTO_FIELDS,

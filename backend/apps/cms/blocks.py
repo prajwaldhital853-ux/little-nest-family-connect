@@ -19,9 +19,11 @@ BLOCK_TYPES = {
 TEXT_TYPES = { "h2", "h3", "p", "quote" }
 LIST_TYPES = { "ul", "ol" }
 
-MAX_BLOCKS = 120
-MAX_ITEMS = 40
-MAX_LENGTH = { "h2": 160, "h3": 200, "p": 4000, "quote": 600, "item": 1200 }
+MAX_BLOCKS = 300
+MAX_ITEMS = 80
+# A limit here is a refusal, never a cut: words typed in the panel that the site would not show are
+# words the doctor has to be told about, not words quietly thrown away on the way to the database.
+MAX_LENGTH = { "h2": 200, "h3": 300, "p": 20000, "quote": 1500, "item": 1500 }
 
 
 def clean_blocks( value ):
@@ -43,15 +45,31 @@ def clean_blocks( value ):
             raise ValueError( f"Block { at } is a type the site does not know how to lay out." )
         name = BLOCK_TYPES[ kind ]
         if kind in TEXT_TYPES:
-            text = strip_markup( block.get( "text", "" ) )[: MAX_LENGTH[ kind ] ]
+            text = strip_markup( block.get( "text", "" ) )
             if not text:
                 raise ValueError( f"The { name.lower() } in block { at } has no words in it." )
+            if len( text ) > MAX_LENGTH[ kind ]:
+                raise ValueError(
+                    f"The { name.lower() } in block { at } is { len( text ) } characters, and one "
+                    f"{ name.lower() } holds { MAX_LENGTH[ kind ] }. Start a new block for the rest."
+                )
             out.append( { "type": kind, "text": text } )
             continue
         items = block.get( "items" )
         if not isinstance( items, list ):
             raise ValueError( f"The { name.lower() } in block { at } needs one line per item." )
-        lines = [ strip_markup( item )[: MAX_LENGTH[ "item" ] ] for item in items[ : MAX_ITEMS ] ]
+        if len( items ) > MAX_ITEMS:
+            raise ValueError(
+                f"The { name.lower() } in block { at } has { len( items ) } lines. One list holds { MAX_ITEMS } "
+                f"lines, so start a second list for the rest."
+            )
+        lines = [ strip_markup( item ) for item in items ]
+        too_long = next( ( len( line ) for line in lines if len( line ) > MAX_LENGTH[ "item" ] ), 0 )
+        if too_long:
+            raise ValueError(
+                f"one of the lines in the { name.lower() } in block { at } is { too_long } characters, and a "
+                f"single line holds { MAX_LENGTH[ 'item' ] }. Split that line into two."
+            )
         lines = [ line for line in lines if line ]
         if not lines:
             raise ValueError( f"The { name.lower() } in block { at } has no items yet." )

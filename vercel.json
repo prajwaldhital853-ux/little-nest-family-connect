@@ -13,8 +13,8 @@
       "destination": "https://little-nest-family-connect.onrender.com/api/:path*/"
     },
     {
-      "source": "/media/:path*",
-      "destination": "https://little-nest-family-connect.onrender.com/media/:path*"
+      "source": "/media/site-images/:path*",
+      "destination": "https://little-nest-family-connect.onrender.com/media/site-images/:path*"
     },
     {
       "source": "/admin/:path*",

@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError, api } from "../api/client";
 import type { CmsRow } from "../api/types";
 import type { FieldDef, ResourceDef } from "../cms/resources";
-import { keyFor } from "../cms/resources";
 import { fromValue, readBlocks, sendBlocks, toValue } from "../cms/articleBlocks";
 import { Button, Field, Notice, Select, TextArea, TextInput, formatDate } from "./ui";
 import SectionHead from "./SectionHead";
@@ -25,6 +24,20 @@ function asText( value: unknown ): string {
   return value === null || value === undefined ? "" : String( value );
 }
 
+/* A brand new value for one box. A choice left empty would show its first option while sending
+   nothing, which is how a new media row used to arrive with no kind and be refused. */
+function startingValue( field: FieldDef ): string {
+  if ( field.type === "blocks" ) return "[]";
+  if ( field.type === "select" ) return field.options?.[ 0 ]?.[ 0 ] ?? "";
+  return "";
+}
+
+/* He needs to hear what the site did with the row, which is what the server answered with. */
+function outcome( name: string, status: string, wasPublished: boolean ): string {
+  if ( status === "published" ) return `${ name } published and live on the site.`;
+  return wasPublished ? `${ name } taken off the site and saved as a draft.` : `${ name } saved as a draft.`;
+}
+
 export default function ResourceForm( { resource }: { resource: ResourceDef } ) {
   const { resource: slug, id } = useParams();
   const navigate = useNavigate();
@@ -44,7 +57,7 @@ export default function ResourceForm( { resource }: { resource: ResourceDef } ) 
     setMeta( null );
     if ( isNew ) {
       const blank: Values = {};
-      for ( const field of resource.fields ) blank[ field.key ] = field.type === "blocks" ? "[]" : field.initial ?? "";
+      for ( const field of resource.fields ) blank[ field.key ] = field.initial ?? startingValue( field );
       blank.status = "draft";
       blank.order = "0";
       setValues( blank );
@@ -76,30 +89,21 @@ export default function ResourceForm( { resource }: { resource: ResourceDef } ) 
   async function submit( nextStatus?: string ) {
     setSaving( true );
     setFailed( "" );
+    const shown = values as Values;
+    /* Whatever the Status box says goes to the server, whether he pressed Save or Save and publish:
+       the button only changes it, it does not replace what is on the screen. */
+    const wasPublished = shown.status === "published";
     const body: Record<string, unknown> = {};
     for ( const field of resource.fields ) {
-      const raw = ( values as Values )[ field.key ];
+      const raw = shown[ field.key ];
       body[ field.key ] =
         field.type === "number" ? Number( raw || 0 ) : field.type === "blocks" ? sendBlocks( fromValue( raw ) ) : raw;
     }
-    if ( nextStatus ) body.status = nextStatus;
+    body.status = nextStatus ?? shown.status;
     try {
-      if ( isNew ) {
-        const created = await api.post<CmsRow>( resource.endpoint, body );
-        toast.success( nextStatus === "published" ? "Added, and live on the site." : "Added as a draft." );
-        navigate( `/content/${ slug }/${ String( keyFor( resource, created ) ) }/edit`, { replace: true } );
-      } else {
-        const updated = await api.patch<CmsRow>( detail, body );
-        setValues( current => {
-          const next = { ...( current as Values ) };
-          for ( const field of resource.fields ) next[ field.key ] = fieldText( field, updated );
-          return next;
-        } );
-        setMeta( { published_at: updated.published_at, updated_at: updated.updated_at } );
-        toast.success(
-          nextStatus === "published" ? "Saved and live on the site." : nextStatus === "draft" ? "Saved, and taken off the site." : "Saved.",
-        );
-      }
+      const row = isNew ? await api.post<CmsRow>( resource.endpoint, body ) : await api.patch<CmsRow>( detail, body );
+      toast.success( outcome( resource.name, row.status, wasPublished ) );
+      navigate( `/content/${ slug }`, { replace: true } );
     } catch ( reason ) {
       if ( reason instanceof ApiError ) {
         setErrors( reason.fields );

@@ -271,10 +271,12 @@ the panel stops remembering the doctor between tabs.
 
 Two things the API cannot settle by itself, and both are about where a request comes in:
 
-- The site's host has to forward `/api/*` **and** `/media/*` to Render. That is what keeps the
-  panel's sign in cookies first party, and it is the only way a picture uploaded from the panel is
-  served: `/media/` belongs to Django, not to the static build, so a host that serves only the
-  build answers those addresses with its own 404.
+- The site's host has to forward `/api/*` **and** the folder the panel writes into,
+  `/media/site-images/*`, to Render. That is what keeps the panel's sign in cookies first party, and
+  it is the only way a picture uploaded from the panel is served: `/media/` belongs to Django, not to
+  the static build, so a host that serves only the build answers those addresses with its own 404.
+  Forward `/media/site-images/*` rather than `/media/*`: the wider pattern also matches the site's own
+  `/media` page, and refreshing that page then shows the API's "not found" instead of the page.
 - Uploaded pictures are written to the container's own disk, and Render wipes that on every deploy.
   Attach a Disk to the service (Resources, Add Disk) and point `MEDIA_ROOT` at a folder inside its
   mount path, or the gallery empties itself the first time the site is rebuilt. A Disk needs a paid
