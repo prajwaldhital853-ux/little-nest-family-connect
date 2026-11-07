@@ -70,8 +70,8 @@ export default function BookingFormPage() {
     write( { ...form, questions: form.questions.filter( ( _, index ) => index !== at ) } );
   }
 
-  async function save() {
-    const blocked = problems( form );
+  async function save( next: BookingForm = form, said = "" ) {
+    const blocked = problems( next );
     setRefused( blocked );
     if ( blocked.length ) {
       toast.error( blocked[ 0 ] );
@@ -82,13 +82,13 @@ export default function BookingFormPage() {
     try {
       const row = await api.put<PageCopy>( `/api/cms/pages/${ PAGE_KEY }/`, {
         label: page?.label || "Contact page",
-        data: writeBooking( data ?? {}, found.at, form ),
+        data: writeBooking( data ?? {}, found.at, next ),
         published: page?.published ?? true,
       } );
       setPage( row );
       setData( row.data );
       setDirty( false );
-      toast.success( "Saved. The booking form on the site asks these questions from the next visit." );
+      toast.success( said || "Saved. The booking form on the site asks these questions from the next visit." );
     } catch ( reason ) {
       const message = reason instanceof ApiError ? reason.message : "The server would not take those questions.";
       setError( message );
@@ -98,20 +98,15 @@ export default function BookingFormPage() {
     }
   }
 
-  async function publish( on: boolean ) {
-    if ( !page ) return;
-    const was = page.published;
-    setPage( { ...page, published: on } );
-    setBusy( "publish" );
-    try {
-      setPage( await api.patch<PageCopy>( `/api/cms/pages/${ PAGE_KEY }/`, { published: on } ) );
-      toast.success( on ? "The form is live on the site." : "The form is held back, and the site asks the questions it ships with." );
-    } catch ( reason ) {
-      setPage( { ...page, published: was } );
-      toast.error( reason instanceof ApiError ? reason.message : "That change did not reach the server." );
-    } finally {
-      setBusy( "" );
-    }
+  /* The switch is part of the form block itself, so the rest of the contact page keeps its words.
+     Flipping the page's own published flag would only drop the whole row and let the site fall back
+     to the questions it ships with, which still show a form. */
+  async function showOnSite( on: boolean ) {
+    const next = { ...form, shown: on };
+    write( next );
+    await save( next, on
+      ? "The form is back on the contact page."
+      : "The form is off the contact page. The rest of the page keeps its words." );
   }
 
   if ( !loaded ) return <p className="text-small loading">Loading</p>;
@@ -134,7 +129,7 @@ export default function BookingFormPage() {
             <a className="btn btn-quiet" href={ `${ siteOrigin() }/contact` } target="_blank" rel="noreferrer">
               See the page
             </a>
-            <span className={ `pill pill-${ ( page?.published ?? true ) ? "good" : "neutral" }` }>{ ( page?.published ?? true ) ? "Live" : "Held back" }</span>
+            <span className={ `pill pill-${ form.shown ? "good" : "neutral" }` }>{ form.shown ? "Live" : "Hidden" }</span>
           </>
         ) }
       />
@@ -145,11 +140,14 @@ export default function BookingFormPage() {
       <div className="card">
         <div className="booking-head">
           <p className="field-label">The questions, in the order the visitor meets them</p>
-          <Checkbox
-            label="Show this form on the site"
-            checked={ page?.published ?? true }
-            onChange={ publish }
-          />
+          <div className="booking-switch">
+            <Checkbox
+              label="Show this form on the site"
+              checked={ form.shown }
+              onChange={ showOnSite }
+            />
+            <p className="text-small quiet">Takes effect at once. Switched off, the contact page keeps everything else and simply leaves out this form.</p>
+          </div>
         </div>
 
         <div className="booking-list">
@@ -220,7 +218,7 @@ export default function BookingFormPage() {
       </div>
 
       <footer className="form-actions">
-        <Button busy={ busy === "save" } disabled={ busy !== "" || !dirty } onClick={ save }>
+        <Button busy={ busy === "save" } disabled={ busy !== "" || !dirty } onClick={ () => save() }>
           { busy === "save" ? "Saving" : dirty ? "Save the form" : "Saved" }
         </Button>
         <Link className="btn btn-quiet" to="/appointments">

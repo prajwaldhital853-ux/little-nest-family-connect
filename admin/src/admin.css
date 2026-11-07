@@ -3029,6 +3029,16 @@ select {
   margin-bottom: 14px;
 }
 
+/* The switch and the sentence that says what it does, kept together on the right. */
+.booking-switch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 430px;
+  text-align: right;
+}
+
 .booking-list {
   display: flex;
   flex-direction: column;

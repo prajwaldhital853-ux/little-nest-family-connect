@@ -152,6 +152,8 @@ interface CopyItem {
 /* The enquiry form is just another contact line, so its whole model lives in the copy. */
 interface ContactFormCopy {
   submitLabel: string;
+  /** Absent means shown: only the panel writes it, and only when he switches the form off. */
+  shown?: boolean;
   thanks?: string;
   received?: string;
   offline?: string;
@@ -852,13 +854,16 @@ export function buildSite( data: SiteData ): SiteContent {
           <ContactDetails
             title={ <Rich text={ copy.contact.heading } /> }
             media={ <Img photo={ photoOf( copy.contact.photo ) } /> }
-            rows={ copy.contact.rows.map( ( entry ) => {
+            rows={ copy.contact.rows.flatMap( ( entry ) => {
               const row = entry as unknown as ContactRowCopy;
               const form = row.form;
               const lines = Array.isArray( row.text ) ? row.text : undefined;
               const note = typeof row.text === "string" ? row.text : "";
+              /* Held back from the panel, the form leaves the page on its own. The rest of the
+                 wording stays, which is what switching the page off could not do. */
               if ( form ) {
-                return {
+                if ( form.shown === false ) return [];
+                return [ {
                   id: row.id,
                   label: row.label,
                   wide: true,
@@ -879,15 +884,15 @@ export function buildSite( data: SiteData ): SiteContent {
                       />
                     </>
                   ),
-                };
+                } ];
               }
               if ( lines ) {
-                return { id: row.id, label: row.label, content: <Paras lines={ lines } /> };
+                return [ { id: row.id, label: row.label, content: <Paras lines={ lines } /> } ];
               }
               if ( row.items ) {
-                return { id: row.id, label: row.label, content: <ContactRowItems items={ row.items } social={ word.footer.social } /> };
+                return [ { id: row.id, label: row.label, content: <ContactRowItems items={ row.items } social={ word.footer.social } /> } ];
               }
-              return { id: row.id, label: row.label, content: <p><Rich text={ note } /></p> };
+              return [ { id: row.id, label: row.label, content: <p><Rich text={ note } /></p> } ];
             } ) }
           />
         ),

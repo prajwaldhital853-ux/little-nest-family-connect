@@ -23,6 +23,8 @@ export interface BookingForm {
   heading: string;
   /** The line the visitor reads before the first question. */
   note: string;
+  /** Whether the contact page shows this block at all. Missing means it does. */
+  shown: boolean;
   submitLabel: string;
   thanks: string;
   received: string;
@@ -63,6 +65,7 @@ export const LOCKED = [ "name" ];
 export const SHIPPED_FORM: BookingForm = {
   heading: "Professional enquiry",
   note: "I welcome professional enquiries about research collaboration, teaching, speaking and initiatives that improve care for older people. Please include a brief description of your enquiry, your organisation and any relevant timeline.",
+  shown: true,
   submitLabel: "Send enquiry",
   thanks: "Thank you. Your enquiry is filed as {reference}. I reply to every one with availability and what to bring.",
   received: "Thank you. Your enquiry has been received.",
@@ -138,6 +141,7 @@ export function readBooking( data: Bag | null ): { at: number; form: BookingForm
       form: {
         heading: text( row.label ),
         note: text( row.text ),
+        shown: box.shown !== false,
         submitLabel: text( box.submitLabel, "Send enquiry" ),
         thanks: text( box.thanks ),
         received: text( box.received ),
@@ -169,6 +173,7 @@ export function writeBooking( data: Bag, at: number, form: BookingForm ): Bag {
     text: form.note,
     form: {
       ...( ( row.form as Bag ) ?? {} ),
+      shown: form.shown,
       submitLabel: form.submitLabel,
       thanks: form.thanks,
       received: form.received,
