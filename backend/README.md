@@ -208,7 +208,7 @@ The variables to add, and what goes in each:
 | `DJANGO_SECRET_KEY` | generate one. Changing it signs everyone out, because it is what the session rests on. |
 | `JWT_SIGNING_KEY` | generate one, or leave it out and `DJANGO_SECRET_KEY` signs the tokens. |
 | `DJANGO_DEBUG` | `false` |
-| `DJANGO_ALLOWED_HOSTS` | the site's domain and the service's own `*.onrender.com` name, comma separated. The site forwards `/api` here, so the calls arrive naming the site's domain. Add `.vercel.app` with a leading dot if the preview builds should reach it too. |
+| `DJANGO_ALLOWED_HOSTS` | the site's domain and the service's own `*.onrender.com` name, comma separated. The site forwards `/api` here, so the calls arrive naming the site's domain. Vercel's preview builds get a fresh address each time; `settings.py` lets the whole `*.vercel.app` range in by itself, so nothing is added here for them. |
 | `ADMIN_LOGIN_EMAILS` | the doctor's address. It names the account `render.sh` makes on an empty database and nothing more: any active staff account can sign in. |
 | `OTP_REQUIRED` | `true` normally. `false` lets a staff account in on its password alone, which is the only way in while the server has no mail account: the staff check, the password check and the three tries and five minute block all still apply. A browser that got in that way is remembered, so setting it back to `true` later does not lock him out of his own panel. `/api/health/` answers `otp: off` so the choice stays visible. |
 | `DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_PASSWORD` | the account `render.sh` makes on a database that has no accounts yet; the address is taken from `ADMIN_LOGIN_EMAILS` when the email one is left out, so a password alone is enough. It never changes a password that is already set, so once the panel works, change it there and these two can be cleared. |
@@ -242,7 +242,7 @@ JWT_SIGNING_KEY=<generated, same>
 DATABASE_URL=<From Database picker, Internal key>
 DJANGO_DEBUG=false
 DJANGO_TIME_ZONE=Asia/Kathmandu
-DJANGO_ALLOWED_HOSTS=drkandel.vercel.app,little-nest-family-connect.onrender.com,.vercel.app
+DJANGO_ALLOWED_HOSTS=drkandel.vercel.app,little-nest-family-connect.onrender.com
 ADMIN_LOGIN_EMAILS=<the doctor's address>
 OTP_REQUIRED=false
 DJANGO_SUPERUSER_EMAIL=<the same address, for the account render.sh makes>

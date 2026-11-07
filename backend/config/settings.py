@@ -27,6 +27,24 @@ def env_list( name, default = "" ):
     return [ part.strip() for part in env( name, default ).split( "," ) if part.strip() ]
 
 
+def allowed_hosts( hosts, debug ):
+    """The addresses Django will answer, with Vercel's throwaway previews already let in.
+
+    Every preview build gets a fresh address and forwards /api here using that name, so each
+    throwaway link would 400 on its first call and the site would quietly fall back to the words
+    bundled in it. One leading-dot entry covers them all, and nothing has to be typed into the
+    hosting dashboard for a link that exists for an hour.
+    """
+
+    if debug or "*" in hosts:
+        return hosts
+    # A leading dot is what makes an entry a range, so the site's own drkandel.vercel.app does not
+    # count as one: a preview build names a different address and would still be refused.
+    if any( one.startswith( "." ) and one.lower().endswith( ".vercel.app" ) for one in hosts ):
+        return hosts
+    return hosts + [ ".vercel.app" ]
+
+
 def timedelta_setting( name, default_minutes ):
     return timedelta( minutes = int( env( name, str( default_minutes ) ) ) )
 
@@ -72,6 +90,7 @@ DEBUG = env_bool( "DJANGO_DEBUG", False )
 # A development machine is reached by name and by network address, because a phone on the same
 # wifi opens the panel through the site's address and every call then carries that address.
 ALLOWED_HOSTS = env_list( "DJANGO_ALLOWED_HOSTS", "*" if DEBUG else "localhost,127.0.0.1" )
+ALLOWED_HOSTS = allowed_hosts( ALLOWED_HOSTS, DEBUG )
 
 # The address to make first on a database that has no accounts yet. Who may sign in is decided by
 # the staff tick on the account, not by this list: the panel's Staff accounts page is the door.

@@ -7,6 +7,7 @@ from unittest import mock
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
+from django.http.request import validate_host
 from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -17,6 +18,8 @@ from rest_framework.test import APITestCase
 from apps.accounts.models import User
 
 from apps.audit.models import AuditEntry
+
+from config.settings import allowed_hosts
 
 from .blocks import MAX_ITEMS, MAX_LENGTH
 from .models import PageCopy, PublishStatus, Faq, MediaItem, Post, PressArticle, Publication, SiteImage
@@ -459,6 +462,40 @@ class SiteContentTests( APITestCase ):
         )
         self.assertEqual( response.status_code, status.HTTP_400_BAD_REQUEST )
         self.assertIn( "bundled with the site", response.data[ "photo" ][ 0 ] )
+
+
+class PreviewHostTests( APITestCase ):
+    """A preview build of the site forwards its own throwaway address here, and has to get an answer.
+
+    Render and Vercel each keep one permanent name, but every preview link is a new address under
+    vercel.app. Refused by name, that link 400s on its first call and the site shows the words
+    bundled into it instead of the ones the doctor edited, which reads as the panel having no effect
+    at all.
+    """
+
+    preview = "little-nest-family-connect-bbja4wwct-sdfghjkl17.vercel.app"
+
+    def setUp( self ):
+        # The live pair: the site's own address, which happens to be under vercel.app, and the
+        # service's, and neither of them is a range that covers the preview builds.
+        self.deployed = allowed_hosts( [ "drkandel.vercel.app", "little-nest-family-connect.onrender.com" ], False )
+
+    def test_the_permanent_list_gains_the_preview_domain_once( self ):
+        self.assertEqual( self.deployed, [ "drkandel.vercel.app", "little-nest-family-connect.onrender.com", ".vercel.app" ] )
+        self.assertEqual( allowed_hosts( self.deployed, False ), self.deployed )
+        self.assertEqual( allowed_hosts( [ "*" ], False ), [ "*" ] )
+        self.assertEqual( allowed_hosts( [ "localhost", "127.0.0.1" ], True ), [ "localhost", "127.0.0.1" ] )
+
+    def test_a_preview_address_reaches_the_content_endpoint( self ):
+        with override_settings( ALLOWED_HOSTS = self.deployed ):
+            response = self.client.get( reverse( "site-content" ), HTTP_HOST = self.preview )
+            self.assertEqual( response.status_code, status.HTTP_200_OK )
+
+    def test_another_deployments_address_is_still_refused( self ):
+        with override_settings( ALLOWED_HOSTS = self.deployed ):
+            response = self.client.get( reverse( "site-content" ), HTTP_HOST = "someone-else.example.org" )
+            self.assertEqual( response.status_code, status.HTTP_400_BAD_REQUEST )
+        self.assertFalse( validate_host( "notvercel.app", self.deployed ) )
 
 
 class PublishingHelperTests( APITestCase ):
