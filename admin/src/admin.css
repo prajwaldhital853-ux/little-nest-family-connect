@@ -1025,16 +1025,58 @@ select {
   margin-top: 0;
 }
 
-.actions-row {
+/* One card, three bands: where the request stands, what you can type about it, and how you leave.
+   Each band says when its buttons take effect, so nothing has to be guessed. */
+.detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.detail-band > .field-label {
+  margin-bottom: 4px;
+}
+
+.band-note {
+  font-size: 0.8rem;
+  color: var(--quiet);
+  margin: 0 0 14px;
+}
+
+/* The outcome the request is already in is a state, not a choice, so it is not a button. */
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status-now {
+  cursor: default;
+  box-shadow: none;
+}
+
+.band-actions {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--hair);
 }
 
-.actions-row .field-label {
-  margin-right: 4px;
+.band-end {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 20px;
+  border-top: 1px solid var(--hair);
+}
+
+.band-end .btn-danger {
+  margin-left: auto;
 }
 
 /* ── stat cards ────────────────────────────────────── */

@@ -13,10 +13,13 @@ export function Button( {
   tone = "primary",
   busy = false,
   disabled,
+  /* A button inside a form is a submit unless told otherwise, which is how an "Add" button used to
+     save the whole screen instead of adding a row. The real submits say so themselves. */
+  type = "button",
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: "primary" | "quiet" | "danger"; busy?: boolean } ) {
   return (
-    <button className={ `btn btn-${ tone }` } aria-busy={ busy || undefined } disabled={ disabled || busy } { ...rest }>
+    <button type={ type } className={ `btn btn-${ tone }` } aria-busy={ busy || undefined } disabled={ disabled || busy } { ...rest }>
       { busy ? <span className="btn-spin" aria-hidden="true" /> : null }
       { children }
     </button>

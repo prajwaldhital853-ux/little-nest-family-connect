@@ -7,6 +7,9 @@ export interface ContactDetailsRow {
   id: string;
   label: ReactNode;
   content: ReactNode;
+  /* A row that needs the whole column for itself, like the booking form, instead of sharing it
+     with the label beside it. */
+  wide?: boolean;
 }
 
 export interface ContactDetailsProps {
@@ -35,8 +38,13 @@ export function ContactDetails( { title, rows, media, className = '' }: ContactD
         <div className="mt-10 flex flex-col gap-[120px] lg:order-1 lg:col-span-6 lg:mt-0">
           { rows.map( row => (
             <div key={ row.id } className="flex flex-col gap-10">
-              <p className="m-0 lg:w-[calc(var(--col)*2_-_var(--grid-gutter))]">{ row.label }</p>
-              <div className="flex flex-col gap-[1.3em] lg:ml-[calc(var(--col)*2)] lg:w-[calc(var(--col)*3_-_var(--grid-gutter))] [&>a]:self-start [&_p]:m-0">
+              <p className={ cn( 'm-0', !row.wide && 'lg:w-[calc(var(--col)*2_-_var(--grid-gutter))]' ) }>{ row.label }</p>
+              <div
+                className={ cn(
+                  'flex flex-col gap-[1.3em] [&>a]:self-start [&_p]:m-0',
+                  row.wide ? 'lg:w-full' : 'lg:ml-[calc(var(--col)*2)] lg:w-[calc(var(--col)*3_-_var(--grid-gutter))]'
+                ) }
+              >
                 { row.content }
               </div>
             </div>

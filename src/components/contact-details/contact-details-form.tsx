@@ -1,5 +1,6 @@
 import type { ChangeEvent, FormEvent } from 'react';
 import { useCallback, useId, useRef, useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -62,11 +63,9 @@ function errorFor( field: EnquiryField, value: string ): string | undefined {
 }
 
 const lineClass = 'block w-full border-0 border-b bg-transparent p-0 pb-1 text-inherit outline-none [border-bottom-color:color-mix(in_srgb,currentColor_30%,transparent)] focus:[border-bottom-color:currentColor]';
-const labelClass = cn(
-  'pointer-events-none absolute left-0 top-0 text-small opacity-50 transition-all duration-200 motion-reduce:transition-none',
-  'peer-placeholder-shown:top-6 peer-placeholder-shown:text-[length:inherit] peer-focus:top-0 peer-focus:text-small'
-);
-const smallLabel = 'text-meta mb-2 block text-small';
+/* One label idiom for every kind of question: the words sit above the line rather than inside it,
+   so nothing on this form can be read as an answer that has not been typed yet. */
+const fieldLabel = 'text-small mb-[7px] block font-semibold';
 
 function ChoiceGroup( { name, value, options, idPrefix, onChoice, groupRef }: { name: string; value: string; options: string[]; idPrefix: string; onChoice: ( name: string, value: string ) => void; groupRef: ( el: HTMLDivElement | null ) => void } ) {
   const onValueChange = useCallback( ( next: string ) => {
@@ -165,7 +164,7 @@ export function ContactDetailsForm( { fields, submitLabel = 'Send', initial = {}
         if ( field.kind === 'choice' ) {
           return (
             <fieldset key={ field.id } className="m-0 border-0 p-0 min-[735px]:col-span-2" aria-describedby={ described }>
-              <legend className={ smallLabel }>{ field.label }{ star }</legend>
+              <legend className={ fieldLabel }>{ field.label }{ star }</legend>
               <ChoiceGroup
                 name={ field.id }
                 value={ values[field.id] ?? '' }
@@ -192,7 +191,7 @@ export function ContactDetailsForm( { fields, submitLabel = 'Send', initial = {}
         if ( field.kind === 'textarea' && custom ) {
           return (
             <div key={ field.id } className="min-[735px]:col-span-2">
-              <label htmlFor={ fieldId } className={ smallLabel }>{ field.label }{ star }</label>
+              <label htmlFor={ fieldId } className={ fieldLabel }>{ field.label }{ star }</label>
               <textarea
                 { ...shared }
                 placeholder={ field.placeholder }
@@ -207,7 +206,7 @@ export function ContactDetailsForm( { fields, submitLabel = 'Send', initial = {}
         if ( field.kind === 'date' ) {
           return (
             <div key={ field.id } className={ cn( wide && 'min-[735px]:col-span-2' ) }>
-              <label htmlFor={ fieldId } className={ smallLabel }>{ field.label }{ star }</label>
+              <label htmlFor={ fieldId } className={ fieldLabel }>{ field.label }{ star }</label>
               <input { ...shared } type="date" ref={ el => { refs.current[field.id] = el; } } className={ lineClass } />
               { errorLine }
             </div>
@@ -215,11 +214,11 @@ export function ContactDetailsForm( { fields, submitLabel = 'Send', initial = {}
         }
 
         return (
-          <div key={ field.id } className={ cn( 'relative pt-6', custom && wide && 'min-[735px]:col-span-2' ) }>
+          <div key={ field.id } className={ cn( custom && wide && 'min-[735px]:col-span-2' ) }>
+            <label htmlFor={ fieldId } className={ fieldLabel }>{ field.label }{ star }</label>
             { field.kind === 'textarea' ?
-              <textarea { ...shared } placeholder=" " ref={ el => { refs.current[field.id] = el; } } className={ cn( 'peer h-[104px] resize-none', lineClass ) } /> :
-              <input { ...shared } placeholder=" " ref={ el => { refs.current[field.id] = el; } } type={ field.kind } className={ cn( 'peer', lineClass ) } /> }
-            <label htmlFor={ fieldId } className={ labelClass }>{ field.label }{ star }</label>
+              <textarea { ...shared } placeholder={ field.placeholder } ref={ el => { refs.current[field.id] = el; } } className={ cn( 'h-[104px] resize-none', lineClass ) } /> :
+              <input { ...shared } ref={ el => { refs.current[field.id] = el; } } type={ field.kind } className={ lineClass } /> }
             { errorLine }
           </div>
         );
@@ -227,9 +226,10 @@ export function ContactDetailsForm( { fields, submitLabel = 'Send', initial = {}
       { problem && (
         <p role="alert" className={ cn( 'm-0 text-small', custom ? 'min-[735px]:col-span-2' : 'mt-2' ) }>{ problem }</p>
       ) }
-      <div className={ cn( 'mt-[7px]', custom && 'flex justify-end min-[735px]:col-span-2' ) }>
-        <button type="submit" disabled={ busy } className="m-0 cursor-pointer border-0 border-b border-current bg-transparent p-0 text-inherit disabled:opacity-50">
-          { busy ? 'Sending…' : submitLabel }
+      <div className={ cn( 'mt-3', custom && 'min-[735px]:col-span-2' ) }>
+        <button type="submit" disabled={ busy } className="dr-btn dr-btn-yellow text-small m-0 cursor-pointer disabled:opacity-50">
+          <span>{ busy ? 'Sending' : submitLabel }</span>
+          <ArrowUpRight aria-hidden className="dr-btn-icon" />
         </button>
       </div>
     </form>

@@ -861,6 +861,7 @@ export function buildSite( data: SiteData ): SiteContent {
                 return {
                   id: row.id,
                   label: row.label,
+                  wide: true,
                   content: (
                     <>
                       <p id={ row.anchor } className="scroll-mt-[calc(var(--site-header-height)_+_5.5rem)]">

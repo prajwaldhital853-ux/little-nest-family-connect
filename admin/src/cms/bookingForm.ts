@@ -81,6 +81,17 @@ export const SHIPPED_FORM: BookingForm = {
   ],
 };
 
+/**
+ * Whether a wording row is the booking form in disguise. The panel edits that form from its own
+ * screen, so any other screen that meets one of these only points there rather than showing the
+ * same questions twice with their plumbing visible.
+ */
+export function holdsBookingForm( value: unknown ): boolean {
+  if ( !value || typeof value !== "object" ) return false;
+  const box = ( value as Bag ).form;
+  return Boolean( box && typeof box === "object" && Array.isArray( ( box as Bag ).fields ) );
+}
+
 /** The form to edit: whatever the wording holds, or the shipped one when it holds nothing. */
 export function bookingOf( data: Bag | null ): { at: number; form: BookingForm } {
   return readBooking( data ) ?? { at: 0, form: SHIPPED_FORM };

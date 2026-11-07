@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError, api } from "../api/client";
 import type { Page, PageCopy } from "../api/types";
 import { PAGE_SCHEMAS, siteOrigin, sitePath } from "../cms/pageSchemas";
+import { holdsBookingForm } from "../cms/bookingForm";
 import PageEditor from "./PageEditor";
 import PhotoPick from "../components/PhotoPick";
 import SectionHead from "../components/SectionHead";
@@ -241,7 +242,10 @@ function PageCopyWords() {
       if ( !current ) return current;
       const list = readAt( current, path );
       if ( !Array.isArray( list ) || list.length === 0 ) return current;
-      return setIn( current, path, [ ...list, blankLike( list[ list.length - 1 ] ) ] ) as Bag;
+      /* A new row copies the last ordinary one, never the booking form, whose shape only its own
+         screen knows how to write. */
+      const template = [ ...list ].reverse().find( one => !holdsBookingForm( one ) ) ?? list[ list.length - 1 ];
+      return setIn( current, path, [ ...list, blankLike( template ) ] ) as Bag;
     } );
     setDirty( true );
   }
@@ -531,12 +535,23 @@ function ListView( { name, items, path, depth, ctx }: {
               <header className="copy-entry-head">
                 <span className="copy-entry-index">{ index + 1 }</span>
                 <span className="copy-entry-name">{ entryName( item, index, name ) }</span>
-                <button type="button" className="icon-btn" onClick={ () => ctx.remove( [ ...path, index ] ) } aria-label={ `Remove ${ name } ${ index + 1 }` }>
-                  <Icon name="trash" size={ 16 } />
-                </button>
+                { /* The booking row is the form's own home, so this screen cannot delete it by accident. */ }
+                { holdsBookingForm( item ) ? null : (
+                  <button type="button" className="icon-btn" onClick={ () => ctx.remove( [ ...path, index ] ) } aria-label={ `Remove ${ name } ${ index + 1 }` }>
+                    <Icon name="trash" size={ 16 } />
+                  </button>
+                ) }
               </header>
               <div className="copy-entry-body">
-                <NodeView name={ entryName( item, index, name ) } value={ item } path={ [ ...path, index ] } depth={ depth + 1 } ctx={ ctx } bare />
+                { holdsBookingForm( item ) ? (
+                  <p className="text-small quiet">
+                    These are the questions of the booking form, so they are not edited here.{" "}
+                    <Link to="/booking-form">Change them on the booking form screen</Link>, which saves
+                    the same words in the same place without showing their plumbing.
+                  </p>
+                ) : (
+                  <NodeView name={ entryName( item, index, name ) } value={ item } path={ [ ...path, index ] } depth={ depth + 1 } ctx={ ctx } bare />
+                ) }
               </div>
             </div>
           ) ) }

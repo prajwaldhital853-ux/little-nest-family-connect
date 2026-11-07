@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError, api } from "../api/client";
-import type { Appointment, PageCopy, StaffUser } from "../api/types";
+import type { Appointment, AppointmentStatus, PageCopy, StaffUser } from "../api/types";
 import { SHIPPED_FORM, labelsOf } from "../cms/bookingForm";
 import { Button, Field, Notice, Pill, Select, TextArea, TextInput, formatDate, toLocalInput } from "../components/ui";
 import { useToast } from "../components/Toast";
@@ -15,6 +15,10 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: "Cancelled",
   no_show: "Did not attend",
 };
+
+/* Every outcome in the order the list above the table shows them, so the whole journey is on the
+   screen at once: the one it is in, the ones it can still become, and the ones it cannot. */
+const ORDER: AppointmentStatus[] = [ "pending", "confirmed", "completed", "cancelled", "no_show" ];
 
 /* The words the form shipped with, for a database that holds no wording row of its own. */
 const SHIPPED_LABELS: Record<string, string> = Object.fromEntries( SHIPPED_FORM.questions.map( question => [ question.id, question.label ] ) );
@@ -164,62 +168,81 @@ export default function AppointmentDetailPage() {
         <p className="text-small quiet">Received { formatDate( row.created_at ) }</p>
       </div>
 
-      <div className="actions-row">
-        <p className="field-label">Move to</p>
-        { row.next_statuses.length === 0 ? (
-          <p className="text-small quiet">This appointment has reached its final outcome.</p>
-        ) : (
-          row.next_statuses.map( next => (
-            <Button
-              key={ next }
-              tone={ next === "cancelled" || next === "no_show" ? "quiet" : "primary" }
-              busy={ busy === `status:${ next }` }
-              disabled={ busy !== "" }
-              onClick={ () => moveTo( next ) }
-            >
-              { STATUS_LABELS[ next ] ?? next }
-            </Button>
-          ) ) ) }
-      </div>
-
-      <div className="card form-grid">
-        <Field label="Consultation time" help="Empty until the time is agreed with the patient.">
-          <TextInput type="datetime-local" value={ when } onChange={ event => setWhen( event.target.value ) } />
-        </Field>
-        <Field label="Assigned to">
-          <Select
-            value={ assigned }
-            options={ [ [ "", "Not assigned" ], ...staff.map( person => [ String( person.id ), person.full_name || person.email ] as [string, string] ) ] }
-            onChange={ event => setAssigned( event.target.value ) }
-          />
-        </Field>
-        <div className="span-2">
-          <Field label="Private note" help="Only visible in this panel.">
-            <TextArea value={ note } rows={ 4 } onChange={ event => setNote( event.target.value ) } />
-          </Field>
+      <div className="card detail-card">
+        <div className="detail-band">
+          <p className="field-label">Status</p>
+          <p className="band-note">
+            { row.next_statuses.length
+              ? "The filled box is where this request stands. Choosing another takes effect straight away, after asking you first."
+              : "This appointment has reached its final outcome, so its status cannot change." }
+          </p>
+          <div className="status-row">
+            { ORDER.map( next => {
+              const label = STATUS_LABELS[ next ];
+              const allowed = row.next_statuses.includes( next );
+              if ( next === row.status ) return <span className="btn status-now" key={ next }>{ label }</span>;
+              return (
+                <Button
+                  key={ next }
+                  tone="quiet"
+                  busy={ busy === `status:${ next }` }
+                  disabled={ busy !== "" || !allowed }
+                  title={ allowed ? undefined : `A ${ row.status_display.toLowerCase() } appointment cannot move to ${ label.toLowerCase() }.` }
+                  onClick={ () => moveTo( next ) }
+                >
+                  { label }
+                </Button>
+              );
+            } ) }
+          </div>
         </div>
 
-        <footer className="form-actions span-2">
-          <Button
-            busy={ busy === "save" }
-            disabled={ busy !== "" || ( assigned === String( row.assigned_to ?? "" ) && note === row.admin_note && when === toLocalInput( row.scheduled_at ) ) }
-            onClick={ () => patch(
-              {
-                admin_note: note,
-                assigned_to: assigned ? Number( assigned ) : null,
-                scheduled_at: when ? new Date( when ).toISOString() : null,
-              },
-              "save",
-              () => navigate( "/appointments" ),
-            ) }
-          >
-            { busy === "save" ? "Sending" : "Save time, note and assignment" }
-          </Button>
+        <div className="detail-band">
+          <p className="field-label">Consultation details</p>
+          <p className="band-note">These three are saved by the button underneath them. The status above saves itself.</p>
+          <div className="form-grid">
+            <Field label="Consultation time" help="Empty until the time is agreed with the patient.">
+              <TextInput type="datetime-local" value={ when } onChange={ event => setWhen( event.target.value ) } />
+            </Field>
+            <Field label="Assigned to">
+              <Select
+                value={ assigned }
+                options={ [ [ "", "Not assigned" ], ...staff.map( person => [ String( person.id ), person.full_name || person.email ] as [string, string] ) ] }
+                onChange={ event => setAssigned( event.target.value ) }
+              />
+            </Field>
+            <div className="span-2">
+              <Field label="Private note" help="Only visible in this panel.">
+                <TextArea value={ note } rows={ 4 } onChange={ event => setNote( event.target.value ) } />
+              </Field>
+            </div>
+          </div>
+
+          <footer className="band-actions">
+            <Button
+              busy={ busy === "save" }
+              disabled={ busy !== "" || ( assigned === String( row.assigned_to ?? "" ) && note === row.admin_note && when === toLocalInput( row.scheduled_at ) ) }
+              onClick={ () => patch(
+                {
+                  admin_note: note,
+                  assigned_to: assigned ? Number( assigned ) : null,
+                  scheduled_at: when ? new Date( when ).toISOString() : null,
+                },
+                "save",
+                () => navigate( "/appointments" ),
+              ) }
+            >
+              { busy === "save" ? "Sending" : "Save time, note and assignment" }
+            </Button>
+          </footer>
+        </div>
+
+        <footer className="detail-band band-end">
           <Button tone="quiet" onClick={ () => navigate( "/appointments" ) }>
-            Back
+            Back to appointments
           </Button>
           <Button tone="danger" busy={ busy === "delete" } disabled={ busy !== "" } onClick={ remove }>
-            Delete
+            Delete this request
           </Button>
         </footer>
       </div>
