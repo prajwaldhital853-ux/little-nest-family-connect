@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from .blocks import blocks_to_text, clean_blocks
 from .models import Faq, MediaItem, PageCopy, Post, PressArticle, Publication, SITE_PHOTOS, SiteImage
-from .validate import clean_payload, photo_link, strip_markup
+from .validate import clean_payload, drop_missing_uploads, photo_link, strip_markup
 
 SHARED_FIELDS = [ "id", "status", "status_display", "published_at", "order", "created_at", "updated_at" ]
 
@@ -188,6 +188,13 @@ class PageCopySerializer( serializers.ModelSerializer ):
         read_only_fields = [ "id", "key", "updated_at" ]
 
     updated_by_email = serializers.CharField( source = "updated_by.email", read_only = True, default = "" )
+
+    def to_representation( self, instance ):
+        """A picture slot that points at a file this machine no longer has is emptied on the way out."""
+
+        data = super().to_representation( instance )
+        data[ "data" ] = drop_missing_uploads( data[ "data" ] )
+        return data
 
     def validate_data( self, value ):
         if not isinstance( value, dict ):

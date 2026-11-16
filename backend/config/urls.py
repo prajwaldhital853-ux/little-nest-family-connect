@@ -54,6 +54,24 @@ def content_state():
         return "unreadable"
 
 
+def upload_state():
+    """How many pictures the site names that this machine no longer has.
+
+    Uploads live in a folder git does not carry, so a redeploy or a moved project can leave pages
+    pointing at files that are gone. The site hides each hole behind the photo it ships with, which
+    is right for a visitor and wrong for the doctor, so the count is said out loud here.
+    """
+
+    from apps.cms.models import PageCopy
+    from apps.cms.validate import missing_uploads
+
+    try:
+        gone = sum( len( missing_uploads( page.data ) ) for page in PageCopy.objects.all() )
+    except DatabaseError:
+        return "unreadable"
+    return "all present" if gone == 0 else f"{ gone } missing"
+
+
 def health( request ):
     """Small probe for the panel and for hosting health checks."""
 
@@ -68,6 +86,7 @@ def health( request ):
             "database": database,
             "schema": schema_state(),
             "content": content_state(),
+            "uploads": upload_state(),
             "mail": mail_state(),
             "otp": "required" if settings.OTP_REQUIRED else "off",
         }

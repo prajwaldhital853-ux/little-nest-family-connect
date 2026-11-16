@@ -1,7 +1,12 @@
 """Everything typed into the CMS is treated as plain text, never as markup."""
 
+import os
 import re
 from urllib.parse import urlsplit
+
+from django.conf import settings
+from django.core.exceptions import SuspiciousFileOperation
+from django.utils._os import safe_join
 
 TAG_RE = re.compile( r"</?[a-zA-Z0-9:_-]+(?:\s[^<>]{0,300})?>|<!--.*?-->", re.DOTALL )
 CONTROL_RE = re.compile( r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]" )
@@ -75,3 +80,51 @@ def clean_payload( data, key = "" ):
             raise ValueError( f"Links must start with https, mailto or tel. { text[: 40 ] }" )
         return strip_markup( data )
     return data
+
+
+def upload_on_disk( link ):
+    """Whether a picture the panel uploaded is still in the uploads folder on this machine."""
+
+    name = urlsplit( link ).path[ len( settings.MEDIA_URL ): ]
+    try:
+        full = safe_join( str( settings.MEDIA_ROOT ), name )
+    except SuspiciousFileOperation:
+        return False
+    return bool( full ) and os.path.isfile( full )
+
+
+def drop_missing_uploads( data ):
+    """Blank any uploaded picture a page names that is no longer on this server's disk.
+
+    A folder moved between machines, or a redeploy onto a host with its own empty uploads folder,
+    leaves a page naming a file that is gone. Sent as it is, the browser draws a broken box. Sent
+    as an empty slot, the site shows the photo it shipped with and the panel shows the picture as
+    not chosen, so the doctor can pick it again instead of guessing what went wrong.
+    """
+
+    if isinstance( data, dict ):
+        return { name: drop_missing_uploads( value ) for name, value in data.items() }
+    if isinstance( data, ( list, tuple ) ):
+        return [ drop_missing_uploads( item ) for item in data ]
+    if isinstance( data, str ) and data.startswith( settings.MEDIA_URL ):
+        return data if upload_on_disk( data ) else ""
+    return data
+
+
+def uploaded_links( data ):
+    """Every string in a page's copy that names a picture this API's own disk holds."""
+
+    if isinstance( data, dict ):
+        for value in data.values():
+            yield from uploaded_links( value )
+    elif isinstance( data, ( list, tuple ) ):
+        for value in data:
+            yield from uploaded_links( value )
+    elif isinstance( data, str ) and data.startswith( settings.MEDIA_URL ):
+        yield data
+
+
+def missing_uploads( data ):
+    """The pictures a page names that this machine no longer has."""
+
+    return [ link for link in uploaded_links( data ) if not upload_on_disk( link ) ]

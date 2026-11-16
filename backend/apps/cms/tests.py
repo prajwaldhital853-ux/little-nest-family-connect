@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from unittest import mock
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.http.request import validate_host
 from django.test import override_settings
@@ -1608,6 +1609,53 @@ class UploadedPictureTests( APITestCase ):
         self.upload()
         for attempt in ( "/media/../settings.py", "/media/%2e%2e%2fmanage.py", "/media/site-images/", "/media/site-images/nothing.png" ):
             self.assertEqual( self.client.get( attempt ).status_code, status.HTTP_404_NOT_FOUND, attempt )
+
+    def test_a_upload_a_page_names_still_reaches_that_page( self ):
+        """The control: a picture that is on the server must survive the trip to the browser untouched,
+        or the site would quietly drop every photo the doctor picks."""
+        url = self.upload().data[ "url" ]
+        page = PageCopy.objects.create( key = "home", label = "Home page", data = { "hero": { "photo": "", "photo_url": url } } )
+        self.assertEqual( self.client.get( reverse( "page-copy-detail", args = [ page.key ] ) ).data[ "data" ][ "hero" ][ "photo_url" ], url )
+        self.assertEqual( self.client.get( reverse( "site-content" ) ).data[ "copy" ][ "home" ][ "hero" ][ "photo_url" ], url )
+
+    def test_a_page_that_names_a_picture_the_server_lost_sends_an_empty_slot( self ):
+        """A folder moved between machines, or a host with its own empty uploads, leaves a page naming
+        a file that is gone. A browser sent that address draws a broken box; a blank slot makes the
+        site show the photo it ships with and makes the panel offer the slot as empty."""
+        url = self.upload().data[ "url" ]
+        page = PageCopy.objects.create( key = "home", label = "Home page", data = { "hero": { "photo_url": url }, "list": [ url ] } )
+        os.remove( os.path.join( self.media_root, url[ len( settings.MEDIA_URL ): ] ) )
+
+        sent = self.client.get( reverse( "page-copy-detail", args = [ page.key ] ), HTTP_AUTHORIZATION = token_for( self.clerk ) ).data[ "data" ]
+        self.assertEqual( sent[ "hero" ][ "photo_url" ], "" )
+        self.assertEqual( sent[ "list" ], [ "" ] )
+        self.assertEqual( self.client.get( reverse( "site-content" ) ).data[ "copy" ][ "home" ][ "hero" ][ "photo_url" ], "" )
+        page.refresh_from_db()
+        self.assertEqual( page.data[ "hero" ][ "photo_url" ], url, "what the doctor chose is not rewritten behind his back" )
+
+    def test_a_picture_a_page_still_uses_cannot_be_deleted( self ):
+        """Deleting the file is the one way an upload can vanish while a page still points at it, so the
+        panel is told which page to fix instead of being allowed to make the hole."""
+        created = self.upload()
+        page = PageCopy.objects.create( key = "home", label = "Home page", data = { "hero": { "photo_url": created.data[ "url" ] } } )
+        detail = f"/api/cms/images/{ created.data[ 'id' ] }/"
+
+        refused = self.client.delete( detail, HTTP_AUTHORIZATION = token_for( self.clerk ) )
+        self.assertEqual( refused.status_code, status.HTTP_400_BAD_REQUEST, refused.data )
+        self.assertIn( "still used by Home page", str( refused.data[ "file" ] ) )
+        self.assertTrue( SiteImage.objects.filter( pk = created.data[ "id" ] ).exists() )
+
+        article = Post.objects.create( title = "Waiting room photo", slug = "waiting-room-photo", photo_url = created.data[ "url" ] )
+        page.data[ "hero" ][ "photo_url" ] = ""
+        page.save()
+        still_used = self.client.delete( detail, HTTP_AUTHORIZATION = token_for( self.clerk ) )
+        self.assertEqual( still_used.status_code, status.HTTP_400_BAD_REQUEST )
+        self.assertIn( "article", str( still_used.data[ "file" ] ) )
+
+        article.photo_url = ""
+        article.save()
+        self.assertEqual( self.client.delete( detail, HTTP_AUTHORIZATION = token_for( self.clerk ) ).status_code, status.HTTP_204_NO_CONTENT )
+        self.assertEqual( SiteImage.objects.count(), 0 )
 
 
 class EnsureFirstContentTests( APITestCase ):

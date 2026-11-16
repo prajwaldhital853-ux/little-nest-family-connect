@@ -1,3 +1,4 @@
+import json
 import mimetypes
 import os
 import re
@@ -30,6 +31,7 @@ from .serializers import (
     PublicationSerializer,
     SiteImageSerializer,
 )
+from .validate import drop_missing_uploads
 
 WRITE_FIELDS = [ "status", "order", "title", "slug", "topic", "excerpt", "minutes", "blocks", "body", "photo", "photo_url",
                  "photo_alt", "kind", "source", "url", "poster_url", "blurb", "authors", "venue", "year", "link",
@@ -231,8 +233,7 @@ class PageCopyViewSet( viewsets.ModelViewSet ):
 
 
 class SiteImageViewSet( viewsets.ModelViewSet ):
-    """Pictures the panel uploads. A page names one by its url, and deleting one never leaves
-    a hole: the site falls back to the bundled photo it used before."""
+    """Pictures the panel uploads. A page names one by its url."""
 
     permission_classes = [ IsAdminOrReadOnly ]
     serializer_class = SiteImageSerializer
@@ -242,6 +243,21 @@ class SiteImageViewSet( viewsets.ModelViewSet ):
 
     def perform_create( self, serializer ):
         serializer.save( uploaded_by = self.request.user )
+
+    def perform_destroy( self, instance ):
+        """A picture a page still names cannot be deleted out from under it.
+
+        Removing the file is the one way an upload can vanish without the doctor choosing to stop
+        using it, and the page he then opens shows a hole instead of a picture.
+        """
+
+        name = instance.file.name
+        if name:
+            users = [ page.label for page in PageCopy.objects.all() if name in json.dumps( page.data or {}, default = str ) ]
+            users += [ f'the article "{ title }"' for title in Post.objects.filter( photo_url__contains = name ).values_list( "title", flat=True ) ]
+            if users:
+                raise ValidationError({ "file": f"This picture is still used by { ', '.join( users[: 3 ] ) }. Choose another one there first." })
+        super().perform_destroy( instance )
 
 
 DRAFT_COUNTS = [ ( "posts", Post ), ( "media", MediaItem ), ( "press", PressArticle ), ( "publications", Publication ), ( "faqs", Faq ) ]
@@ -352,7 +368,7 @@ class SiteContentView( APIView ):
         copy_rows = PageCopy.objects.all()
         if not request.user.is_staff:
             copy_rows = copy_rows.filter( published = True )
-        copy = { page.key: page.data for page in copy_rows }
+        copy = { page.key: drop_missing_uploads( page.data ) for page in copy_rows }
 
         return Response( {
             "posts": posts,
